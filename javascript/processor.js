@@ -32,7 +32,6 @@ var container = rhea.create_container();
 
 container.on("connection_open", function (context) {
     context.connection.open_receiver(address);
-    console.log(id + ": Created receiver for source address '" + address + "'");
 });
 
 container.on("message", function (context) {
