@@ -28,7 +28,7 @@ var id = process.argv[5];
 
 var rhea = require("rhea");
 
-var container = rhea.create_container();
+var container = rhea.create_container({id: id});
 
 container.on("connection_open", function (context) {
     context.connection.open_receiver(address);
@@ -37,9 +37,9 @@ container.on("connection_open", function (context) {
 container.on("message", function (context) {
     var request = context.message;
 
-    console.log(id + ": Received request '" + request.body + "'");
+    console.log(container.id + ": Received request '" + request.body + "'");
 
-    var response_body = request.body.toUpperCase() + " [" + id + "]";
+    var response_body = request.body.toUpperCase() + " [" + container.id + "]";
     
     var response = {
         to: request.reply_to,
@@ -49,7 +49,7 @@ container.on("message", function (context) {
 
     context.connection.send(response);
 
-    console.log(id + ": Sent response '" + response_body + "'");
+    console.log(container.id + ": Sent response '" + response_body + "'");
 });
 
 container.connect({username: "anonymous", host: host, port: port});
