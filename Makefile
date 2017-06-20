@@ -1,5 +1,5 @@
 .PHONY: test
 test:
-	cd cpp && ./test.sh
-	cd javascript && ./test.sh
-	cd python && ./test.sh
+	cd qpid-proton-cpp && ./test.sh
+	cd qpid-proton-python && ./test.sh
+	cd rhea && ./test.sh
