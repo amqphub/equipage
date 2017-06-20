@@ -46,15 +46,15 @@ class Handler(MessagingHandler):
         
         print("{}: Received request '{}'".format(id_, request.body))
 
-        response_body = "{} [{}]".format(request.body.upper(), id_)
+        body = "{} [{}]".format(request.body.upper(), id_)
 
-        response = Message(response_body)
+        response = Message(body)
         response.address = request.reply_to
         response.correlation_id = request.correlation_id
 
         self.sender.send(response)
         
-        print("{}: Sent response '{}'".format(id_, response_body))
+        print("{}: Sent response '{}'".format(id_, response.body))
         
 if __name__ == "__main__":
     host = sys.argv[1];

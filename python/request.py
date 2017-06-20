@@ -33,7 +33,7 @@ class Handler(MessagingHandler):
 
         self.address = address
         self.data = data
-        
+
         self.sender = None
         self.receiver = None
 
@@ -42,19 +42,21 @@ class Handler(MessagingHandler):
         self.receiver = event.container.create_receiver(event.connection, None, dynamic=True)
 
     def on_link_opened(self, event):
-        if event.receiver == self.receiver:
-            request = Message(unicode(self.data))
-            request.reply_to = self.receiver.remote_source.address
+        if event.receiver != self.receiver:
+            return
 
-            self.sender.send(request)
+        request = Message(unicode(self.data))
+        request.reply_to = self.receiver.remote_source.address
 
-            print("request.py: Sent request '{}'".format(request.body))
+        self.sender.send(request)
+
+        print("request.py: Sent request '{}'".format(request.body))
 
     def on_message(self, event):
         print("request.py: Received response '{}'".format(event.message.body))
-        
+
         event.connection.close()
-        
+
 if __name__ == "__main__":
     host = sys.argv[1];
     port = sys.argv[2];
@@ -62,7 +64,7 @@ if __name__ == "__main__":
     data = sys.argv[4];
 
     domain = "{}:{}".format(host, port)
-    
+
     container = Container(Handler(address, data))
     container.connect(domain, allowed_mechs=b"ANONYMOUS")
     container.run()

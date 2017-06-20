@@ -39,17 +39,17 @@ container.on("message", function (context) {
 
     console.log(container.id + ": Received request '" + request.body + "'");
 
-    var response_body = request.body.toUpperCase() + " [" + container.id + "]";
+    var body = request.body.toUpperCase() + " [" + container.id + "]";
     
     var response = {
         to: request.reply_to,
-        body: response_body,
+        body: body,
         correlation_id: request.correlation_id
     };
 
     context.connection.send(response);
 
-    console.log(container.id + ": Sent response '" + response_body + "'");
+    console.log(container.id + ": Sent response '" + response.body + "'");
 });
 
 container.connect({username: "anonymous", host: host, port: port});
