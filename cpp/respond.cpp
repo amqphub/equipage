@@ -38,10 +38,7 @@
 #include <string>
 
 struct handler : public proton::messaging_handler {
-    std::string host;
-    std::string port;
     std::string address;
-    std::string id;
 
     proton::receiver receiver;
     proton::sender sender;

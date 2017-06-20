@@ -46,7 +46,6 @@ struct handler : public proton::messaging_handler {
         sender = conn.open_sender(address);
 
         proton::receiver_options opts;
-
         opts.source(proton::source_options().dynamic(true));
 
         receiver = conn.open_receiver("", opts);
