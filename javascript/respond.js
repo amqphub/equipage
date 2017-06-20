@@ -21,12 +21,11 @@
 
 "use strict";
 
-var host = process.argv[2];
-var port = process.argv[3];
-var address = process.argv[4];
-var id = process.argv[5];
-
 var rhea = require("rhea");
+
+var server = process.argv[2];
+var address = process.argv[3];
+var id = process.argv[4];
 
 var container = rhea.create_container({id: id});
 
@@ -51,5 +50,7 @@ container.on("message", function (context) {
 
     console.log(container.id + ": Sent response '" + response.body + "'");
 });
+
+var [host, port] = server.split(":", 2);
 
 container.connect({username: "anonymous", host: host, port: port});

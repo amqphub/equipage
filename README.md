@@ -1,4 +1,4 @@
-# Job queue example clients
+# Messaging examples
 
 ## Implementations
 
@@ -14,5 +14,5 @@
 
 ## Arguments
 
-    request HOST PORT ADDRESS REQUEST-DATA
-    respond HOST PORT ADDRESS CONTAINER-ID
+    request SERVER ADDRESS REQUEST-DATA
+    respond SERVER ADDRESS CONTAINER-ID

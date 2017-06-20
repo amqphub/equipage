@@ -2,13 +2,14 @@
 
 set -e
 
-host=amqp.zone
-port=5672
+server=amqp.zone
 address=jobs
 
-node respond.js $host $port $address respond.js-0 &
-processor_pid=$!
+npm install rhea
 
-trap "kill $processor_pid" EXIT
+node respond.js $server $address respond.js-0 &
+respond_pid=$!
 
-node request.js $host $port $address abc
+trap "kill $respond_pid" EXIT
+
+node request.js $server $address abc

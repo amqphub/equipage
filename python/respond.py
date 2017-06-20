@@ -57,14 +57,11 @@ class Handler(MessagingHandler):
         print("{}: Sent response '{}'".format(id_, response.body))
         
 if __name__ == "__main__":
-    host = sys.argv[1];
-    port = sys.argv[2];
-    address = sys.argv[3];
-    id_ = sys.argv[4];
+    server = sys.argv[1];
+    address = sys.argv[2];
+    id_ = sys.argv[3];
 
-    domain = "{}:{}".format(host, port)
-    
     container = Container(Handler(address))
     container.container_id = id_
-    container.connect(domain, allowed_mechs=b"ANONYMOUS")
+    container.connect(server, allowed_mechs=b"ANONYMOUS")
     container.run()

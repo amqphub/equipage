@@ -68,21 +68,18 @@ struct handler : public proton::messaging_handler {
 };
 
 int main(int argc, char** argv) {
-    std::string host = argv[1];
-    std::string port = argv[2];
+    std::string server = argv[1];
 
     handler h;
-    h.address = argv[3];
-    h.data = argv[4];
+    h.address = argv[2];
+    h.data = argv[3];
 
     proton::default_container container(h);
-
-    std::string domain = host + ":" + port;
 
     proton::connection_options opts;
     opts.sasl_allowed_mechs("ANONYMOUS");
 
-    container.connect(domain, opts);
+    container.connect(server, opts);
     container.run();
 
     return 0;

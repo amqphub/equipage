@@ -58,13 +58,10 @@ class Handler(MessagingHandler):
         event.connection.close()
 
 if __name__ == "__main__":
-    host = sys.argv[1];
-    port = sys.argv[2];
-    address = sys.argv[3];
-    data = sys.argv[4];
-
-    domain = "{}:{}".format(host, port)
+    server = sys.argv[1];
+    address = sys.argv[2];
+    data = sys.argv[3];
 
     container = Container(Handler(address, data))
-    container.connect(domain, allowed_mechs=b"ANONYMOUS")
+    container.connect(server, allowed_mechs=b"ANONYMOUS")
     container.run()

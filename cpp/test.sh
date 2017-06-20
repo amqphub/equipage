@@ -2,15 +2,14 @@
 
 set -e
 
-host=amqp.zone
-port=5672
+server=amqp.zone
 address=jobs
 
 make
 
-./respond $host $port $address respond.cpp-0 &
-processor_pid=$!
+./respond $server $address respond.cpp-0 &
+respond_pid=$!
 
-trap "kill $processor_pid" EXIT
+trap "kill $respond_pid" EXIT
 
-./request $host $port $address abc
+./request $server $address abc

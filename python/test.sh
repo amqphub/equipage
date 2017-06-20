@@ -2,13 +2,12 @@
 
 set -e
 
-host=amqp.zone
-port=5672
+server=amqp.zone
 address=jobs
 
-python respond.py $host $port $address respond.py-0 &
-processor_pid=$!
+python respond.py $server $address respond.py-0 &
+respond_pid=$!
 
-trap "kill $processor_pid" EXIT
+trap "kill $respond_pid" EXIT
 
-python request.py $host $port $address abc
+python request.py $server $address abc
