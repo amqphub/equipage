@@ -5,7 +5,7 @@ set -e
 server=amqp.zone
 address=jobs
 
-npm install rhea
+npm install
 
 node respond.js $server $address respond.js-0 &
 respond_pid=$!
