@@ -6,7 +6,7 @@ host=amqp.zone
 port=5672
 address=jobs
 
-node processor.js $host $port $address p1 &
+node respond.js $host $port $address respond.js-0 &
 processor_pid=$!
 
 trap "kill $processor_pid" EXIT

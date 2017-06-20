@@ -44,11 +44,11 @@ container.on("receiver_open", function (context) {
     
     sender.send(request);
 
-    console.log("Sent request '" + request.body + "'");
+    console.log("request.js: Sent request '" + request.body + "'");
 });
 
 container.on("message", function (context) {
-    console.log("Received response '" + context.message.body + "'");
+    console.log("request.js: Received response '" + context.message.body + "'");
 
     context.connection.close();
 });

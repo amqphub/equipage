@@ -48,10 +48,10 @@ class Handler(MessagingHandler):
 
             self.sender.send(request)
 
-            print("Sent request '{}'".format(request.body))
+            print("request.py: Sent request '{}'".format(request.body))
 
     def on_message(self, event):
-        print("Received response '{}'".format(event.message.body))
+        print("request.py: Received response '{}'".format(event.message.body))
         
         event.connection.close()
         
