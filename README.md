@@ -2,17 +2,17 @@
 
 ## Implementations
 
-    cpp/
+    qpid-proton-cpp/
       request.cpp
       respond.cpp
-    javascript/
-      request.js
-      respond.js
-    python/
+    qpid-proton-python/
       request.py
       respond.py
+    rhea/
+      request.js
+      respond.js
 
-## Arguments
+## Standard arguments
 
     request SERVER ADDRESS REQUEST-DATA
     respond SERVER ADDRESS CONTAINER-ID
