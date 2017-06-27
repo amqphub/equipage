@@ -32,7 +32,7 @@ class Handler(MessagingHandler):
         super(Handler, self).__init__()
 
         self.address = address
-        
+
         self.sender = None
         self.receiver = None
 
@@ -43,7 +43,7 @@ class Handler(MessagingHandler):
     def on_message(self, event):
         request = event.message
         id_ = event.container.container_id
-        
+
         print("{}: Received request '{}'".format(id_, request.body))
 
         body = "{} [{}]".format(request.body.upper(), id_)
@@ -53,13 +53,22 @@ class Handler(MessagingHandler):
         response.correlation_id = request.correlation_id
 
         self.sender.send(response)
-        
+
         print("{}: Sent response '{}'".format(id_, response.body))
-        
+
 if __name__ == "__main__":
     server = sys.argv[1];
     address = sys.argv[2];
     id_ = sys.argv[3];
+    tls_enabled = False
+
+    try:
+        tls_enabled = int(sys.argv[4]) == 1
+    except:
+        pass
+
+    if tls_enabled:
+        server = "amqps://" + server
 
     container = Container(Handler(address))
     container.container_id = id_

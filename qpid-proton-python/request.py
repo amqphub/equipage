@@ -58,9 +58,18 @@ class Handler(MessagingHandler):
         event.connection.close()
 
 if __name__ == "__main__":
-    server = sys.argv[1];
-    address = sys.argv[2];
-    data = sys.argv[3];
+    server = sys.argv[1]
+    address = sys.argv[2]
+    data = sys.argv[3]
+    tls_enabled = False
+
+    try:
+        tls_enabled = int(sys.argv[4]) == 1
+    except:
+        pass
+
+    if tls_enabled:
+        server = "amqps://" + server
 
     container = Container(Handler(address, data))
     container.connect(server, allowed_mechs=b"ANONYMOUS")
