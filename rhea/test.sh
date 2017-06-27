@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-set -ex
+set -e
 
 npm install
 

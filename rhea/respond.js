@@ -29,7 +29,7 @@ var id = process.argv[4];
 var tls_enabled = false;
 
 if (process.argv.length === 6) {
-    tls_enabled = process.argv[5] === 1;
+    tls_enabled = parseInt(process.argv[5]) === 1;
 }
 
 var container = rhea.create_container({id: id});
