@@ -26,6 +26,11 @@ var rhea = require("rhea");
 var server = process.argv[2];
 var address = process.argv[3];
 var id = process.argv[4];
+var tls_enabled = false;
+
+if (process.argv.length === 6) {
+    tls_enabled = process.argv[5] === 1;
+}
 
 var container = rhea.create_container({id: id});
 
@@ -52,5 +57,16 @@ container.on("message", function (context) {
 });
 
 var [host, port] = server.split(":", 2);
+var opts = {};
 
-container.connect({username: "anonymous", host: host, port: port});
+opts.username = "anonymous";
+opts.host = host;
+opts.port = port;
+
+if (tls_enabled) {
+    opts.transport = "tls";
+    opts.servername = host;
+    opts.rejectUnauthorized = false;
+}
+
+container.connect(opts);
