@@ -50,11 +50,11 @@ struct handler : public proton::messaging_handler {
 
     void on_message(proton::delivery& dlv, proton::message& request) override {
         std::cout << dlv.container().id() << ": Received request '" << request.body() << "'" << std::endl;
-        
+
         std::string body = proton::get<std::string>(request.body());
         std::transform(body.begin(), body.end(), body.begin(), ::toupper);
         body += " [" + dlv.container().id() + "]";
-        
+
         proton::message response(body);
         response.to(request.reply_to());
         response.correlation_id(request.correlation_id());
@@ -71,6 +71,16 @@ int main(int argc, char** argv) {
 
     handler h;
     h.address = argv[2];
+
+    bool tls_enabled = false;
+
+    if (argc == 5) {
+        tls_enabled = std::stoi(argv[4]) == 1;
+    }
+
+    if (tls_enabled) {
+        server = "amqps://" + server;
+    }
 
     proton::default_container container(h, id);
 

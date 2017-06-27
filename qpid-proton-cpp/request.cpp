@@ -74,6 +74,16 @@ int main(int argc, char** argv) {
     h.address = argv[2];
     h.data = argv[3];
 
+    bool tls_enabled = false;
+
+    if (argc == 5) {
+        tls_enabled = std::stoi(argv[4]) == 1;
+    }
+
+    if (tls_enabled) {
+        server = "amqps://" + server;
+    }
+
     proton::default_container container(h);
 
     proton::connection_options opts;
