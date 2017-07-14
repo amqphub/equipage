@@ -28,3 +28,15 @@ update-plano:
 update-rhea:
 	rm -rf node_modules/rhea
 	scripts/git-export "git@github.com:grs/rhea.git" master node_modules/rhea
+
+.PHONY: docker-build
+docker-build:
+	sudo docker build -t ssorj/messaging-examples .
+
+.PHONY: docker-run
+docker-run:
+	sudo docker run -it ssorj/messaging-examples
+
+.PHONY: docker-push
+docker-push:
+	sudo docker push ssorj/messaging-examples
