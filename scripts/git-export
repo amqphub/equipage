@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -ex
+
+URL=$1 # "http://git-wip-us.apache.org/repos/asf/qpid-proton.git" .
+BRANCH=$2
+DIR=$3
+
+DIR=$(readlink -f $DIR)
+
+mkdir -p "$DIR"
+tmpdir=$(mktemp -d)
+
+(
+    cd "$tmpdir"
+
+    git clone --bare --branch "$BRANCH" "$URL" .
+    git archive "$BRANCH" | tar -xf - -C "$DIR"
+    git rev-parse HEAD > "${DIR}.revision"
+)
+
+rm -rf "$tmpdir"
