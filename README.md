@@ -69,3 +69,14 @@ Usage: `responder ADDRESS [MAX-COUNT]`
         RESPONDER: Created receiver for source address 'amqpdemo.net/examples'
         RESPONDER: Received request message 'abcdef'
         RESPONDER: Sent response message 'ABCDEF'
+
+## To do
+
+ - Standard patterns
+   - Program naming
+     - Include topic in name?
+   - Arguments
+   - Logging
+   - test.py or make test and scripts to support it
+   - Docs for building and getting deps
+ - Each dir is an almost self-sufficient microcosm
