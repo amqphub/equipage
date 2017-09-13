@@ -54,8 +54,14 @@
    terminates them.  If the optional MAX-COUNT argument is supplied,
    they exit after the given number of messages have been received.
 
- - Each example directory is a nearly self-sufficient microcosm.
- 
+ - Each example directory can be used in isolation.  It includes all
+   the scripting or metadata it needs to build the contained examples.
+
+ - Each example program is contained in a single file, with exceptions
+   where necessary.
+
+ - Option parsing is deliberately simple, using positional arguments.
+
 ## Hello world
 
 Usage: `hello-world SERVER ADDRESS`
