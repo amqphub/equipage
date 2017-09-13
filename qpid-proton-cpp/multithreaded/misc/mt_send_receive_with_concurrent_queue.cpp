@@ -1,0 +1,190 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+#include "mt_queue.hpp"
+
+#include <proton/connection.hpp>
+#include <proton/container.hpp>
+#include <proton/message.hpp>
+#include <proton/messaging_handler.hpp>
+#include <proton/connection_options.hpp>
+#include <proton/receiver_options.hpp>
+#include <proton/sender.hpp>
+#include <proton/sender_options.hpp>
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <future>
+#include <set>
+#include <string>
+#include <iostream>
+
+typedef mt_queue<proton::message, 100>  message_queue;
+
+class client_handler : proton::messaging_handler {
+    std::string address_;
+
+    proton::connection connection_;
+    proton::sender sender_;
+    proton::receiver receiver_;
+
+    message_queue send_queue_;
+    message_queue receive_queue_;
+
+    std::atomic_bool ready_;
+    std::atomic_bool done_;
+
+    void on_connection_open(proton::connection& conn) override {
+        conn.open_sender(address_);
+        conn.open_receiver(address_);
+    }
+
+    void on_sender_open(proton::sender& s) override {
+        sender_ = s;
+    }
+
+    void on_receiver_open(proton::receiver& r) override {
+        receiver_ = r;
+        ready_ = true;
+    }
+
+    void on_sendable(proton::sender& s) override {
+        proton::message m;
+
+        while (s.credit() && send_queue_.try_pop(m)) {
+            s.send(m);
+        }
+    }
+
+    void on_message(proton::delivery& d, proton::message& m) override {
+        receive_queue_.try_push(std::move(m));
+    }
+
+    void on_connection_wake(proton::connection& c) override {
+        if (done_) {
+            c.close();
+        }
+
+        if (sender_) {
+            on_sendable(sender_);
+        }
+    }
+
+  public:
+    client_handler(proton::container& cont, const std::string& connection_url, const std::string& address)
+        : address_(address) {
+        cont.connect(connection_url, proton::connection_options().handler(*this));
+    }
+
+    void send(proton::message&& m) {
+        send_queue_.push(std::move(m));
+
+        if (ready_) {
+            connection_.wake();
+        }
+    }
+
+    proton::message receive() {
+        if (done_) {
+            return;
+        }
+        
+        return receive_queue_.pop();
+    }
+
+    void close() {
+        done_ = true;
+        connection_.wake();
+    }
+};
+
+void run_sender(const std::shared_ptr<client_handler>& h, int n) {
+    try {
+        for (int i = 0; i < n; ++i) {
+            std::string body = std::to_string(i);
+            h->send(proton::message(body));
+
+            std::cout << "Sent message " << body << std::endl;
+        }
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
+}
+
+void run_receiver(const std::shared_ptr<client_handler>& h, int n) {
+    try {
+        for (int i = 0; i < n; ++i) {
+            proton::message m = h->receive();
+            std::string body = proton::get<std::string>(m.body());
+
+            std::cout << "Received message " << body << std::endl;
+        }
+
+        h->close();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
+}
+
+int main(int argc, const char** argv) {
+    try {
+        if (argc != 4) {
+            std::cerr
+                << "Usage: mt_send_receive [CONNECTION-URL] [ADDRESS] [MESSAGE-COUNT]" << std::endl
+                << "  CONNECTION-URL: amqp://127.0.0.1" << std::endl
+                << "  ADDRESS: examples" << std::endl
+                << "  MESSAGE-COUNT: 10" << std::endl;
+            return 1;
+        }
+
+        const char* connection_url = "amqp://127.0.0.1";
+        const char* address = "examples";
+        int n = 10;
+
+        if (argc >= 2) {
+            connection_url = argv[1];
+        }
+
+        if (argc >= 3) {
+            address = argv[2];
+        }
+
+        if (argc >= 4) {
+            n = atoi(argv[3]);
+        }
+
+        proton::container container;
+        auto handler_ = std::shared_ptr<client_handler>(new client_handler(container, connection_url, address));
+
+        auto container_thread = std::thread([&]() { container.run(); });
+        auto receiver_thread = std::thread([=]() { run_receiver(handler_, n); });
+        auto sender_thread = std::thread([=]() { run_sender(handler_, n); });
+
+        receiver_thread.join();
+        sender_thread.join();
+        container_thread.join();
+
+        return 0;
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
+
+    return 1;
+}
