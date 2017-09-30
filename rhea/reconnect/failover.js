@@ -36,6 +36,11 @@ var index = -1;
 
 conn_urls = conn_urls.map(url.parse);
 
+// A function in the 'connection_details' property defines connection
+// options programatically.  It's called once for each connection
+// attempt.  Here we use each new call to connect to an alternate
+// server.
+
 conn_opts.connection_details = function() {
     index += 1;
 
