@@ -17,10 +17,8 @@
 # under the License.
 #
 
-export PYTHONPATH := python
-
 CCFLAGS := -Os -std=c++11 -lstdc++
-TARGETS := failover failover-custom
+TARGETS := failover custom-failover
 
 .PHONY: build
 build: ${TARGETS}
