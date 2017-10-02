@@ -7,13 +7,12 @@
  - "request" - Sending requests and receiving responses
  - "respond" - Receiving requests and sending responses
  - "client" - Various client operations appropriate to the topic
- - <name>-<variant> for alternate versions
-   - "-03" suffix for C++03 variants
+ - "connect" - Making a new outbound connection
 
 ## Content outline
 
  - Primary examples (in the root dir)
-   - [hello-world](#hello-world)
+   - connect
    - [send](#send)
    - [receive](#receive)
    - browse
@@ -21,11 +20,9 @@
    - [respond](#respond)
  - Reconnect and failover ("reconnect")
    - client
- - SASL authentication ("sasl")
+ - Authentication ("authentication")
    - client
- - TLS authentication and encryption ("tls")
-   - client
- - Multithreaded ("multithreaded")
+ - Multithreaded applications ("threading")
    - client
  - Error handling ("error-handling")
    - client
@@ -33,45 +30,22 @@
  - Transactions ("transactions")
  - Timers ("timers")
  - Filters ("filters")
- - Servers ("servers")
-   - receive - Works with primary send
-   - respond - Works with primary request
-   - broker
-   - proxy
-   - bridge
  - Codec ("codec")
  - Interoperating with JMS ("jms-interop")
  - IO integration ("io-integration")
 
 ## General properties
 
- - Usable as an installable test suite that can target different
-   servers.
-
- - Sending programs send one message and then exit.
+ - The most basic sending programs send one message and then exit.
 
  - By default, receiving programs keep running until the user
    terminates them.  If the optional MAX-COUNT argument is supplied,
    they exit after the given number of messages have been received.
 
- - Each example directory can be used in isolation.  It includes all
-   the scripting or metadata it needs to build the contained examples.
-
  - Each example program is contained in a single file, with exceptions
    where necessary.
 
  - Option parsing is deliberately simple, using positional arguments.
-
-## Hello world
-
-Usage: `hello-world SERVER ADDRESS`
-
-        $ python client.py amqpdemo.net examples "Hello!"
-        CLIENT: Connected to server 'amqpdemo.net'
-        CLIENT: Created sender for target address 'examples'
-        CLIENT: Created receiver for source address 'examples'
-        CLIENT: Sent message 'Hello!'
-        CLIENT: Received message 'Hello!'
 
 ## Send
 
@@ -118,7 +92,5 @@ Usage: `<server> SERVER ADDRESS [MAX-COUNT]`
 
 ## To do
 
- - Standard patterns
-   - test.py or make test and scripts to support it
-   - Docs for building and getting deps
- - multithreaded -> threading?
+ - test.py or make test and scripts to support it
+ - Docs for building and getting deps
