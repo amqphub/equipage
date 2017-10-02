@@ -19,13 +19,13 @@
  *
  */
 
-package org.apache.qpid.examples.jms;
+package net.ssorj.messaging.examples.jms;
 
 import java.lang.RuntimeException;
 import javax.jms.*;
 import javax.naming.*;
 
-public class Responder {
+public class Respond {
     public static void main(String[] args) {
         ConnectionFactory factory;
         Destination requestQueue;
