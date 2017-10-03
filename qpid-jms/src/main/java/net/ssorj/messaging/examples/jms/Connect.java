@@ -19,7 +19,7 @@
  *
  */
 
-package net.ssorj.messaging.examples.jms.authentication;
+package net.ssorj.messaging.examples.jms;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
 
@@ -27,13 +27,11 @@ import javax.jms.*;
 import javax.naming.Context;
 import java.util.Hashtable;
 
-public class Kerberos {
+public class Connect {
     public static void main(String[] args) throws Exception {
-        String authority = args[0];
-        String connUrl = "amqp://" + authority + "?amqp.saslMechanisms=GSSAPI";
-        
-        Connection conn = null;
+        String connUrl = args[0];
         ConnectionFactory connectionFactory = new JmsConnectionFactory(connUrl);
+        Connection conn = null;
 
         try {
             conn = connectionFactory.createConnection();
