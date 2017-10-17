@@ -19,74 +19,65 @@
  *
  */
 
+#include <proton/default_container.hpp>
+
 #include <proton/connection.hpp>
 #include <proton/connection_options.hpp>
 #include <proton/container.hpp>
+#include <proton/default_container.hpp>
 #include <proton/delivery.hpp>
 #include <proton/link.hpp>
 #include <proton/message.hpp>
-#include <proton/message_id.hpp>
 #include <proton/messaging_handler.hpp>
 #include <proton/thread_safe.hpp>
 #include <proton/tracker.hpp>
 #include <proton/receiver_options.hpp>
 #include <proton/source_options.hpp>
 
-#include <algorithm>
 #include <iostream>
 #include <string>
 
 struct handler : public proton::messaging_handler {
+    std::string connection_url;
     std::string address;
+    std::string message_body;
+    bool sent;
 
-    proton::receiver receiver;
-    proton::sender sender;
+    void on_container_start(proton::container& cont) override {
+        proton::connection_options opts;
+        opts.sasl_allowed_mechs("ANONYMOUS");
 
-    void on_connection_open(proton::connection& conn) override {
-        receiver = conn.open_receiver(address);
-        sender = conn.open_sender("");
+        proton::connection conn = cont.connect(connection_url, opts);
+        conn.open_sender(address);
+
+        // print("SENDER: Created sender for target address '{0}'".format(self.address))
     }
 
-    void on_message(proton::delivery& dlv, proton::message& request) override {
-        std::cout << dlv.container().id() << ": Received request '" << request.body() << "'" << std::endl;
+    void on_sendable(proton::sender& snd) override {
+        if (sent) return;
 
-        std::string body = proton::get<std::string>(request.body());
-        std::transform(body.begin(), body.end(), body.begin(), ::toupper);
-        body += " [" + dlv.container().id() + "]";
+        proton::message msg = proton::message(message_body);
 
-        proton::message response(body);
-        response.to(request.reply_to());
-        response.correlation_id(request.correlation_id());
+        snd.send(msg);
 
-        sender.send(response);
+        // print("SENDER: Sent message '{0}'".format(self.message_body))
+        //std::cout << "request.cpp: Sent request '" << request.body() << "'" << std::endl;
 
-        std::cout << dlv.container().id() << ": Sent response '" << response.body() << "'" << std::endl;
+        snd.connection().close();
+
+        sent = true;
     }
 };
 
 int main(int argc, char** argv) {
-    std::string server = argv[1];
-    std::string id = argv[3];
+    std::string connection_url = argv[1];
 
     handler h;
     h.address = argv[2];
+    h.message_body = argv[3];
 
-    bool tls_enabled = false;
+    proton::default_container container(h);
 
-    if (argc == 5) {
-        tls_enabled = std::stoi(argv[4]) == 1;
-    }
-
-    if (tls_enabled) {
-        server = "amqps://" + server;
-    }
-
-    proton::container container(h, id);
-
-    proton::connection_options opts;
-    opts.sasl_allowed_mechs("ANONYMOUS");
-
-    container.connect(server, opts);
     container.run();
 
     return 0;

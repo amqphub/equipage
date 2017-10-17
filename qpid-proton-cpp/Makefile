@@ -1,5 +1,5 @@
 CCFLAGS := -Os -std=c++11 -lstdc++
-TARGETS := request respond
+TARGETS := send request respond
 
 .PHONY: build
 build: ${TARGETS}

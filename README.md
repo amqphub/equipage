@@ -49,7 +49,7 @@
 
 ## Send
 
-Usage: `send SERVER ADDRESS MESSAGE`
+Usage: `send CONNECTION-URL ADDRESS MESSAGE`
 
         $ python send.py amqpdemo.net examples "Hello there"
         SEND: Connected to server 'amqpdemo.net'
@@ -58,7 +58,7 @@ Usage: `send SERVER ADDRESS MESSAGE`
 
 ## Receive
 
-Usage: `receive SERVER ADDRESS [MAX-COUNT]`
+Usage: `receive CONNECTION-URL ADDRESS [MAX-COUNT]`
 
         $ python receive.py amqpdemo.net examples
         RECEIVE: Connected to server 'amqpdemo.net'
@@ -67,7 +67,7 @@ Usage: `receive SERVER ADDRESS [MAX-COUNT]`
 
 ## Request
 
-Usage: `request SERVER ADDRESS MESSAGE`
+Usage: `request CONNECTION-URL ADDRESS MESSAGE`
 
         $ python request.py amqpdemo.net examples "abcdef"
         REQUEST: Connected to server 'amqpdemo.net'
@@ -78,7 +78,7 @@ Usage: `request SERVER ADDRESS MESSAGE`
 
 ## Respond
 
-Usage: `respond SERVER ADDRESS [MAX-COUNT]`
+Usage: `respond CONNECTION-URL ADDRESS [MAX-COUNT]`
 
         $ python responder.py amqpdemo.net/examples
         RESPOND: Connected to server 'amqpdemo.net'
@@ -88,7 +88,7 @@ Usage: `respond SERVER ADDRESS [MAX-COUNT]`
 
 ## Servers
 
-Usage: `<server> SERVER ADDRESS [MAX-COUNT]`
+Usage: `<server> CONNECTION-URL ADDRESS [MAX-COUNT]`
 
 ## To do
 
