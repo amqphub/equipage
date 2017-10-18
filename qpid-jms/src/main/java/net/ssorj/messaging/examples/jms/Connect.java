@@ -21,22 +21,20 @@
 
 package net.ssorj.messaging.examples.jms;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
-
-import javax.jms.*;
-import javax.naming.Context;
-import java.util.Hashtable;
 
 public class Connect {
     public static void main(String[] args) throws Exception {
         String connUrl = args[0];
-        ConnectionFactory connectionFactory = new JmsConnectionFactory(connUrl);
+        ConnectionFactory connFactory = new JmsConnectionFactory(connUrl);
         Connection conn = null;
 
         try {
-            conn = connectionFactory.createConnection();
+            conn = connFactory.createConnection();
             // XXX Need start here?
-            System.out.println("Connected!");
+            System.out.println("CONNECT: Connected to '" + connUrl + "'");
         } finally {
             if (conn != null) {
                 conn.close();

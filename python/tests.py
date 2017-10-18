@@ -25,6 +25,10 @@ from plano import *
 def open_test_session(session):
     set_message_threshold("error")
 
+def test_qpid_jms_connect(session):
+    with TestServer() as server:
+        call("qpid-jms/scripts/connect {}", server.connection_url)
+
 def test_qpid_proton_cpp_connect(session):
     with TestServer() as server:
         call("qpid-proton-cpp/build/connect {}", server.connection_url)
