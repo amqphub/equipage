@@ -30,7 +30,7 @@ container.on("connection_open", function (context) {
     console.log("Connected!");
 });
 
-var conn_url = url.parse(process.argv[2]);
+var conn_url = url.parse(process.argv[2]); // XXX Not being used anywhere
 var conn_opts = {};
 
 // An initial delay of 10 milliseconds, backing off to a max delay of

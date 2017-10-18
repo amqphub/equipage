@@ -41,7 +41,7 @@ class ConnectHandler(MessagingHandler):
 
 def main():
     try:
-        connection_url = sys.argv[1:]
+        connection_url = sys.argv[1]
     except:
         sys.exit("Usage: connect.py CONNECTION-URL")
 

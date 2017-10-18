@@ -1,11 +1,7 @@
 .PHONY: build
 build:
-	mvn package
+	if [[ ! -d target ]]; then mvn package; fi
 
 .PHONY: clean
 clean:
-	mvn clean
-
-#.PHONY: test
-#test: build
-#	java -classpath target/skylla-1.0.0-SNAPSHOT-jar-with-dependencies.jar -Djava.security.auth.login.config=src/main/resources/login.config -Dsun.security.krb5.debug=true skylla.Connect upto.nogood.industries
+	rm -rf target

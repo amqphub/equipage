@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	npm install
+	if [[ ! -d node_modules ]]; then npm install; fi
 
 .PHONY: clean
 clean:

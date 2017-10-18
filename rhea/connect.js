@@ -26,34 +26,17 @@ var url = require("url");
 
 var container = rhea.create_container();
 
+var connection_url = url.parse(process.argv[2]);
+
 container.on("connection_open", function (context) {
-    console.log("Connected!");
+    console.log("CONNECT: Connected to '" + connection_url.href + "'");
+
+    context.connection.close();
 });
 
-var conn_urls = process.argv.slice(2);
-var conn_opts = {};
-var index = -1;
-
-conn_urls = conn_urls.map(url.parse);
-
-// A function in the 'connection_details' property defines connection
-// options programatically.  It's called once for each connection
-// attempt.  Here we use each new call to connect to an alternate
-// server.
-
-conn_opts.connection_details = function() {
-    index += 1;
-
-    if (index == conn_urls.length) index = 0;
-    
-    var opts = {
-        "host": conn_urls[index].hostname,
-        "port": conn_urls[index].port || 5672
-    };
-
-    console.log(opts);
-    
-    return opts;
+var opts = {
+    "host": connection_url.hostname,
+    "port": connection_url.port || 5672
 };
 
-container.connect(conn_opts);
+container.connect(opts);

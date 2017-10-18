@@ -28,38 +28,27 @@
 #include <proton/link.hpp>
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
-#include <proton/thread_safe.hpp>
 #include <proton/tracker.hpp>
-#include <proton/receiver_options.hpp>
-#include <proton/source_options.hpp>
 
 #include <iostream>
 #include <string>
 
 struct connect_handler : public proton::messaging_handler {
-    std::string connection_url_;
+    std::string conn_url_;
 
     void on_container_start(proton::container& cont) override {
-        //proton::connection_options opts;
-        //opts.sasl_allowed_mechs("ANONYMOUS");
-
-        cont.connect(connection_url_); //, opts);
-
-        // print("SENDER: Created sender for target address '{0}'".format(self.address))
+        cont.connect(conn_url_); //, opts);
     }
 
     void on_connection_open(proton::connection& conn) override {
-        std::cout << "CONNECT: Connected to '" << connection_url_ << "'" << std::endl;
+        std::cout << "CONNECT: Connected to '" << conn_url_ << "'" << std::endl;
         conn.close();
     }
 };
 
 int main(int argc, char** argv) {
-    std::string connection_url = argv[1];
-
-    handler h;
-    h.address = argv[2];
-    h.message_body = argv[3];
+    connect_handler h;
+    h.conn_url_ = argv[1];
 
     proton::container container(h);
 
