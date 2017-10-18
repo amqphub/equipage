@@ -1,5 +1,3 @@
-default: build
-
 .PHONY: build
 build:
 	mvn package
