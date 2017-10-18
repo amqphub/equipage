@@ -52,7 +52,7 @@
 Usage: `send CONNECTION-URL ADDRESS MESSAGE`
 
         $ python send.py amqpdemo.net examples "Hello there"
-        SEND: Connected to server 'amqpdemo.net'
+        SEND: Connected to 'amqpdemo.net'
         SEND: Created sender for target address 'examples'
         SEND: Sent message 'Hello there'
 
@@ -61,7 +61,7 @@ Usage: `send CONNECTION-URL ADDRESS MESSAGE`
 Usage: `receive CONNECTION-URL ADDRESS [MAX-COUNT]`
 
         $ python receive.py amqpdemo.net examples
-        RECEIVE: Connected to server 'amqpdemo.net'
+        RECEIVE: Connected to 'amqpdemo.net'
         RECEIVE: Created receiver for source address 'examples'
         RECEIVE: Received message 'Hello there'
 
@@ -70,7 +70,7 @@ Usage: `receive CONNECTION-URL ADDRESS [MAX-COUNT]`
 Usage: `request CONNECTION-URL ADDRESS MESSAGE`
 
         $ python request.py amqpdemo.net examples "abcdef"
-        REQUEST: Connected to server 'amqpdemo.net'
+        REQUEST: Connected to 'amqpdemo.net'
         REQUEST: Created sender for target address 'examples'
         REQUEST: Created receiver using a dynamic reply address # XXX
         REQUEST: Sent request message 'abcdef'
@@ -81,7 +81,7 @@ Usage: `request CONNECTION-URL ADDRESS MESSAGE`
 Usage: `respond CONNECTION-URL ADDRESS [MAX-COUNT]`
 
         $ python responder.py amqpdemo.net/examples
-        RESPOND: Connected to server 'amqpdemo.net'
+        RESPOND: Connected to 'amqpdemo.net'
         RESPOND: Created receiver for source address 'examples'
         RESPOND: Received request message 'abcdef'
         RESPOND: Sent response message 'ABCDEF'

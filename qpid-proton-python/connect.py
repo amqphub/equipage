@@ -22,53 +22,30 @@ from __future__ import print_function
 
 import sys
 
-from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
 
-class SendHandler(MessagingHandler):
-    def __init__(self, connection_url, address, message_body):
-        super(SendHandler, self).__init__()
+class ConnectHandler(MessagingHandler):
+    def __init__(self, connection_url):
+        super(ConnectHandler, self).__init__()
 
         self.connection_url = connection_url
-        self.address = address
-        self.message_body = message_body
-
-        self.sent = False
     
     def on_start(self, event):
         event.container.connect(self.connection_url)
 
     def on_connection_opened(self, event):
-        print("SEND: Connected to '{0}'".format(self.connection_url))
-        
-        event.container.create_sender(self.address)
+        print("CONNECT: Connected to '{0}'".format(self.connection_url))
 
-    def on_link_opened(self, event):
-        print("SEND: Created sender for target address '{0}'".format(self.address))
-
-    def on_sendable(self, event):
-        if self.sent:
-            return
-
-        message = Message(self.message_body)
-        event.sender.send(message)
-
-        print("SEND: Sent message '{0}'".format(self.message_body))
-        
         event.connection.close()
-
-        self.sent = True
-
-    # on_accepted
 
 def main():
     try:
-        connection_url, address, message_body = sys.argv[1:]
+        connection_url = sys.argv[1:]
     except:
-        sys.exit("Usage: send.py CONNECTION-URL ADDRESS MESSAGE")
+        sys.exit("Usage: connect.py CONNECTION-URL")
 
-    handler = SendHandler(connection_url, address, message_body)
+    handler = ConnectHandler(connection_url)
     container = Container(handler)
     container.run()
 
