@@ -11,32 +11,27 @@ build:
 	cd jms && mvn package
 	mv jms/target build/jms/target
 
-.PHONY: test
-test:
-	py.test -v --capture=no python/tests.py
+# .PHONY: test
+# test:
+# 	py.test -v --capture=no python/tests.py
 
 .PHONY: clean
 clean:
 	find python -type f -name \*.pyc -delete
 	find . -type d -name __pycache__ -delete
 
-.PHONY: update-plano
-update-plano:
-	curl "https://raw.githubusercontent.com/ssorj/plano/master/python/plano.py" -o python/plano.py
+# .PHONY: docker-build
+# docker-build:
+# 	sudo docker build -t ssorj/messaging-examples .
 
-.PHONY: update-rhea
-update-rhea:
-	rm -rf node_modules/rhea
-	scripts/git-export "git@github.com:grs/rhea.git" master node_modules/rhea
+# .PHONY: docker-run
+# docker-run:
+# 	sudo docker run -it ssorj/messaging-examples
 
-.PHONY: docker-build
-docker-build:
-	sudo docker build -t ssorj/messaging-examples .
+# .PHONY: docker-push
+# docker-push:
+# 	sudo docker push ssorj/messaging-examples
 
-.PHONY: docker-run
-docker-run:
-	sudo docker run -it ssorj/messaging-examples
-
-.PHONY: docker-push
-docker-push:
-	sudo docker push ssorj/messaging-examples
+.PHONY: update-%
+update-%:
+	curl "https://raw.githubusercontent.com/ssorj/$*/master/python/$*.py" -o python/$*.py

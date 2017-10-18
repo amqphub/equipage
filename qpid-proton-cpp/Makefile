@@ -1,12 +1,14 @@
-CCFLAGS := -Os -std=c++11 -lstdc++
-TARGETS := send request respond
+CCFLAGS := -Os -std=c++11 -lstdc++ -lpthread -lqpid-proton -lqpid-proton-cpp
+SOURCES := $(shell find . -name \*.cpp)
+TARGETS := ${SOURCES:./%.cpp=build/%}
 
 .PHONY: build
 build: ${TARGETS}
 
 .PHONY: clean
 clean:
-	rm -f ${TARGETS}
+	rm -rf build
 
-%: %.cpp
-	${CXX} $< -o $@ ${CCFLAGS} -lqpid-proton -lqpid-proton-cpp
+build/%: %.cpp
+	@mkdir -p ${@D}
+	${CXX} $< -o $@ ${CCFLAGS}

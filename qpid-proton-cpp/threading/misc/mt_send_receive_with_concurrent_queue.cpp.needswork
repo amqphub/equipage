@@ -102,10 +102,6 @@ class client_handler : proton::messaging_handler {
     }
 
     proton::message receive() {
-        if (done_) {
-            return;
-        }
-        
         return receive_queue_.pop();
     }
 

@@ -24,7 +24,6 @@
 #include <proton/connection.hpp>
 #include <proton/connection_options.hpp>
 #include <proton/container.hpp>
-#include <proton/default_container.hpp>
 #include <proton/delivery.hpp>
 #include <proton/link.hpp>
 #include <proton/message.hpp>
@@ -76,7 +75,7 @@ int main(int argc, char** argv) {
     h.address = argv[2];
     h.message_body = argv[3];
 
-    proton::default_container container(h);
+    proton::container container(h);
 
     container.run();
 
