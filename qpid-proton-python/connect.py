@@ -36,14 +36,10 @@ class ConnectHandler(MessagingHandler):
 
     def on_connection_opened(self, event):
         print("CONNECT: Connected to '{0}'".format(self.connection_url))
-
         event.connection.close()
 
 def main():
-    try:
-        connection_url = sys.argv[1]
-    except:
-        sys.exit("Usage: connect.py CONNECTION-URL")
+    connection_url = sys.argv[1]
 
     handler = ConnectHandler(connection_url)
     container = Container(handler)

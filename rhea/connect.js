@@ -30,7 +30,6 @@ var connection_url = url.parse(process.argv[2]);
 
 container.on("connection_open", function (context) {
     console.log("CONNECT: Connected to '" + connection_url.href + "'");
-
     context.connection.close();
 });
 
