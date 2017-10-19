@@ -27,18 +27,7 @@ def main():
 
     connection_url = ARGS[1]
 
-    if not connection_url.startswith("amqp"):
-        connection_url = "amqp:" + connection_url
-
-    # params = (
-    #     "amqp.saslMechanisms=ANONYMOUS",
-    # )
-    # url = "amqp://{}:{}?{}".format(host, port, "&".join(params))
-
     args = ["/usr/bin/env", "--", "java"]
-
-    # if "JAVA_OPTS" in ENV:
-    #     args += shlex.split(ENV["JAVA_OPTS"])
 
     args += [
         "-Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory",
