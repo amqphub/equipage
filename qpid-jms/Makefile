@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	if [[ ! -d target ]]; then mvn package; fi
+	mvn package
 
 .PHONY: clean
 clean:

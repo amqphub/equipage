@@ -9,10 +9,6 @@ build: ${TARGETS}
 clean:
 	rm -rf build
 
-#build/threading/client-03: threading/client-03.cpp
-#	@mkdir -p ${@D}
-#	${CXX} $< -o $@ -Os -std=c++03 -lpthread -lqpid-proton-cpp
-
 build/%: %.cpp
 	@mkdir -p ${@D}
 	${CXX} $< -o $@ ${CCFLAGS}

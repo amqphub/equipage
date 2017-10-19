@@ -21,35 +21,42 @@
 
 package net.ssorj.messaging.examples.jms;
 
-import javax.jms.*;
-import javax.naming.*;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class Send {
     public static void main(String[] args) throws Exception {
-        Context context = new InitialContext();
-        ConnectionFactory factory = (ConnectionFactory) context.lookup("example");
-        Destination queue = (Destination) context.lookup("example1");
-        Connection connection = factory.createConnection("guest", "guest");
-
-        connection.start();
-
-        try {
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer messageProducer = session.createProducer(queue);
-
-            while (true) {
-                System.out.print("sender> ");
-                
-                String line = System.console().readLine();
-                TextMessage message = session.createTextMessage(line);
+        String connUrl = args[0];
+        String address = args[1];
+        String messageBody = args[2];
             
-                messageProducer.send(message,
-                                     DeliveryMode.NON_PERSISTENT,
-                                     Message.DEFAULT_PRIORITY,
-                                     Message.DEFAULT_TIME_TO_LIVE);
-            }
+        ConnectionFactory connFactory = new JmsConnectionFactory(connUrl);
+        Connection conn = connFactory.createConnection();
+
+        System.out.println("SEND: Connected to '" + connUrl + "'");
+            
+        conn.start();
+        
+        try {
+            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(address);
+            MessageProducer producer = session.createProducer(queue);
+
+            System.out.println("SEND: Created producer for target address '" + address + "'");
+            
+            TextMessage message = session.createTextMessage(messageBody);
+
+            producer.send(message);
+
+            System.out.println("SEND: Sent message '" + messageBody + "'");
         } finally {
-            connection.close();
+            conn.close();
         }
     }
 }

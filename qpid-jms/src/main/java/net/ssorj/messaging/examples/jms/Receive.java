@@ -21,29 +21,42 @@
 
 package net.ssorj.messaging.examples.jms;
 
-import javax.jms.*;
-import javax.naming.*;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
+import javax.jms.MessageConsumer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class Receive {
     public static void main(String[] args) throws Exception {
-        Context context = new InitialContext();
-        ConnectionFactory factory = (ConnectionFactory) context.lookup("example");
-        Destination queue = (Destination) context.lookup("example1");
-        Connection connection = factory.createConnection("guest", "guest");
+        String connUrl = args[0];
+        String address = args[1];
+        int count = Integer.parseInt(args[2]);
 
-        connection.start();
+        ConnectionFactory connFactory = new JmsConnectionFactory(connUrl);
+        Connection conn = connFactory.createConnection();
+
+        System.out.println("RECEIVE: Connected to '" + connUrl + "'");
+
+        conn.start();
 
         try {
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageConsumer messageConsumer = session.createConsumer(queue);
+            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Queue queue = session.createQueue(address);
+            MessageConsumer consumer = session.createConsumer(queue);
 
-            while (true) {
-                TextMessage message = (TextMessage) messageConsumer.receive();
+            System.out.println("RECEIVE: Created consumer for source address '" + address + "'");
 
-                System.out.println("receiver: " + message.getText());
+            for (int i = 0; i < count; i++) {
+                TextMessage message = (TextMessage) consumer.receive();
+
+                System.out.println("RECEIVE: Received message '" + message.getText() + "'");
             }
         } finally {
-            connection.close();
+            conn.close();
         }
     }
 }

@@ -25,19 +25,20 @@ def main():
 
     jar_file = join("qpid-jms", "target", "messaging-examples-jms-1.0.0-SNAPSHOT-jar-with-dependencies.jar")
 
-    connection_url = ARGS[1]
+    class_name = ARGS[1]
+    connection_url = ARGS[2]
 
-    args = ["/usr/bin/env", "--", "java"]
+    if connection_url.startswith("//"):
+        connection_url = "amqp:" + connection_url
 
-    args += [
-        "-Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory",
-        "-Dorg.slf4j.simpleLogger.defaultLogLevel=warn",
+    args = [
+        "/usr/bin/env", "--", "java",
         "-classpath", jar_file,
-        "net.ssorj.messaging.examples.jms.Connect",
+        class_name,
         connection_url,
     ]
 
-    args += ARGS[1:]
+    args += ARGS[3:]
 
     exec_process(args)
 

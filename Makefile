@@ -10,7 +10,7 @@ build:
 
 .PHONY: test
 test: build
-	scripts/run-tests --verbose
+	scripts/run-tests
 
 .PHONY: clean
 clean:

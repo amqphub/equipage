@@ -29,16 +29,14 @@ public class Connect {
     public static void main(String[] args) throws Exception {
         String connUrl = args[0];
         ConnectionFactory connFactory = new JmsConnectionFactory(connUrl);
-        Connection conn = null;
+        Connection conn = connFactory.createConnection();
 
+        conn.start();
+        
         try {
-            conn = connFactory.createConnection();
-            // XXX Need start here?
             System.out.println("CONNECT: Connected to '" + connUrl + "'");
         } finally {
-            if (conn != null) {
-                conn.close();
-            }
+            conn.close();
         }
     }
 }

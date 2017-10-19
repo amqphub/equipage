@@ -27,8 +27,13 @@ def open_test_session(session):
 
 def test_qpid_jms_connect(session):
     with TestServer() as server:
-        call("qpid-jms/scripts/connect {}", server.connection_url)
+        call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Connect {}", server.connection_url)
 
+def test_qpid_jms_send_and_receive(session):
+    with TestServer() as server:
+        call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Send {} examples abc", server.connection_url)
+        call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Receive {} examples 1", server.connection_url)
+        
 def test_qpid_proton_cpp_connect(session):
     with TestServer() as server:
         call("qpid-proton-cpp/build/connect {}", server.connection_url)
@@ -46,7 +51,7 @@ class TestServer(object):
         port = random_port()
 
         self.proc = start_process("qbroker --verbose --port {}", port)
-        self.proc.connection_url = "amqp://127.0.0.1:{}".format(port) # XXX C++ fails with amqp: prefix here
+        self.proc.connection_url = "//127.0.0.1:{}".format(port) # XXX C++ fails with amqp: prefix here
 
     def __enter__(self):
         return self.proc
