@@ -22,46 +22,59 @@ from __future__ import print_function
 
 import sys
 
-from proton import *
-from proton.handlers import *
-from proton.reactor import *
+from proton.handlers import MessagingHandler
+from proton.reactor import Container
 
-class Receiver(MessagingHandler):
-    def __init__(self, address, max_count):
-        super(Receiver, self).__init__()
+class ReceiveHandler(MessagingHandler):
+    def __init__(self, conn_url, address, count):
+        super(ReceiveHandler, self).__init__()
 
+        self.conn_url = conn_url
         self.address = address
-        self.max_count = max_count
+        self.count = count
 
-        self.count = 0
-    
+        self.received = 0
+        self.stopping = False
+
     def on_start(self, event):
-        event.container.create_receiver(self.address)
+        conn = event.container.connect(self.conn_url)
+        event.container.create_receiver(conn, self.address)
 
-        print("RECEIVER: Created receiver for source address '{0}'".format(self.address))
+    def on_connection_opened(self, event):
+        print("RECEIVE: Connected to '{0}'".format(self.conn_url))
+
+    def on_link_opened(self, event):
+        print("RECEIVE: Created receiver for source address '{0}'".format(self.address))
 
     def on_message(self, event):
-        print("RECEIVER: Received message '{0}'".format(event.message.body))
+        if self.stopping:
+            return
 
-        self.count += 1
+        print("RECEIVE: Received message '{0}'".format(event.message.body))
 
-        if self.count == self.max_count:
+        self.received += 1
+
+        if self.received == self.count:
             event.connection.close()
+            self.stopping = True
 
-try:
-    address = sys.argv[1]
-except:
-    sys.exit("Usage: receiver.py ADDRESS [MAX-COUNT]")
-    
-try:
-    max_count = int(sys.argv[2])
-except:
-    max_count = 0
-    
-handler = Receiver(address, max_count)
-container = Container(handler)
+def main():
+    try:
+        conn_url, address = sys.argv[1:3]
+    except IndexError:
+        sys.exit("Usage: receive.py CONNECTION-URL ADDRESS [COUNT]")
 
-try:
+    try:
+        count = int(sys.argv[3])
+    except:
+        count = 0
+
+    handler = ReceiveHandler(conn_url, address, count)
+    container = Container(handler)
     container.run()
-except KeyboardInterrupt:
-    pass
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
