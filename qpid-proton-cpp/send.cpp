@@ -33,7 +33,7 @@ struct send_handler : public proton::messaging_handler {
     std::string address_;
     std::string message_body_;
 
-    bool stopping;
+    bool stopping_ = false;
 
     void on_container_start(proton::container& cont) override {
         proton::connection conn = cont.connect(conn_url_);
@@ -49,7 +49,7 @@ struct send_handler : public proton::messaging_handler {
     }
 
     void on_sendable(proton::sender& snd) override {
-        if (stopping) return;
+        if (stopping_) return;
 
         proton::message msg = proton::message(message_body_);
         snd.send(msg);
@@ -57,7 +57,7 @@ struct send_handler : public proton::messaging_handler {
         std::cout << "SEND: Sent message '" << msg.body() << "'" << std::endl;
 
         snd.connection().close();
-        stopping = true;
+        stopping_ = true;
     }
 };
 
