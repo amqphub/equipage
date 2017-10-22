@@ -50,7 +50,9 @@ class ReceiveHandler(MessagingHandler):
         if self.stopping:
             return
 
-        print("RECEIVE: Received message '{0}'".format(event.message.body))
+        message = event.message
+        
+        print("RECEIVE: Received message '{0}'".format(message.body))
 
         self.received += 1
 

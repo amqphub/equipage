@@ -57,6 +57,11 @@ def test_rhea_connect(session):
     with TestServer() as server:
         call("rhea/connect.js {}", server.connection_url)
 
+def test_rhea_send_and_receive(session):
+    with TestServer() as server:
+        call("rhea/send.js {} examples abc", server.connection_url)
+        call("rhea/receive.js {} examples 1", server.connection_url)
+
 class TestServer(object):
     def __init__(self):
         self.port = random_port()

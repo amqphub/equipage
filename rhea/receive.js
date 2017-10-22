@@ -25,12 +25,35 @@ var rhea = require("rhea");
 var url = require("url");
 
 var conn_url = url.parse(process.argv[2]);
+var address = process.argv[3];
+var count = parseInt(process.argv[4]);
+
+var received = 0;
+var stopping = false;
 
 var container = rhea.create_container();
 
 container.on("connection_open", function (event) {
-    console.log("CONNECT: Connected to '" + conn_url.href + "'");
-    event.connection.close();
+    console.log("RECEIVE: Connected to '" + conn_url + "'");
+});
+
+container.on("receiver_open", function (event) {
+    console.log("RECEIVE: Opened receiver for source address '" + address + "'");
+});
+
+container.on("message", function (event) {
+    if (stopping) return;
+
+    var message = event.message;
+    
+    console.log("RECEIVE: Received message '" + message.body + "'");
+
+    received++;
+
+    if (received == count) {
+        event.connection.close();
+        stopping = true;
+    }
 });
 
 var opts = {
@@ -38,4 +61,5 @@ var opts = {
     "port": conn_url.port || 5672
 };
 
-container.connect(opts);
+var conn = container.connect(opts);
+conn.open_receiver(address);

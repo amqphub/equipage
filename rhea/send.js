@@ -25,12 +25,30 @@ var rhea = require("rhea");
 var url = require("url");
 
 var conn_url = url.parse(process.argv[2]);
+var address = process.argv[3];
+var message_body = process.argv[4];
+
+var stopping = false;
 
 var container = rhea.create_container();
 
 container.on("connection_open", function (event) {
-    console.log("CONNECT: Connected to '" + conn_url.href + "'");
+    console.log("SEND: Connected to '" + conn_url + "'");
+});
+
+container.on("sender_open", function (event) {
+    console.log("SEND: Opened sender for target address '" + address + "'");
+});
+
+container.on("sendable", function (event) {
+    if (stopping) return;
+    
+    event.sender.send(message_body);
+
+    console.log("SEND: Sent message '" + message_body + "'");
+
     event.connection.close();
+    stopping = true;
 });
 
 var opts = {
@@ -38,4 +56,5 @@ var opts = {
     "port": conn_url.port || 5672
 };
 
-container.connect(opts);
+var conn = container.connect(opts);
+conn.open_sender(address);
