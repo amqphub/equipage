@@ -1,38 +1,96 @@
-# Qpid Examples
+# Messaging examples
 
-## Naming
+## APIs
 
- - "send" - Sending in isolation
- - "receive" - Receiving in isolation
- - "request" - Sending requests and receiving responses
- - "respond" - Receiving requests and sending responses
- - "client" - Various client operations appropriate to the topic
- - "connect" - Making a new outbound connection
+ - [Qpid Proton C++](http://qpid.apache.org/proton/index.html)
+ - [Qpid Proton Python](http://qpid.apache.org/proton/index.html)
+ - [Qpid JMS](http://qpid.apache.org/components/jms/index.html)
+ - [Rhea](https://github.com/grs/rhea)
+
+## Primary examples
+
+ - **connect** - Connect to a messaging server
+ - **send** - Send a message
+ - **receive** - Receive messages
+ - **request** - Send a request and receive a response
+ - **respond** - Receive requests and send responses
+
+## Connect
+
+Usage: `connect CONNECTION-URL`
+
+        $ python connect.py amqp://example.net
+        CONNECT: Connected to 'amqp://example.net'
+
+## Send
+
+Usage: `send CONNECTION-URL ADDRESS MESSAGE`
+
+        $ python send.py amqp://example.net examples "Hello there"
+        SEND: Connected to 'amqp://example.net'
+        SEND: Opened sender for target address 'examples'
+        SEND: Sent message 'Hello there'
+
+## Receive
+
+Usage: `receive CONNECTION-URL ADDRESS [COUNT]`
+
+        $ python receive.py amqp://example.net examples
+        RECEIVE: Connected to 'amqp://example.net'
+        RECEIVE: Opened receiver for source address 'examples'
+        RECEIVE: Received message 'Hello there'
+
+## Request
+
+Usage: `request CONNECTION-URL ADDRESS MESSAGE`
+
+        $ python request.py amqp://example.net examples "abcdef"
+        REQUEST: Connected to 'amqp://example.net'
+        REQUEST: Opened sender for target address 'examples'
+        REQUEST: Opened receiver using a dynamic reply address # XXX
+        REQUEST: Sent request message 'abcdef'
+        REQUEST: Received response message 'ABCDEF'
+
+## Respond
+
+Usage: `respond CONNECTION-URL ADDRESS [COUNT]`
+
+        $ python responder.py amqp://example.net/examples
+        RESPOND: Connected to 'amqp://example.net'
+        RESPOND: Opened receiver for source address 'examples'
+        RESPOND: Received request message 'abcdef'
+        RESPOND: Sent response message 'ABCDEF'
 
 ## Content outline
 
  - Primary examples (in the root dir)
    - connect
-   - [send](#send)
-   - [receive](#receive)
+   - send
+   - receive
    - browse
-   - [request](#request)
-   - [respond](#respond)
- - Reconnect and failover ("reconnect")
-   - client
- - Authentication ("authentication")
-   - client
- - Multithreaded applications ("threading")
-   - client
- - Error handling ("error-handling")
-   - client
- - Logging ("logging")
- - Transactions ("transactions")
- - Timers ("timers")
- - Filters ("filters")
- - Codec ("codec")
- - Interoperating with JMS ("jms-interop")
- - IO integration ("io-integration")
+   - request
+   - respond
+ - Reconnect and failover (reconnect)
+   - connect
+   - failover
+   - custom-failover
+ - Authentication (authentication)
+   - connect
+ - Multithreaded applications (threading)
+   - send
+   - receive
+ - Error handling (error-handling)
+   - send
+   - receive
+ - Logging (logging)
+   - send
+   - receive
+ - Transactions (transactions)
+ - Timers (timers)
+ - Filters (filters)
+ - Codec (codec)
+ - Interoperating with JMS (jms-interop)
+ - IO integration (io-integration)
 
 ## General properties
 
@@ -47,50 +105,6 @@
 
  - Option parsing is deliberately simple, using positional arguments.
 
-## Send
-
-Usage: `send CONNECTION-URL ADDRESS MESSAGE`
-
-        $ python send.py amqpdemo.net examples "Hello there"
-        SEND: Connected to 'amqpdemo.net'
-        SEND: Created sender for target address 'examples'
-        SEND: Sent message 'Hello there'
-
-## Receive
-
-Usage: `receive CONNECTION-URL ADDRESS [MAX-COUNT]`
-
-        $ python receive.py amqpdemo.net examples
-        RECEIVE: Connected to 'amqpdemo.net'
-        RECEIVE: Created receiver for source address 'examples'
-        RECEIVE: Received message 'Hello there'
-
-## Request
-
-Usage: `request CONNECTION-URL ADDRESS MESSAGE`
-
-        $ python request.py amqpdemo.net examples "abcdef"
-        REQUEST: Connected to 'amqpdemo.net'
-        REQUEST: Created sender for target address 'examples'
-        REQUEST: Created receiver using a dynamic reply address # XXX
-        REQUEST: Sent request message 'abcdef'
-        REQUEST: Received response message 'ABCDEF'
-
-## Respond
-
-Usage: `respond CONNECTION-URL ADDRESS [MAX-COUNT]`
-
-        $ python responder.py amqpdemo.net/examples
-        RESPOND: Connected to 'amqpdemo.net'
-        RESPOND: Created receiver for source address 'examples'
-        RESPOND: Received request message 'abcdef'
-        RESPOND: Sent response message 'ABCDEF'
-
-## Servers
-
-Usage: `<server> CONNECTION-URL ADDRESS [MAX-COUNT]`
-
 ## To do
 
- - test.py or make test and scripts to support it
- - Docs for building and getting deps
+ - Docs for getting dependencies
