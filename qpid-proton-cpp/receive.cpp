@@ -21,56 +21,62 @@
 
 #include <proton/connection.hpp>
 #include <proton/container.hpp>
+#include <proton/delivery.hpp>
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
-#include <proton/sender.hpp>
+#include <proton/receiver.hpp>
 
 #include <iostream>
 #include <string>
 
-struct send_handler : public proton::messaging_handler {
+struct receive_handler : public proton::messaging_handler {
     std::string conn_url_;
     std::string address_;
-    std::string message_body_;
+    int count_ = 1;
 
-    bool stopping;
+    int received_ = 0;
+    bool stopping_ = false;
 
     void on_container_start(proton::container& cont) override {
         proton::connection conn = cont.connect(conn_url_);
-        conn.open_sender(address_);
+        conn.open_receiver(address_);
     }
 
     void on_connection_open(proton::connection& conn) override {
-        std::cout << "SEND: Connected to '" << conn_url_ << "'" << std::endl;
+        std::cout << "RECEIVE: Connected to '" << conn_url_ << "'" << std::endl;
     }
 
-    void on_sender_open(proton::sender& snd) override {
-        std::cout << "SEND: Opened sender for target address '" << address_ << "'" << std::endl;
+    void on_receiver_open(proton::receiver& rcv) override {
+        std::cout << "RECEIVE: Opened receiver for source address '" << address_ << "'" << std::endl;
     }
 
-    void on_sendable(proton::sender& snd) override {
-        if (stopping) return;
+    void on_message(proton::delivery& dlv, proton::message& msg) override {
+        if (stopping_) return;
 
-        proton::message msg = proton::message(message_body_);
-        snd.send(msg);
+        std::cout << "RECEIVE: Received message '" << msg.body() << "'" << std::endl;
 
-        std::cout << "SEND: Sent message '" << msg.body() << "'" << std::endl;
+        received_++;
 
-        snd.connection().close();
-        stopping = true;
+        if (received_ == count_) {
+            dlv.connection().close();
+            stopping_ = true;
+        }
     }
 };
 
 int main(int argc, char** argv) {
-    if (argc != 4) {
-        std::cerr << "Usage: send CONNECTION-URL ADDRESS MESSAGE" << std::endl;
+    if (argc != 3 && argc != 4) {
+        std::cerr << "Usage: receive CONNECTION-URL ADDRESS [COUNT]" << std::endl;
         return 1;
     }
-    
-    send_handler handler;
+
+    receive_handler handler;
     handler.conn_url_ = argv[1];
     handler.address_ = argv[2];
-    handler.message_body_ = argv[3];
+
+    if (argc == 4) {
+        handler.count_ = std::stoi(argv[3]);
+    }
 
     proton::container container(handler);
     container.run();

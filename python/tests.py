@@ -36,9 +36,13 @@ def test_qpid_jms_send_and_receive(session):
         call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Receive {} examples 1", server.connection_url)
 
 def test_qpid_proton_cpp_connect(session):
-    ENV["PN_TRACE_FRM"] = "1"
     with TestServer() as server:
         call("qpid-proton-cpp/build/connect {}", server.connection_url)
+
+def test_qpid_proton_cpp_send_and_receive(session):
+    with TestServer() as server:
+        call("qpid-proton-cpp/build/send {} examples abc", server.connection_url)
+        call("qpid-proton-cpp/build/receive {} examples 1", server.connection_url)
 
 def test_qpid_proton_python_connect(session):
     with TestServer() as server:
@@ -64,12 +68,12 @@ class TestServer(object):
 
     def __enter__(self):
         self.output = open(self.output_file, "w")
-        
+
         self.proc = start_process("qbroker --verbose --port {}", self.port, output=self.output)
         self.proc.connection_url = self.connection_url
-        
+
         time.sleep(0.1) # XXX Ugh
-        
+
         return self.proc
 
     def __exit__(self, exc_type, exc_value, traceback):

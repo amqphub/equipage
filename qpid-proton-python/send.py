@@ -44,11 +44,10 @@ class SendHandler(MessagingHandler):
         print("SEND: Connected to '{0}'".format(self.conn_url))
 
     def on_link_opened(self, event):
-        print("SEND: Created sender for target address '{0}'".format(self.address))
+        print("SEND: Opened sender for target address '{0}'".format(self.address))
 
     def on_sendable(self, event):
-        if self.stopping:
-            return
+        if self.stopping: return
 
         message = Message(self.message_body)
         event.sender.send(message)
