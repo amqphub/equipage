@@ -341,10 +341,13 @@ class _TestModule(object):
                     function(session)
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception as e:
                 session.failed_tests.append(function)
 
-                _traceback.print_exc()
+                if isinstance(e, TestTimedOut):
+                    self.command.error("Test timed out")
+                else:
+                    _traceback.print_exc()
 
                 self.command.error("{} FAILED ({})", function, _elapsed_time(start_time))
 
@@ -364,12 +367,15 @@ class _TestModule(object):
                             function(session)
             except KeyboardInterrupt:
                 raise
-            except:
+            except Exception as e:
                 session.failed_tests.append(function)
 
-                _traceback.print_exc()
-
                 self._print("FAILED {:>6}".format(_elapsed_time(start_time)))
+
+                if isinstance(e, TestTimedOut):
+                    print("Error! Test timed out")
+                else:
+                    _traceback.print_exc()
 
                 with open(output_file, "r") as out:
                     for line in out:
