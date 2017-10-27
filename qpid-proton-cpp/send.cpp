@@ -41,20 +41,20 @@ struct send_handler : public proton::messaging_handler {
     }
 
     void on_connection_open(proton::connection& conn) override {
-        std::cout << "SEND: Connected to '" << conn_url_ << "'" << std::endl;
+        std::cout << "SEND: Connected to '" << conn_url_ << "'\n";
     }
 
     void on_sender_open(proton::sender& snd) override {
-        std::cout << "SEND: Opened sender for target address '" << address_ << "'" << std::endl;
+        std::cout << "SEND: Opened sender for target address '" << address_ << "'\n";
     }
 
     void on_sendable(proton::sender& snd) override {
         if (stopping_) return;
 
-        proton::message msg = proton::message(message_body_);
+        proton::message msg {message_body_};
         snd.send(msg);
 
-        std::cout << "SEND: Sent message '" << msg.body() << "'" << std::endl;
+        std::cout << "SEND: Sent message '" << msg.body() << "'\n";
 
         snd.connection().close();
         stopping_ = true;
@@ -67,13 +67,13 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    send_handler handler;
+    send_handler handler {};
     handler.conn_url_ = argv[1];
     handler.address_ = argv[2];
     handler.message_body_ = argv[3];
 
-    proton::container container(handler);
-    container.run();
+    proton::container cont {handler};
+    cont.run();
 
     return 0;
 }

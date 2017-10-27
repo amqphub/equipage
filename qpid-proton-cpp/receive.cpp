@@ -32,10 +32,10 @@
 struct receive_handler : public proton::messaging_handler {
     std::string conn_url_;
     std::string address_;
-    int count_ = 1;
+    int count_ {1};
 
-    int received_ = 0;
-    bool stopping_ = false;
+    int received_ {0};
+    bool stopping_ {false};
 
     void on_container_start(proton::container& cont) override {
         proton::connection conn = cont.connect(conn_url_);
@@ -43,11 +43,11 @@ struct receive_handler : public proton::messaging_handler {
     }
 
     void on_connection_open(proton::connection& conn) override {
-        std::cout << "RECEIVE: Connected to '" << conn_url_ << "'" << std::endl;
+        std::cout << "RECEIVE: Connected to '" << conn_url_ << "'\n";
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
-        std::cout << "RECEIVE: Opened receiver for source address '" << address_ << "'" << std::endl;
+        std::cout << "RECEIVE: Opened receiver for source address '" << address_ << "'\n";
     }
 
     void on_message(proton::delivery& dlv, proton::message& msg) override {
@@ -66,11 +66,11 @@ struct receive_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 3 && argc != 4) {
-        std::cerr << "Usage: receive CONNECTION-URL ADDRESS [COUNT]" << std::endl;
+        std::cerr << "Usage: receive CONNECTION-URL ADDRESS [COUNT]\n";
         return 1;
     }
 
-    receive_handler handler;
+    receive_handler handler {};
     handler.conn_url_ = argv[1];
     handler.address_ = argv[2];
 
@@ -78,8 +78,8 @@ int main(int argc, char** argv) {
         handler.count_ = std::stoi(argv[3]);
     }
 
-    proton::container container(handler);
-    container.run();
+    proton::container cont {handler};
+    cont.run();
 
     return 0;
 }

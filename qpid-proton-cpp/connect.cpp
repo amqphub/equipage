@@ -30,24 +30,27 @@ struct connect_handler : public proton::messaging_handler {
     std::string conn_url_;
 
     void on_container_start(proton::container& cont) override {
-        std::cout << "CONNECT: Connecting to '" << conn_url_ << "'" << std::endl;
+        std::cout << "CONNECT: Connecting to '" << conn_url_ << "'\n";
         cont.connect(conn_url_);
     }
 
     void on_connection_open(proton::connection& conn) override {
-        std::cout << "CONNECT: Connected to '" << conn_url_ << "'" << std::endl;
+        std::cout << "CONNECT: Connected to '" << conn_url_ << "'\n";
         conn.close();
     }
 };
 
 int main(int argc, char** argv) {
-    std::string conn_url = argv[1];
+    if (argc != 2) {
+        std::cerr << "Usage: CONNECTION-URL\n";
+        return 1;
+    }
     
-    connect_handler h;
-    h.conn_url_ = conn_url;
+    connect_handler handler {};
+    handler.conn_url_ = argv[1];
 
-    proton::container container(h);
-    container.run();
+    proton::container cont {handler};
+    cont.run();
 
     return 0;
 }

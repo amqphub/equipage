@@ -40,7 +40,6 @@ int main(int argc, char** argv) {
     proton::container container(h);
 
     proton::connection_options opts;
-    opts.sasl_enabled(true);
     opts.sasl_allowed_mechs("GSSAPI");
 
     container.connect(authority, opts);
