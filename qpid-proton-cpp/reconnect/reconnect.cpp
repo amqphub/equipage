@@ -22,37 +22,47 @@
 #include <proton/connection.hpp>
 #include <proton/connection_options.hpp>
 #include <proton/container.hpp>
+#include <proton/duration.hpp>
 #include <proton/messaging_handler.hpp>
 #include <proton/reconnect_options.hpp>
-#include <proton/transport.hpp>
 
 #include <iostream>
 #include <string>
 
-struct failover_handler : public proton::messaging_handler {
-    std::string primary_url_;
-    std::vector<std::string> failover_urls_;
+struct reconnect_handler : public proton::messaging_handler {
+    std::string conn_url_;
 
     void on_container_start(proton::container& cont) override {
         proton::connection_options opts {};
         proton::reconnect_options ropts {};
 
-        ropts.failover_urls(failover_urls_);
+        ropts.delay(proton::duration(10));
+        ropts.delay_multiplier(2.0);
+        ropts.max_delay(proton::duration::FOREVER);
+        ropts.max_attempts(0);
+
         opts.reconnect(ropts);
 
-        cont.connect(primary_url_, opts);
+        cont.connect(conn_url_, opts);
     }
 
     void on_connection_open(proton::connection& conn) override {
-        std::cout << "Connected to " << conn.transport() << "\n";
+        std::cout << "CONNECT: Connected to '" << conn_url_ << "'\n";
+        conn.close();
     }
 };
 
 int main(int argc, char** argv) {
-    failover_handler handler {};
-    handler.primary_url_ = argv[1];
-    handler.failover_urls_ = std::vector<std::string>(&argv[2], &argv[argc]);
+    if (argc != 2) {
+        std::cerr << "Usage: CONNECTION-URL\n";
+        return 1;
+    }
+    
+    reconnect_handler handler {};
+    handler.conn_url_ = argv[1];
 
     proton::container cont {handler};
     cont.run();
+
+    return 0;
 }
