@@ -24,10 +24,9 @@ Usage: `connect CONNECTION-URL`
 
 ## Send
 
-Usage: `send CONNECTION-URL ADDRESS MESSAGE`
+Usage: `send CONNECTION-URL ADDRESS MESSAGE-BODY`
 
         $ python send.py amqp://example.net examples "Hello there"
-        SEND: Connected to 'amqp://example.net'
         SEND: Opened sender for target address 'examples'
         SEND: Sent message 'Hello there'
 
@@ -36,16 +35,14 @@ Usage: `send CONNECTION-URL ADDRESS MESSAGE`
 Usage: `receive CONNECTION-URL ADDRESS [COUNT]`
 
         $ python receive.py amqp://example.net examples
-        RECEIVE: Connected to 'amqp://example.net'
         RECEIVE: Opened receiver for source address 'examples'
         RECEIVE: Received message 'Hello there'
 
 ## Request
 
-Usage: `request CONNECTION-URL ADDRESS MESSAGE`
+Usage: `request CONNECTION-URL ADDRESS MESSAGE-BODY`
 
         $ python request.py amqp://example.net examples "abcdef"
-        REQUEST: Connected to 'amqp://example.net'
         REQUEST: Opened sender for target address 'examples'
         REQUEST: Opened receiver using a dynamic reply address # XXX
         REQUEST: Sent request message 'abcdef'
@@ -56,7 +53,6 @@ Usage: `request CONNECTION-URL ADDRESS MESSAGE`
 Usage: `respond CONNECTION-URL ADDRESS [COUNT]`
 
         $ python responder.py amqp://example.net/examples
-        RESPOND: Connected to 'amqp://example.net'
         RESPOND: Opened receiver for source address 'examples'
         RESPOND: Received request message 'abcdef'
         RESPOND: Sent response message 'ABCDEF'

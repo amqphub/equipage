@@ -40,9 +40,6 @@ class SendHandler(MessagingHandler):
         conn = event.container.connect(self.conn_url)
         event.container.create_sender(conn, self.address)
 
-    def on_connection_opened(self, event):
-        print("SEND: Connected to '{0}'".format(self.conn_url))
-
     def on_link_opened(self, event):
         print("SEND: Opened sender for target address '{0}'".format(self.address))
 
@@ -61,7 +58,7 @@ def main():
     try:
         conn_url, address, message_body = sys.argv[1:4]
     except IndexError:
-        sys.exit("Usage: send.py CONNECTION-URL ADDRESS MESSAGE")
+        sys.exit("Usage: send.py CONNECTION-URL ADDRESS MESSAGE-BODY")
 
     handler = SendHandler(conn_url, address, message_body)
     container = Container(handler)

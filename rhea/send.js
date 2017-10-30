@@ -32,10 +32,6 @@ var stopping = false;
 
 var container = rhea.create_container();
 
-container.on("connection_open", function (event) {
-    console.log("SEND: Connected to '" + conn_url + "'");
-});
-
 container.on("sender_open", function (event) {
     console.log("SEND: Opened sender for target address '" + address + "'");
 });

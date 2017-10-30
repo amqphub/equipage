@@ -40,8 +40,6 @@ struct send_handler : public proton::messaging_handler {
     }
 
     void on_connection_open(proton::connection& conn) override {
-        std::cout << "SEND: Connected to '" << conn_url_ << "'\n";
-
         conn.open_sender(address_);
     }
 
@@ -64,17 +62,23 @@ struct send_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 4) {
-        std::cerr << "Usage: send CONNECTION-URL ADDRESS MESSAGE\n";
+        std::cerr << "Usage: send CONNECTION-URL ADDRESS MESSAGE-BODY\n";
         return 1;
     }
-    
+
     send_handler handler {};
     handler.conn_url_ = argv[1];
     handler.address_ = argv[2];
     handler.message_body_ = argv[3];
 
     proton::container cont {handler};
-    cont.run();
+
+    try {
+        cont.run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
 
     return 0;
 }

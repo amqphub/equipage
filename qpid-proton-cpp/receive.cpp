@@ -42,8 +42,6 @@ struct receive_handler : public proton::messaging_handler {
     }
 
     void on_connection_open(proton::connection& conn) override {
-        std::cout << "RECEIVE: Connected to '" << conn_url_ << "'\n";
-
         conn.open_receiver(address_);
     }
 
@@ -80,7 +78,13 @@ int main(int argc, char** argv) {
     }
 
     proton::container cont {handler};
-    cont.run();
+
+    try {
+        cont.run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
 
     return 0;
 }

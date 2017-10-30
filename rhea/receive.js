@@ -33,10 +33,6 @@ var stopping = false;
 
 var container = rhea.create_container();
 
-container.on("connection_open", function (event) {
-    console.log("RECEIVE: Connected to '" + conn_url + "'");
-});
-
 container.on("receiver_open", function (event) {
     console.log("RECEIVE: Opened receiver for source address '" + address + "'");
 });
