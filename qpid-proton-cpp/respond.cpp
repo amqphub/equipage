@@ -36,58 +36,65 @@
 #include <iostream>
 #include <string>
 
-struct handler : public proton::messaging_handler {
-    std::string address;
+struct respond_handler : public proton::messaging_handler {
+    std::string conn_url_ {};
+    std::string address_ {};
+    int count_ {1};
 
-    proton::receiver receiver;
-    proton::sender sender;
+    proton::sender sender_ {};
+    int received_ {0};
+    bool stopping_ {false};
 
+    void on_container_start(proton::container& cont) override {
+        cont.connect(conn_url_);
+    }
+    
     void on_connection_open(proton::connection& conn) override {
-        receiver = conn.open_receiver(address);
-        sender = conn.open_sender("");
+        conn.open_receiver(address_);
+        sender_ = conn.open_sender("");
     }
 
     void on_message(proton::delivery& dlv, proton::message& request) override {
-        std::cout << dlv.container().id() << ": Received request '" << request.body() << "'" << std::endl;
+        if (stopping_) return;
 
-        std::string body = proton::get<std::string>(request.body());
+        std::cout << "RESPOND: Received request '" << request.body() << "'\n";
+
+        auto body = proton::get<std::string>(request.body());
         std::transform(body.begin(), body.end(), body.begin(), ::toupper);
-        body += " [" + dlv.container().id() + "]";
 
-        proton::message response(body);
+        proton::message response {body};
         response.to(request.reply_to());
         response.correlation_id(request.correlation_id());
 
-        sender.send(response);
+        sender_.send(response);
 
-        std::cout << dlv.container().id() << ": Sent response '" << response.body() << "'" << std::endl;
+        std::cout << "RESPOND: Sent response '" << response.body() << "'\n";
+
+        received_++;
+
+        if (received_ == count_) {
+            dlv.connection().close();
+            stopping_ = true;
+        }
     }
 };
 
 int main(int argc, char** argv) {
-    std::string server = argv[1];
-    std::string id = argv[3];
-
-    handler h;
-    h.address = argv[2];
-
-    bool tls_enabled = false;
-
-    if (argc == 5) {
-        tls_enabled = std::stoi(argv[4]) == 1;
+    if (argc != 3 && argc != 4) {
+        std::cerr << "Usage: respond CONNECTION-URL ADDRESS [COUNT]\n";
+        return 1;
     }
 
-    if (tls_enabled) {
-        server = "amqps://" + server;
+    respond_handler handler {};
+    handler.conn_url_ = argv[1];
+    handler.address_ = argv[2];
+
+    if (argc == 4) {
+        handler.count_ = std::stoi(argv[3]);
     }
 
-    proton::container container(h, id);
-
-    proton::connection_options opts;
-    opts.sasl_allowed_mechs("ANONYMOUS");
-
-    container.connect(server, opts);
-    container.run();
+    proton::container cont {handler};
+    cont.run();
 
     return 0;
 }

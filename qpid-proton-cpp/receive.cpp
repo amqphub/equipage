@@ -30,20 +30,21 @@
 #include <string>
 
 struct receive_handler : public proton::messaging_handler {
-    std::string conn_url_;
-    std::string address_;
+    std::string conn_url_ {};
+    std::string address_ {};
     int count_ {1};
 
     int received_ {0};
     bool stopping_ {false};
 
     void on_container_start(proton::container& cont) override {
-        proton::connection conn = cont.connect(conn_url_);
-        conn.open_receiver(address_);
+        cont.connect(conn_url_);
     }
 
     void on_connection_open(proton::connection& conn) override {
         std::cout << "RECEIVE: Connected to '" << conn_url_ << "'\n";
+
+        conn.open_receiver(address_);
     }
 
     void on_receiver_open(proton::receiver& rcv) override {

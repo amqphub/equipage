@@ -29,19 +29,20 @@
 #include <string>
 
 struct send_handler : public proton::messaging_handler {
-    std::string conn_url_;
-    std::string address_;
-    std::string message_body_;
+    std::string conn_url_ {};
+    std::string address_ {};
+    std::string message_body_ {};
 
-    bool stopping_ = false;
+    bool stopping_ {false};
 
     void on_container_start(proton::container& cont) override {
-        proton::connection conn = cont.connect(conn_url_);
-        conn.open_sender(address_);
+        cont.connect(conn_url_);
     }
 
     void on_connection_open(proton::connection& conn) override {
         std::cout << "SEND: Connected to '" << conn_url_ << "'\n";
+
+        conn.open_sender(address_);
     }
 
     void on_sender_open(proton::sender& snd) override {
@@ -63,7 +64,7 @@ struct send_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 4) {
-        std::cerr << "Usage: send CONNECTION-URL ADDRESS MESSAGE" << std::endl;
+        std::cerr << "Usage: send CONNECTION-URL ADDRESS MESSAGE\n";
         return 1;
     }
     

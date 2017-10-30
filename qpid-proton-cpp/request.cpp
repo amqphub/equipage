@@ -20,76 +20,72 @@
  */
 
 #include <proton/connection.hpp>
-#include <proton/connection_options.hpp>
 #include <proton/container.hpp>
 #include <proton/delivery.hpp>
-#include <proton/link.hpp>
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
-#include <proton/thread_safe.hpp>
-#include <proton/tracker.hpp>
 #include <proton/receiver_options.hpp>
 #include <proton/source_options.hpp>
 
 #include <iostream>
 #include <string>
 
-struct handler : public proton::messaging_handler {
-    std::string address;
-    std::string data;
+struct request_handler : public proton::messaging_handler {
+    std::string conn_url_ {};
+    std::string address_ {};
+    std::string message_body_ {};
 
-    proton::sender sender;
-    proton::receiver receiver;
+    proton::sender sender_ {};
+    bool stopping_ {false};
 
+    void on_container_start(proton::container& cont) override {
+        cont.connect(conn_url_);
+    }
+    
     void on_connection_open(proton::connection& conn) override {
-        sender = conn.open_sender(address);
+        sender_ = conn.open_sender(address_);
 
-        proton::receiver_options opts;
-        opts.source(proton::source_options().dynamic(true));
+        proton::receiver_options opts {};
+        proton::source_options sopts {};
 
-        receiver = conn.open_receiver("", opts);
+        sopts.dynamic(true);
+        opts.source(sopts);
+        
+        conn.open_receiver("", opts);
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
-        proton::message request = proton::message(data);
+        proton::message request {message_body_};
         request.reply_to(rcv.source().address());
 
-        sender.send(request);
+        sender_.send(request);
 
-        std::cout << "request.cpp: Sent request '" << request.body() << "'" << std::endl;
+        std::cout << "REQUEST: Sent request '" << request.body() << "'\n";
     }
 
     void on_message(proton::delivery& dlv, proton::message& response) override {
-        std::cout << "request.cpp: Received response '" << response.body() << "'" << std::endl;
+        if (stopping_) return;
+        
+        std::cout << "REQUEST: Received response '" << response.body() << "'\n";
 
         dlv.connection().close();
+        stopping_ = true;
     }
 };
 
 int main(int argc, char** argv) {
-    std::string server = argv[1];
-
-    handler h;
-    h.address = argv[2];
-    h.data = argv[3];
-
-    bool tls_enabled = false;
-
-    if (argc == 5) {
-        tls_enabled = std::stoi(argv[4]) == 1;
+    if (argc != 4) {
+        std::cerr << "Usage: request CONNECTION-URL ADDRESS MESSAGE\n";
+        return 1;
     }
+    
+    request_handler handler {};
+    handler.conn_url_ = argv[1];
+    handler.address_ = argv[2];
+    handler.message_body_ = argv[3];
 
-    if (tls_enabled) {
-        server = "amqps://" + server;
-    }
-
-    proton::container container(h);
-
-    proton::connection_options opts;
-    opts.sasl_allowed_mechs("ANONYMOUS");
-
-    container.connect(server, opts);
-    container.run();
+    proton::container cont {handler};
+    cont.run();
 
     return 0;
 }
