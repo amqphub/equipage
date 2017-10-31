@@ -24,6 +24,10 @@
 var rhea = require("rhea");
 var url = require("url");
 
+if (process.argv.length !== 5) {
+    console.log("Usage: send.js CONNECTION-URL ADDRESS MESSAGE-BODY");
+}
+
 var conn_url = url.parse(process.argv[2]);
 var address = process.argv[3];
 var message_body = process.argv[4];
