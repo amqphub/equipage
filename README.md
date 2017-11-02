@@ -52,7 +52,7 @@ Usage: `request CONNECTION-URL ADDRESS MESSAGE-BODY`
 
 Usage: `respond CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
 
-        $ python responder.py amqp://example.net/examples
+        $ python respond.py amqp://example.net examples
         RESPOND: Opened receiver for source address 'examples'
         RESPOND: Received request message 'abcdef'
         RESPOND: Sent response message 'ABCDEF'
