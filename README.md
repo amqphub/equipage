@@ -93,8 +93,9 @@ Usage: `respond CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
  - The most basic sending programs send one message and then exit.
 
  - By default, receiving programs keep running until the user
-   terminates them.  If the optional MAX-COUNT argument is supplied,
-   they exit after the given number of messages have been received.
+   terminates them.  If the optional MESSAGE-COUNT argument is
+   supplied, they exit after the given number of messages have been
+   received.
 
  - Each example program is contained in a single file, with exceptions
    where necessary.
