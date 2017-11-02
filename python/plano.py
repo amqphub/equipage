@@ -57,6 +57,7 @@ PATH_VAR_SEP = _os.pathsep
 ENV = _os.environ
 ARGS = _sys.argv
 
+# XXX -> STDIN, STDOUT, STDERR, DEVNULL
 STD_IN = _sys.stdin
 STD_OUT = _sys.stdout
 STD_ERR = _sys.stderr
@@ -526,11 +527,33 @@ def call_for_exit_code(command, *args, **kwargs):
     proc = start_process(command, *args, **kwargs)
     return wait_for_process(proc)
 
+# XXX
 def call_for_output(command, *args, **kwargs):
+    return call_for_stdout(command, *args, **kwargs)
+
+def call_for_stdout(command, *args, **kwargs):
     kwargs["stdout"] = _subprocess.PIPE
 
     proc = start_process(command, *args, **kwargs)
     output = proc.communicate()[0]
+    exit_code = proc.poll()
+
+    # XXX I don't know if None is possible here
+    assert exit_code is not None
+
+    if exit_code not in (None, 0):
+        error = CalledProcessError(exit_code, proc.command_string)
+        error.output = output
+
+        raise error
+
+    return output
+
+def call_for_stderr(command, *args, **kwargs):
+    kwargs["stderr"] = _subprocess.PIPE
+
+    proc = start_process(command, *args, **kwargs)
+    output = proc.communicate()[1]
     exit_code = proc.poll()
 
     # XXX I don't know if None is possible here

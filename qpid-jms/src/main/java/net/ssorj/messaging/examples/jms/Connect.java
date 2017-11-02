@@ -27,12 +27,17 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class Connect {
     public static void main(String[] args) throws Exception {
+        if (args.length != 1) {
+            System.err.println("Usage: Connect CONNECTION-URL");
+            System.exit(1);
+        }
+
         String connUrl = args[0];
         ConnectionFactory connFactory = new JmsConnectionFactory(connUrl);
         Connection conn = connFactory.createConnection();
 
         conn.start();
-        
+
         try {
             System.out.println("CONNECT: Connected to '" + connUrl + "'");
         } finally {

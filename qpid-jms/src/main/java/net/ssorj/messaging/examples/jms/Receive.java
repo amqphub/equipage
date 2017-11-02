@@ -33,7 +33,7 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 public class Receive {
     public static void main(String[] args) throws Exception {
         if (args.length != 2 && args.length != 3) {
-            System.err.println("Usage: <prog> CONNECTION-URL ADDRESS [MESSAGE-COUNT]");
+            System.err.println("Usage: Receive CONNECTION-URL ADDRESS [MESSAGE-COUNT]");
             System.exit(1);
         }
         

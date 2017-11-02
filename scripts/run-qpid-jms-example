@@ -26,19 +26,23 @@ def main():
     jar_file = join("qpid-jms", "target", "messaging-examples-jms-1.0.0-SNAPSHOT-jar-with-dependencies.jar")
 
     class_name = ARGS[1]
-    connection_url = ARGS[2]
-
-    if connection_url.startswith("//"):
-        connection_url = "amqp:" + connection_url
 
     args = [
         "/usr/bin/env", "--", "java",
         "-classpath", jar_file,
         class_name,
-        connection_url,
     ]
 
-    args += ARGS[3:]
+    if len(ARGS) >= 3:
+        connection_url = ARGS[2]
+
+        if connection_url.startswith("//"):
+            connection_url = "amqp:" + connection_url
+
+        args += [connection_url]
+
+    if len(ARGS) >= 4:
+        args += ARGS[3:]
 
     exec_process(args)
 

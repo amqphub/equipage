@@ -27,10 +27,15 @@ def open_test_session(session):
     set_message_threshold("error")
 
 def test_qpid_jms_connect(session):
+    check_connect_usage(jms_prog("Connect"))
+    
     with TestServer() as server:
         call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Connect {}", server.connection_url)
 
 def test_qpid_jms_send_and_receive(session):
+    check_send_usage(jms_prog("Send"))
+    check_receive_usage(jms_prog("Receive"))
+
     with TestServer() as server:
         call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Send {} examples abc", server.connection_url)
         call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Receive {} examples 1", server.connection_url)
@@ -91,3 +96,39 @@ class TestServer(object):
 
         for line in read_lines(self.output_file):
             print("> {}".format(line[:-1]))
+
+def check_connect_usage(command):
+    usage = None
+
+    try:
+        call_for_stderr(command)
+    except CalledProcessError as e:
+        usage = e.output
+
+    assert usage, usage
+    assert "CONNECTION-URL" in usage, usage
+
+def check_send_usage(command):
+    usage = None
+
+    try:
+        call_for_stderr(command)
+    except CalledProcessError as e:
+        usage = e.output
+
+    assert usage, usage
+    assert "CONNECTION-URL ADDRESS MESSAGE-BODY" in usage, usage
+
+def check_receive_usage(command):
+    usage = None
+
+    try:
+        call_for_stderr(command)
+    except CalledProcessError as e:
+        usage = e.output
+
+    assert usage, usage
+    assert "CONNECTION-URL ADDRESS [MESSAGE-COUNT]" in usage, usage
+
+def jms_prog(class_name):
+    return "scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.{}".format(class_name)
