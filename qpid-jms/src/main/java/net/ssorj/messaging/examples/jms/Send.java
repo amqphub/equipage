@@ -32,6 +32,11 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class Send {
     public static void main(String[] args) throws Exception {
+        if (args.length != 3) {
+            System.err.println("Usage: <prog> CONNECTION-URL ADDRESS MESSAGE-BODY");
+            System.exit(1);
+        }
+        
         String connUrl = args[0];
         String address = args[1];
         String messageBody = args[2];

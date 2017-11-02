@@ -32,7 +32,7 @@ Usage: `send CONNECTION-URL ADDRESS MESSAGE-BODY`
 
 ## Receive
 
-Usage: `receive CONNECTION-URL ADDRESS [COUNT]`
+Usage: `receive CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
 
         $ python receive.py amqp://example.net examples
         RECEIVE: Opened receiver for source address 'examples'
@@ -50,7 +50,7 @@ Usage: `request CONNECTION-URL ADDRESS MESSAGE-BODY`
 
 ## Respond
 
-Usage: `respond CONNECTION-URL ADDRESS [COUNT]`
+Usage: `respond CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
 
         $ python responder.py amqp://example.net/examples
         RESPOND: Opened receiver for source address 'examples'

@@ -60,7 +60,7 @@ def main():
     try:
         conn_url, address = sys.argv[1:3]
     except IndexError:
-        sys.exit("Usage: receive.py CONNECTION-URL ADDRESS [COUNT]")
+        sys.exit("Usage: receive.py CONNECTION-URL ADDRESS [MESSAGE-COUNT]")
 
     try:
         count = int(sys.argv[3])

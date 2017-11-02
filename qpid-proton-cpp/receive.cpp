@@ -65,7 +65,7 @@ struct receive_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 3 && argc != 4) {
-        std::cerr << "Usage: receive CONNECTION-URL ADDRESS [COUNT]\n";
+        std::cerr << "Usage: receive CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n";
         return 1;
     }
 

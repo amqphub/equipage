@@ -25,7 +25,7 @@ var rhea = require("rhea");
 var url = require("url");
 
 if (process.argv.length !== 4 && process.argv.length !== 5) {
-    console.log("Usage: receive.js CONNECTION-URL ADDRESS [COUNT]");
+    console.log("Usage: receive.js CONNECTION-URL ADDRESS [MESSAGE-COUNT]");
 }
 
 var conn_url = url.parse(process.argv[2]);
