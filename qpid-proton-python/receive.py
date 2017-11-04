@@ -32,9 +32,7 @@ class ReceiveHandler(MessagingHandler):
         self.conn_url = conn_url
         self.address = address
         self.count = count
-
         self.received = 0
-        self.stopping = False
 
     def on_start(self, event):
         conn = event.container.connect(self.conn_url)
@@ -44,8 +42,6 @@ class ReceiveHandler(MessagingHandler):
         print("RECEIVE: Created receiver for source address '{0}'".format(self.address))
 
     def on_message(self, event):
-        if self.stopping: return
-
         message = event.message
         
         print("RECEIVE: Received message '{0}'".format(message.body))
@@ -53,8 +49,8 @@ class ReceiveHandler(MessagingHandler):
         self.received += 1
 
         if self.received == self.count:
+            event.receiver.close()
             event.connection.close()
-            self.stopping = True
 
 def main():
     try:

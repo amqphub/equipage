@@ -25,6 +25,7 @@
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
 #include <proton/receiver.hpp>
+#include <proton/source.hpp>
 
 #include <iostream>
 #include <string>
@@ -33,9 +34,7 @@ struct receive_handler : public proton::messaging_handler {
     std::string conn_url_ {};
     std::string address_ {};
     int count_ {1};
-
     int received_ {0};
-    bool stopping_ {false};
 
     void on_container_start(proton::container& cont) override {
         cont.connect(conn_url_);
@@ -46,19 +45,18 @@ struct receive_handler : public proton::messaging_handler {
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
-        std::cout << "RECEIVE: Opened receiver for source address '" << address_ << "'\n";
+        std::cout << "RECEIVE: Opened receiver for source address '"
+                  << rcv.source().address() << "'\n";
     }
 
     void on_message(proton::delivery& dlv, proton::message& msg) override {
-        if (stopping_) return;
-
-        std::cout << "RECEIVE: Received message '" << msg.body() << "'" << std::endl;
+        std::cout << "RECEIVE: Received message '" << msg.body() << "'\n";
 
         received_++;
 
         if (received_ == count_) {
+            dlv.receiver().close();
             dlv.connection().close();
-            stopping_ = true;
         }
     }
 };
@@ -82,7 +80,7 @@ int main(int argc, char** argv) {
     try {
         cont.run();
     } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << "\n";
         return 1;
     }
 

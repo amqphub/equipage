@@ -31,38 +31,34 @@ if (process.argv.length !== 4 && process.argv.length !== 5) {
 var conn_url = url.parse(process.argv[2]);
 var address = process.argv[3];
 var count = 0;
+var received = 0;
 
 if (process.argv.length === 5) {
     count = parseInt(process.argv[4]);
 }
 
-var received = 0;
-var stopping = false;
-
 var container = rhea.create_container();
 
 container.on("receiver_open", function (event) {
-    console.log("RECEIVE: Opened receiver for source address '" + address + "'");
+    console.log("RECEIVE: Opened receiver for source address '" +
+                event.receiver.source.address + "'");
 });
 
 container.on("message", function (event) {
-    if (stopping) return;
-
     var message = event.message;
-    
+
     console.log("RECEIVE: Received message '" + message.body + "'");
 
     received++;
 
     if (received == count) {
         event.connection.close();
-        stopping = true;
     }
 });
 
 var opts = {
-    "host": conn_url.hostname,
-    "port": conn_url.port || 5672
+    host: conn_url.hostname,
+    port: conn_url.port || 5672
 };
 
 var conn = container.connect(opts);
