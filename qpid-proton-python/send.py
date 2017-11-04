@@ -34,25 +34,21 @@ class SendHandler(MessagingHandler):
         self.address = address
         self.message_body = message_body
 
-        self.stopping = False
-    
     def on_start(self, event):
         conn = event.container.connect(self.conn_url)
         event.container.create_sender(conn, self.address)
 
     def on_link_opened(self, event):
-        print("SEND: Opened sender for target address '{0}'".format(self.address))
+        print("SEND: Opened sender for target address '{0}'".format(event.sender.target.address))
 
     def on_sendable(self, event):
-        if self.stopping: return
-
         message = Message(self.message_body)
         event.sender.send(message)
 
-        print("SEND: Sent message '{0}'".format(self.message_body))
-        
+        print("SEND: Sent message '{0}'".format(message.body))
+
+        event.sender.close()
         event.connection.close()
-        self.stopping = True
 
 def main():
     try:

@@ -24,6 +24,7 @@
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
 #include <proton/sender.hpp>
+#include <proton/target.hpp>
 
 #include <iostream>
 #include <string>
@@ -32,8 +33,6 @@ struct send_handler : public proton::messaging_handler {
     std::string conn_url_ {};
     std::string address_ {};
     std::string message_body_ {};
-
-    bool stopping_ {false};
 
     void on_container_start(proton::container& cont) override {
         cont.connect(conn_url_);
@@ -44,19 +43,17 @@ struct send_handler : public proton::messaging_handler {
     }
 
     void on_sender_open(proton::sender& snd) override {
-        std::cout << "SEND: Opened sender for target address '" << address_ << "'\n";
+        std::cout << "SEND: Opened sender for target address '" << snd.target().address() << "'\n";
     }
 
     void on_sendable(proton::sender& snd) override {
-        if (stopping_) return;
-
         proton::message msg {message_body_};
         snd.send(msg);
 
         std::cout << "SEND: Sent message '" << msg.body() << "'\n";
 
+        snd.close();
         snd.connection().close();
-        stopping_ = true;
     }
 };
 

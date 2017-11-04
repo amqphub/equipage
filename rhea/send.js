@@ -32,23 +32,23 @@ var conn_url = url.parse(process.argv[2]);
 var address = process.argv[3];
 var message_body = process.argv[4];
 
-var stopping = false;
-
 var container = rhea.create_container();
 
 container.on("sender_open", function (event) {
-    console.log("SEND: Opened sender for target address '" + address + "'");
+    var addr = event.sender.target.address;
+    console.log("SEND: Opened sender for target address '" + addr + "'");
 });
 
 container.on("sendable", function (event) {
-    if (stopping) return;
-    
-    event.sender.send(message_body);
+    var message = {
+        "body": message_body
+    };
 
-    console.log("SEND: Sent message '" + message_body + "'");
+    event.sender.send(message);
+
+    console.log("SEND: Sent message '" + message.body + "'");
 
     event.connection.close();
-    stopping = true;
 });
 
 var opts = {
