@@ -35,8 +35,7 @@ var message_body = process.argv[4];
 var container = rhea.create_container();
 
 container.on("sender_open", function (event) {
-    var addr = event.sender.target.address;
-    console.log("SEND: Opened sender for target address '" + addr + "'");
+    console.log("SEND: Opened sender for target address '" + event.sender.target.address + "'");
 });
 
 container.on("sendable", function (event) {
