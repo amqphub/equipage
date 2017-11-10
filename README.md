@@ -72,7 +72,7 @@ Usage: `respond CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
    - custom-failover
  - Authentication (authentication)
    - connect
- - Multithreaded applications (threading)
+ - Multithreaded applications (multithreaded)
    - send
    - receive
  - Error handling (error-handling)
