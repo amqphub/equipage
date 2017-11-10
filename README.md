@@ -81,6 +81,9 @@ Usage: `respond CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
  - Logging (logging)
    - send
    - receive
+ - Subscriptions (subscriptions)
+   - subscribe
+   - durable-subscribe
  - Transactions (transactions)
  - Timers (timers)
  - Filters (filters)
