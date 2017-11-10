@@ -30,7 +30,7 @@
 #include <iostream>
 #include <string>
 
-struct receive_handler : public proton::messaging_handler {
+struct subscribe_handler : public proton::messaging_handler {
     std::string conn_url_ {};
     std::string address_ {};
     int desired_ {0};
@@ -45,12 +45,11 @@ struct receive_handler : public proton::messaging_handler {
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
-        std::cout << "RECEIVE: Opened receiver for source address '"
-                  << rcv.source().address() << "'\n";
+        std::cout << "SUBSCRIBE: Opened receiver for source address '" << address_ << "'\n";
     }
 
     void on_message(proton::delivery& dlv, proton::message& msg) override {
-        std::cout << "RECEIVE: Received message '" << msg.body() << "'\n";
+        std::cout << "SUBSCRIBE: Received message '" << msg.body() << "'\n";
 
         received_++;
 
@@ -63,11 +62,11 @@ struct receive_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 3 && argc != 4) {
-        std::cerr << "Usage: receive CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n";
+        std::cerr << "Usage: subscribe CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n";
         return 1;
     }
 
-    receive_handler handler {};
+    subscribe_handler handler {};
     handler.conn_url_ = argv[1];
     handler.address_ = argv[2];
 

@@ -37,11 +37,9 @@
 struct respond_handler : public proton::messaging_handler {
     std::string conn_url_ {};
     std::string address_ {};
-    int count_ {1};
-
-    proton::sender sender_ {};
+    int desired_ {0};
     int received_ {0};
-    bool stopping_ {false};
+    proton::sender sender_ {};
 
     void on_container_start(proton::container& cont) override {
         cont.connect(conn_url_);
@@ -53,8 +51,6 @@ struct respond_handler : public proton::messaging_handler {
     }
 
     void on_message(proton::delivery& dlv, proton::message& request) override {
-        if (stopping_) return;
-
         std::cout << "RESPOND: Received request '" << request.body() << "'\n";
 
         auto body = proton::get<std::string>(request.body());
@@ -70,9 +66,9 @@ struct respond_handler : public proton::messaging_handler {
 
         received_++;
 
-        if (received_ == count_) {
+        if (received_ == desired_) {
+            dlv.receiver().close();
             dlv.connection().close();
-            stopping_ = true;
         }
     }
 };
@@ -88,11 +84,17 @@ int main(int argc, char** argv) {
     handler.address_ = argv[2];
 
     if (argc == 4) {
-        handler.count_ = std::stoi(argv[3]);
+        handler.desired_ = std::stoi(argv[3]);
     }
 
     proton::container cont {handler};
-    cont.run();
+
+    try {
+        cont.run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << "\n";
+        return 1;
+    }
 
     return 0;
 }

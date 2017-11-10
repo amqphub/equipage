@@ -34,14 +34,12 @@ struct request_handler : public proton::messaging_handler {
     std::string conn_url_ {};
     std::string address_ {};
     std::string message_body_ {};
-
     proton::sender sender_ {};
-    bool stopping_ {false};
 
     void on_container_start(proton::container& cont) override {
         cont.connect(conn_url_);
     }
-    
+
     void on_connection_open(proton::connection& conn) override {
         sender_ = conn.open_sender(address_);
 
@@ -50,7 +48,7 @@ struct request_handler : public proton::messaging_handler {
 
         sopts.dynamic(true);
         opts.source(sopts);
-        
+
         conn.open_receiver("", opts);
     }
 
@@ -64,28 +62,32 @@ struct request_handler : public proton::messaging_handler {
     }
 
     void on_message(proton::delivery& dlv, proton::message& response) override {
-        if (stopping_) return;
-        
         std::cout << "REQUEST: Received response '" << response.body() << "'\n";
 
+        dlv.receiver().close();
         dlv.connection().close();
-        stopping_ = true;
     }
 };
 
 int main(int argc, char** argv) {
     if (argc != 4) {
-        std::cerr << "Usage: request CONNECTION-URL ADDRESS MESSAGE\n";
+        std::cerr << "Usage: request CONNECTION-URL ADDRESS MESSAGE-BODY\n";
         return 1;
     }
-    
+
     request_handler handler {};
     handler.conn_url_ = argv[1];
     handler.address_ = argv[2];
     handler.message_body_ = argv[3];
 
     proton::container cont {handler};
-    cont.run();
+
+        try {
+        cont.run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << "\n";
+        return 1;
+    }
 
     return 0;
 }

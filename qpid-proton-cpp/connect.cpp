@@ -42,15 +42,21 @@ struct connect_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 2) {
-        std::cerr << "Usage: CONNECTION-URL\n";
+        std::cerr << "Usage: connect CONNECTION-URL\n";
         return 1;
     }
-    
+
     connect_handler handler {};
     handler.conn_url_ = argv[1];
 
     proton::container cont {handler};
-    cont.run();
+
+    try {
+        cont.run();
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << "\n";
+        return 1;
+    }
 
     return 0;
 }

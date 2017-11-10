@@ -84,6 +84,8 @@ Usage: `respond CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
  - Subscriptions (subscriptions)
    - subscribe
    - durable-subscribe
+   - shared-subscribe
+   - durable-shared-subscribe
  - Transactions (transactions)
  - Timers (timers)
  - Filters (filters)

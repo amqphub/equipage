@@ -25,12 +25,14 @@
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
 #include <proton/receiver.hpp>
+#include <proton/receiver_options.hpp>
 #include <proton/source.hpp>
+#include <proton/source_options.hpp>
 
 #include <iostream>
 #include <string>
 
-struct receive_handler : public proton::messaging_handler {
+struct subscribe_handler : public proton::messaging_handler {
     std::string conn_url_ {};
     std::string address_ {};
     int desired_ {0};
@@ -41,16 +43,28 @@ struct receive_handler : public proton::messaging_handler {
     }
 
     void on_connection_open(proton::connection& conn) override {
-        conn.open_receiver(address_);
+        proton::receiver_options opts {};
+        proton::source_options sopts {};
+
+        std::vector<proton::symbol> caps {
+            "shared",
+            "global" // Global means shared across clients (distinct container IDs)
+        };
+        
+        sopts.capabilities(caps);
+
+        opts.name("sub-1"); // A stable link name
+        opts.source(sopts);
+        
+        conn.open_receiver(address_, opts);
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
-        std::cout << "RECEIVE: Opened receiver for source address '"
-                  << rcv.source().address() << "'\n";
+        std::cout << "SUBSCRIBE: Opened receiver for source address '" << address_ << "'\n";
     }
 
     void on_message(proton::delivery& dlv, proton::message& msg) override {
-        std::cout << "RECEIVE: Received message '" << msg.body() << "'\n";
+        std::cout << "SUBSCRIBE: Received message '" << msg.body() << "'\n";
 
         received_++;
 
@@ -63,11 +77,11 @@ struct receive_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 3 && argc != 4) {
-        std::cerr << "Usage: receive CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n";
+        std::cerr << "Usage: shared-subscribe CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n";
         return 1;
     }
 
-    receive_handler handler {};
+    subscribe_handler handler {};
     handler.conn_url_ = argv[1];
     handler.address_ = argv[2];
 
@@ -75,7 +89,7 @@ int main(int argc, char** argv) {
         handler.desired_ = std::stoi(argv[3]);
     }
 
-    proton::container cont {handler};
+    proton::container cont {handler, "app-1"}; // A stable container ID
 
     try {
         cont.run();
