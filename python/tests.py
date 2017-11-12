@@ -79,7 +79,7 @@ class TestServer(object):
     def __enter__(self):
         self.output = open(self.output_file, "w")
 
-        self.proc = start_process("qbroker --verbose --port {}", self.port, output=self.output)
+        self.proc = start_process("scripts/test-broker 127.0.0.1 {0}", self.port, output=self.output)
         self.proc.connection_url = self.connection_url
 
         time.sleep(0.1) # XXX Ugh
