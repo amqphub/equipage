@@ -596,7 +596,7 @@ class _Process(_subprocess.Popen):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        stop_process(self.proc)
+        stop_process(self)
 
     def __repr__(self):
         return "process {0} ({1})".format(self.pid, self.name)

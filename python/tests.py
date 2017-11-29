@@ -28,7 +28,7 @@ def open_test_session(session):
 
 def test_qpid_jms_connect(session):
     check_connect_usage(jms_prog("Connect"))
-    
+
     with TestServer() as server:
         call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Connect {}", server.connection_url)
 
@@ -50,13 +50,26 @@ def test_qpid_proton_cpp_send_and_receive(session):
         call("qpid-proton-cpp/build/receive {} examples 1", server.connection_url)
 
 def test_qpid_proton_python_connect(session):
+    check_connect_usage("qpid-proton-python/connect.py")
+
     with TestServer() as server:
         call("qpid-proton-python/connect.py {}", server.connection_url)
 
 def test_qpid_proton_python_send_and_receive(session):
+    check_send_usage("qpid-proton-python/send.py")
+    check_receive_usage("qpid-proton-python/receive.py")
+
     with TestServer() as server:
         call("qpid-proton-python/send.py {} examples abc", server.connection_url)
         call("qpid-proton-python/receive.py {} examples 1", server.connection_url)
+
+def test_qpid_proton_python_request_and_respond(session):
+    check_request_usage("qpid-proton-python/request.py")
+    check_respond_usage("qpid-proton-python/respond.py")
+
+    with TestServer() as server:
+        with start_process("qpid-proton-python/respond.py {} examples 1", server.connection_url):
+            call("qpid-proton-python/request.py {} examples abc", server.connection_url)
 
 def test_rhea_connect(session):
     with TestServer() as server:
@@ -97,6 +110,8 @@ class TestServer(object):
         for line in read_lines(self.output_file):
             print("> {}".format(line[:-1]))
 
+# XXX Check for matching program name
+
 def check_connect_usage(command):
     usage = None
 
@@ -129,6 +144,9 @@ def check_receive_usage(command):
 
     assert usage, usage
     assert "CONNECTION-URL ADDRESS [MESSAGE-COUNT]" in usage, usage
+
+check_request_usage = check_send_usage
+check_respond_usage = check_receive_usage
 
 def jms_prog(class_name):
     return "scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.{}".format(class_name)

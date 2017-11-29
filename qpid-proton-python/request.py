@@ -27,25 +27,32 @@ from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
 
-class Handler(MessagingHandler):
-    def __init__(self, address, data):
-        super(Handler, self).__init__()
+class RequestHandler(MessagingHandler):
+    def __init__(self, conn_url, address, message_body):
+        super(RequestHandler, self).__init__()
 
+        self.conn_url = conn_url
         self.address = address
-        self.data = data
+
+        try:
+            self.message_body = unicode(message_body)
+        except NameError:
+            self.message_body = message_body
 
         self.sender = None
         self.receiver = None
 
-    def on_connection_opened(self, event):
-        self.sender = event.container.create_sender(event.connection, self.address)
-        self.receiver = event.container.create_receiver(event.connection, None, dynamic=True)
+    def on_start(self, event):
+        conn = event.container.connect(self.conn_url)
+
+        self.sender = event.container.create_sender(conn, self.address)
+        self.receiver = event.container.create_receiver(conn, None, dynamic=True)
 
     def on_link_opened(self, event):
         if event.receiver != self.receiver:
             return
 
-        request = Message(unicode(self.data))
+        request = Message(self.message_body)
         request.reply_to = self.receiver.remote_source.address
 
         self.sender.send(request)
@@ -53,24 +60,25 @@ class Handler(MessagingHandler):
         print("REQUEST: Sent request '{0}'".format(request.body))
 
     def on_message(self, event):
-        print("REQUEST: Received response '{0}'".format(event.message.body))
+        message = event.message
 
+        print("REQUEST: Received response '{0}'".format(message.body))
+
+        event.receiver.close()
         event.connection.close()
 
-if __name__ == "__main__":
-    server = sys.argv[1]
-    address = sys.argv[2]
-    data = sys.argv[3]
-    tls_enabled = False
-
+def main():
     try:
-        tls_enabled = int(sys.argv[4]) == 1
-    except:
-        pass
+        conn_url, address, message_body = sys.argv[1:4]
+    except ValueError:
+        sys.exit("Usage: request.py CONNECTION-URL ADDRESS MESSAGE-BODY")
 
-    if tls_enabled:
-        server = "amqps://" + server
-
-    container = Container(Handler(address, data))
-    container.connect(server, allowed_mechs=b"ANONYMOUS")
+    handler = RequestHandler(conn_url, address, message_body)
+    container = Container(handler)
     container.run()
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass

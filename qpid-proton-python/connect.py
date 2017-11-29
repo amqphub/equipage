@@ -30,7 +30,7 @@ class ConnectHandler(MessagingHandler):
         super(ConnectHandler, self).__init__()
 
         self.connection_url = connection_url
-    
+
     def on_start(self, event):
         event.container.connect(self.connection_url)
 
@@ -39,9 +39,12 @@ class ConnectHandler(MessagingHandler):
         event.connection.close()
 
 def main():
-    connection_url = sys.argv[1]
+    try:
+        conn_url = sys.argv[1]
+    except IndexError:
+        sys.exit("Usage: connect.py CONNECTION-URL")
 
-    handler = ConnectHandler(connection_url)
+    handler = ConnectHandler(conn_url)
     container = Container(handler)
     container.run()
 

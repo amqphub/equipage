@@ -31,6 +31,7 @@ class ReceiveHandler(MessagingHandler):
 
         self.conn_url = conn_url
         self.address = address
+
         self.desired = desired
         self.received = 0
 
@@ -43,7 +44,7 @@ class ReceiveHandler(MessagingHandler):
 
     def on_message(self, event):
         message = event.message
-        
+
         print("RECEIVE: Received message '{0}'".format(message.body))
 
         self.received += 1
@@ -55,7 +56,7 @@ class ReceiveHandler(MessagingHandler):
 def main():
     try:
         conn_url, address = sys.argv[1:3]
-    except IndexError:
+    except ValueError:
         sys.exit("Usage: receive.py CONNECTION-URL ADDRESS [MESSAGE-COUNT]")
 
     try:

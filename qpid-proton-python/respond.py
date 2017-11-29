@@ -27,50 +27,63 @@ from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
 
-class Handler(MessagingHandler):
-    def __init__(self, address):
-        super(Handler, self).__init__()
+class RespondHandler(MessagingHandler):
+    def __init__(self, conn_url, address, desired):
+        super(RespondHandler, self).__init__()
 
+        self.conn_url = conn_url
         self.address = address
+
+        self.desired = desired
+        self.received = 0
 
         self.sender = None
         self.receiver = None
 
-    def on_connection_opened(self, event):
-        self.receiver = event.container.create_receiver(event.connection, self.address)
-        self.sender = event.container.create_sender(event.connection, None)
+    def on_start(self, event):
+        conn = event.container.connect(self.conn_url)
+
+        self.receiver = event.container.create_receiver(conn, self.address)
+        self.sender = event.container.create_sender(conn, None)
 
     def on_message(self, event):
         request = event.message
-        id_ = event.container.container_id
 
-        print("{}: Received request '{}'".format(id_, request.body))
+        print("RESPOND: Received request '{0}'".format(request.body))
 
-        body = "{} [{}]".format(request.body.upper(), id_)
+        message_body = request.body.upper()
 
-        response = Message(body)
+        response = Message(message_body)
         response.address = request.reply_to
         response.correlation_id = request.correlation_id
 
         self.sender.send(response)
 
-        print("{}: Sent response '{}'".format(id_, response.body))
+        print("RESPOND: Sent response '{0}'".format(response.body))
 
-if __name__ == "__main__":
-    server = sys.argv[1];
-    address = sys.argv[2];
-    id_ = sys.argv[3];
-    tls_enabled = False
+        self.received += 1
+
+        if self.received == self.desired:
+            event.receiver.close()
+            event.connection.close()
+
+def main():
+    try:
+        conn_url, address = sys.argv[1:3]
+    except ValueError:
+        sys.exit("Usage: respond.py CONNECTION-URL ADDRESS [MESSAGE-COUNT]")
 
     try:
-        tls_enabled = int(sys.argv[4]) == 1
-    except:
-        pass
+        desired = int(sys.argv[3])
+    except (IndexError, ValueError):
+        desired = 0
 
-    if tls_enabled:
-        server = "amqps://" + server
-
-    container = Container(Handler(address))
-    container.container_id = id_
-    container.connect(server, allowed_mechs=b"ANONYMOUS")
+    handler = RespondHandler(conn_url, address, desired)
+    container = Container(handler)
     container.run()
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
