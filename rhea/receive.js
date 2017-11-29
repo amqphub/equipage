@@ -30,11 +30,11 @@ if (process.argv.length !== 4 && process.argv.length !== 5) {
 
 var conn_url = url.parse(process.argv[2]);
 var address = process.argv[3];
-var count = 0;
+var desired = 0;
 var received = 0;
 
 if (process.argv.length === 5) {
-    count = parseInt(process.argv[4]);
+    desired = parseInt(process.argv[4]);
 }
 
 var container = rhea.create_container();
@@ -51,7 +51,7 @@ container.on("message", function (event) {
 
     received++;
 
-    if (received == count) {
+    if (received == desired) {
         event.connection.close();
     }
 });

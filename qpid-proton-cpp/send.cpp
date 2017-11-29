@@ -43,7 +43,8 @@ struct send_handler : public proton::messaging_handler {
     }
 
     void on_sender_open(proton::sender& snd) override {
-        std::cout << "SEND: Opened sender for target address '" << snd.target().address() << "'\n";
+        std::cout << "SEND: Opened sender for target address '"
+                  << snd.target().address() << "'\n";
     }
 
     void on_sendable(proton::sender& snd) override {

@@ -26,12 +26,12 @@ from proton.handlers import MessagingHandler
 from proton.reactor import Container
 
 class ReceiveHandler(MessagingHandler):
-    def __init__(self, conn_url, address, count):
+    def __init__(self, conn_url, address, desired):
         super(ReceiveHandler, self).__init__()
 
         self.conn_url = conn_url
         self.address = address
-        self.count = count
+        self.desired = desired
         self.received = 0
 
     def on_start(self, event):
@@ -48,7 +48,7 @@ class ReceiveHandler(MessagingHandler):
 
         self.received += 1
 
-        if self.received == self.count:
+        if self.received == self.desired:
             event.receiver.close()
             event.connection.close()
 
@@ -59,11 +59,11 @@ def main():
         sys.exit("Usage: receive.py CONNECTION-URL ADDRESS [MESSAGE-COUNT]")
 
     try:
-        count = int(sys.argv[3])
+        desired = int(sys.argv[3])
     except (IndexError, ValueError):
-        count = 0
+        desired = 0
 
-    handler = ReceiveHandler(conn_url, address, count)
+    handler = ReceiveHandler(conn_url, address, desired)
     container = Container(handler)
     container.run()
 
