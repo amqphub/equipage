@@ -22,51 +22,50 @@
 "use strict";
 
 var rhea = require("rhea");
+var url = require("url");
 
-var server = process.argv[2];
-var address = process.argv[3];
-var id = process.argv[4];
-var tls_enabled = false;
-
-if (process.argv.length === 6) {
-    tls_enabled = parseInt(process.argv[5]) === 1;
+if (process.argv.length !== 4 && process.argv.length !== 5) {
+    console.error("Usage: respond.js CONNECTION-URL ADDRESS [MESSAGE-COUNT]");
+    process.exit(1);
 }
 
-var container = rhea.create_container({id: id});
+var conn_url = url.parse(process.argv[2]);
+var address = process.argv[3];
 
-container.on("connection_open", function (context) {
-    context.connection.open_receiver(address);
+var desired = 0;
+var received = 0;
+
+if (process.argv.length === 5) {
+    desired = parseInt(process.argv[4]);
+}
+
+var container = rhea.create_container();
+
+container.on("connection_open", function (event) {
+    event.connection.open_receiver(address);
 });
 
-container.on("message", function (context) {
-    var request = context.message;
+container.on("message", function (event) {
+    var request = event.message;
 
-    console.log(container.id + ": Received request '" + request.body + "'");
+    console.log("RESPOND: Received request '" + request.body + "'");
 
-    var body = request.body.toUpperCase() + " [" + container.id + "]";
+    var body = request.body.toUpperCase();
     
     var response = {
         to: request.reply_to,
+        correlation_id: request.id, // XXX
         body: body,
-        correlation_id: request.correlation_id
     };
 
-    context.connection.send(response);
+    event.connection.send(response);
 
-    console.log(container.id + ": Sent response '" + response.body + "'");
+    console.log("RESPOND: Sent response '" + response.body + "'");
 });
 
-var [host, port] = server.split(":", 2);
-var opts = {};
-
-opts.username = "anonymous";
-opts.host = host;
-opts.port = port;
-
-if (tls_enabled) {
-    opts.transport = "tls";
-    opts.servername = host;
-    opts.rejectUnauthorized = false;
-}
+var opts = {
+    host: conn_url.hostname,
+    port: conn_url.port || 5672
+};
 
 container.connect(opts);

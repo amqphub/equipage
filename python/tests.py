@@ -76,9 +76,20 @@ def test_rhea_connect(session):
         call("rhea/connect.js {}", server.connection_url)
 
 def test_rhea_send_and_receive(session):
+    check_send_usage("rhea/send.js")
+    check_receive_usage("rhea/receive.js")
+
     with TestServer() as server:
         call("rhea/send.js {} examples abc", server.connection_url)
         call("rhea/receive.js {} examples 1", server.connection_url)
+
+def test_rhea_request_and_respond(session):
+    check_request_usage("rhea/request.js")
+    check_respond_usage("rhea/respond.js")
+
+    with TestServer() as server:
+        with start_process("rhea/respond.js {} examples 1", server.connection_url):
+            call("rhea/request.js {} examples abc", server.connection_url)
 
 class TestServer(object):
     def __init__(self):
