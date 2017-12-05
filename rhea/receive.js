@@ -53,6 +53,7 @@ container.on("message", function (event) {
     received++;
 
     if (received == desired) {
+        event.receiver.close();
         event.connection.close();
     }
 });

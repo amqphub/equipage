@@ -49,6 +49,7 @@ container.on("sendable", function (event) {
 
     console.log("SEND: Sent message '" + message.body + "'");
 
+    event.sender.close();
     event.connection.close();
 });
 
