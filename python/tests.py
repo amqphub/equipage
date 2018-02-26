@@ -143,8 +143,6 @@ class TestServer(object):
         for line in read_lines(self.output_file):
             print("> {}".format(line[:-1]))
 
-# XXX Check for matching program name
-
 def check_connect_usage(command):
     usage = None
 
@@ -155,6 +153,9 @@ def check_connect_usage(command):
 
     assert usage, usage
     assert "CONNECTION-URL" in usage, usage
+
+    if not "run-qpid-jms-example" in command:
+        assert file_name(command) in usage, usage
 
 def check_send_usage(command):
     usage = None
@@ -167,6 +168,9 @@ def check_send_usage(command):
     assert usage, usage
     assert "CONNECTION-URL ADDRESS MESSAGE-BODY" in usage, usage
 
+    if not "run-qpid-jms-example" in command:
+        assert file_name(command) in usage, usage
+
 def check_receive_usage(command):
     usage = None
 
@@ -177,6 +181,9 @@ def check_receive_usage(command):
 
     assert usage, usage
     assert "CONNECTION-URL ADDRESS [MESSAGE-COUNT]" in usage, usage
+
+    if not "run-qpid-jms-example" in command:
+        assert file_name(command) in usage, usage
 
 check_request_usage = check_send_usage
 check_respond_usage = check_receive_usage
