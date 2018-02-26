@@ -37,9 +37,6 @@ class RespondHandler(MessagingHandler):
         self.desired = desired
         self.received = 0
 
-        self.sender = None
-        self.receiver = None
-
     def on_start(self, event):
         conn = event.container.connect(self.conn_url)
 

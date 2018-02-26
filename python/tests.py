@@ -85,6 +85,14 @@ def test_qpid_proton_ruby_send_and_receive(session):
         call("qpid-proton-ruby/send.rb {} examples abc", server.connection_url)
         call("qpid-proton-ruby/receive.rb {} examples 1", server.connection_url)
 
+def test_qpid_proton_ruby_request_and_respond(session):
+    check_request_usage("qpid-proton-ruby/request.rb")
+    check_respond_usage("qpid-proton-ruby/respond.rb")
+
+    with TestServer() as server:
+        with start_process("qpid-proton-ruby/respond.rb {} examples 1", server.connection_url):
+            call("qpid-proton-ruby/request.rb {} examples abc", server.connection_url)
+
 def test_rhea_connect(session):
     with TestServer() as server:
         call("rhea/connect.js {}", server.connection_url)

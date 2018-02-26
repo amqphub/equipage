@@ -39,9 +39,6 @@ class RequestHandler(MessagingHandler):
         except NameError:
             self.message_body = message_body
 
-        self.sender = None
-        self.receiver = None
-
     def on_start(self, event):
         conn = event.container.connect(self.conn_url)
 

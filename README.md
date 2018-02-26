@@ -2,9 +2,10 @@
 
 ## APIs
 
+ - [Qpid JMS](http://qpid.apache.org/components/jms/index.html)
  - [Qpid Proton C++](http://qpid.apache.org/proton/index.html)
  - [Qpid Proton Python](http://qpid.apache.org/proton/index.html)
- - [Qpid JMS](http://qpid.apache.org/components/jms/index.html)
+ - [Qpid Proton Ruby](http://qpid.apache.org/proton/index.html)
  - [Rhea](https://github.com/grs/rhea)
 
 ## Primary examples
@@ -72,7 +73,7 @@ Usage: `respond CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
    - custom-failover
  - Authentication (authentication)
    - connect
- - Multithreaded applications (multithreaded)
+ - Multithreaded applications (multithreading)
    - send
    - receive
  - Error handling (error-handling)
