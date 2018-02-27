@@ -34,7 +34,7 @@ class RespondHandler < Qpid::Proton::MessagingHandler
   def on_container_start(container)
     conn = container.connect(@conn_url)
 
-    @receiver = conn.open_receiver(@address)
+    conn.open_receiver(@address)
     @sender = conn.open_sender({:target => nil})
   end
 

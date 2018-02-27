@@ -35,10 +35,7 @@ struct send_handler : public proton::messaging_handler {
     std::string message_body_ {};
 
     void on_container_start(proton::container& cont) override {
-        cont.connect(conn_url_);
-    }
-
-    void on_connection_open(proton::connection& conn) override {
+        proton::connection conn = cont.connect(conn_url_);
         conn.open_sender(address_);
     }
 

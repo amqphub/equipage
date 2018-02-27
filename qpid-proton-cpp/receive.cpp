@@ -37,10 +37,7 @@ struct receive_handler : public proton::messaging_handler {
     int received_ {0};
 
     void on_container_start(proton::container& cont) override {
-        cont.connect(conn_url_);
-    }
-
-    void on_connection_open(proton::connection& conn) override {
+        proton::connection conn = cont.connect(conn_url_);
         conn.open_receiver(address_);
     }
 

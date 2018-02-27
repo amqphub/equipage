@@ -42,10 +42,8 @@ struct respond_handler : public proton::messaging_handler {
     proton::sender sender_ {};
 
     void on_container_start(proton::container& cont) override {
-        cont.connect(conn_url_);
-    }
-    
-    void on_connection_open(proton::connection& conn) override {
+        proton::connection conn = cont.connect(conn_url_);
+
         conn.open_receiver(address_);
         sender_ = conn.open_sender("");
     }

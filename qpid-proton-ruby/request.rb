@@ -33,14 +33,10 @@ class RequestHandler < Qpid::Proton::MessagingHandler
     conn = container.connect(@conn_url)
 
     @sender = conn.open_sender(@address)
-    @receiver = conn.open_receiver({:dynamic => true})
+    conn.open_receiver({:dynamic => true})
   end
 
   def on_receiver_open(receiver)
-    if receiver != @receiver
-      return
-    end
-
     request = Qpid::Proton::Message.new(@message_body)
     request.reply_to = receiver.remote_source.address
 

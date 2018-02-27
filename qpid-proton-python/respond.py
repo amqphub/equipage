@@ -40,7 +40,7 @@ class RespondHandler(MessagingHandler):
     def on_start(self, event):
         conn = event.container.connect(self.conn_url)
 
-        self.receiver = event.container.create_receiver(conn, self.address)
+        event.container.create_receiver(conn, self.address)
         self.sender = event.container.create_sender(conn, None)
 
     def on_message(self, event):

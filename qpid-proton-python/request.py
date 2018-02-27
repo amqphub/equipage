@@ -43,14 +43,14 @@ class RequestHandler(MessagingHandler):
         conn = event.container.connect(self.conn_url)
 
         self.sender = event.container.create_sender(conn, self.address)
-        self.receiver = event.container.create_receiver(conn, None, dynamic=True)
+        event.container.create_receiver(conn, None, dynamic=True)
 
     def on_link_opened(self, event):
-        if event.receiver != self.receiver:
+        if event.link.is_sender:
             return
 
         request = Message(self.message_body)
-        request.reply_to = self.receiver.remote_source.address
+        request.reply_to = event.receiver.remote_source.address
 
         self.sender.send(request)
 

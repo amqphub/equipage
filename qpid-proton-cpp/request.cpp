@@ -25,6 +25,8 @@
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
 #include <proton/receiver_options.hpp>
+#include <proton/receiver.hpp>
+#include <proton/sender.hpp>
 #include <proton/source_options.hpp>
 
 #include <iostream>
@@ -37,10 +39,8 @@ struct request_handler : public proton::messaging_handler {
     proton::sender sender_ {};
 
     void on_container_start(proton::container& cont) override {
-        cont.connect(conn_url_);
-    }
+        proton::connection conn = cont.connect(conn_url_);
 
-    void on_connection_open(proton::connection& conn) override {
         sender_ = conn.open_sender(address_);
 
         proton::receiver_options opts {};
