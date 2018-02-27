@@ -35,7 +35,6 @@ struct send_handler : public proton::messaging_handler {
     std::string conn_url_ {};
     std::string address_ {};
     std::string message_body_ {};
-    proton::work_queue* work_queue_;
     proton::duration interval_ {1 * proton::duration::SECOND};
     int desired_ {0};
     int sent_ {0};
@@ -49,12 +48,11 @@ struct send_handler : public proton::messaging_handler {
         std::cout << "SEND: Opened sender for target address '"
                   << snd.target().address() << "'\n";
 
-        work_queue_ = &snd.work_queue();
-        work_queue_->schedule(interval_, [=] { send(snd); });
+        snd.work_queue().schedule(interval_, [=] { send(snd); });
     }
 
     void send(proton::sender snd) {
-        work_queue_->schedule(interval_, [=] { send(snd); });
+        snd.work_queue().schedule(interval_, [=] { send(snd); });
 
         if (snd.credit() > 0) {
             proton::message msg {"hello-" + std::to_string(sent_)};
