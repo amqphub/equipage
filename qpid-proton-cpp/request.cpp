@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 
     proton::container cont {handler};
 
-        try {
+    try {
         cont.run();
     } catch (const std::exception& e) {
         std::cerr << e.what() << "\n";
