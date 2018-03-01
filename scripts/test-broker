@@ -76,6 +76,8 @@ class BrokerCommand(object):
 
 class _Queue(object):
     def __init__(self, command, address):
+        assert address is not None
+
         self.command = command
         self.address = address
 
@@ -225,6 +227,8 @@ class _Handler(_handlers.MessagingHandler):
 
         if address is None:
             address = message.address
+
+        assert address is not None, message
 
         queue = self.get_queue(address)
         queue.store_message(delivery, message)
