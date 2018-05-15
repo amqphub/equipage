@@ -38,9 +38,9 @@ public class Connect {
         ConnectionFactory factory = new JmsConnectionFactory(connUrl);
         JmsPoolConnectionFactory pool = new JmsPoolConnectionFactory();
 
-        pool.setConnectionFactory(factory);
-        
         try {
+            pool.setConnectionFactory(factory);
+
             Connection conn = pool.createConnection();
 
             conn.start();
