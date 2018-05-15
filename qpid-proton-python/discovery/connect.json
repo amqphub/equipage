@@ -1,0 +1,9 @@
+{
+    "host": "localhost",
+    "port": "5672",
+    "sasl_mechanisms": ["ANONYMOUS"]
+    // "user": "alice",
+    // "password", "secret",
+    // "ssl_enabled": true,
+    // "ssl_client_options": { ... }
+}
