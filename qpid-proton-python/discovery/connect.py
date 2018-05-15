@@ -25,17 +25,11 @@ import sys
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
 
+os.environ["PN_CONNECT_DEFAULT"] = "file:connect.json"
+
 class ConnectHandler(MessagingHandler):
     def on_start(self, event):
-        # Looks for:
-        #
-        #  1. $PWD/connect.json
-        #  2. $HOME/.config/qpid-proton/connect.json
-        #  3. /etc/qpid-proton/connect.json
-        #
-        # Note: I intend no linkage of the Python file name and the
-        # JSON one here.  They just happen to coincide.
-        event.container.connect_discover()
+        event.container.connect()
 
     def on_connection_opened(self, event):
         print("CONNECT: Connected to '{0}'".format(event.connection))
