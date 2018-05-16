@@ -26,19 +26,31 @@ from plano import *
 def open_test_session(session):
     set_message_threshold("error")
 
-def test_qpid_jms_connect(session):
-    check_connect_usage(jms_prog("Connect"))
+def test_pooled_jms_connect(session):
+    with working_dir("pooled-jms"):
+        check_connect_usage(jms_prog("Connect"))
 
     with TestServer() as server:
-        call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Connect {}", server.connection_url)
+        with working_dir("pooled-jms"):
+            call("{} {}", jms_prog("Connect"), server.connection_url)
+
+def test_qpid_jms_connect(session):
+    with working_dir("qpid-jms"):
+        check_connect_usage(jms_prog("Connect"))
+
+    with TestServer() as server:
+        with working_dir("qpid-jms"):
+            call("{} {}", jms_prog("Connect"), server.connection_url)
 
 def test_qpid_jms_send_and_receive(session):
-    check_send_usage(jms_prog("Send"))
-    check_receive_usage(jms_prog("Receive"))
+    with working_dir("qpid-jms"):
+        check_send_usage(jms_prog("Send"))
+        check_receive_usage(jms_prog("Receive"))
 
     with TestServer() as server:
-        call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Send {} examples abc", server.connection_url)
-        call("scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.Receive {} examples 1", server.connection_url)
+        with working_dir("qpid-jms"):
+            call("{} {} examples abc", jms_prog("Send"), server.connection_url)
+            call("{} {} examples 1", jms_prog("Receive"), server.connection_url)
 
 def test_qpid_proton_cpp_connect(session):
     with TestServer() as server:
@@ -154,7 +166,7 @@ def check_connect_usage(command):
     assert usage, usage
     assert "CONNECTION-URL" in usage, usage
 
-    if not "run-qpid-jms-example" in command:
+    if not "run-example" in command:
         assert file_name(command) in usage, usage
 
 def check_send_usage(command):
@@ -168,7 +180,7 @@ def check_send_usage(command):
     assert usage, usage
     assert "CONNECTION-URL ADDRESS MESSAGE-BODY" in usage, usage
 
-    if not "run-qpid-jms-example" in command:
+    if not "run-example" in command:
         assert file_name(command) in usage, usage
 
 def check_receive_usage(command):
@@ -182,11 +194,11 @@ def check_receive_usage(command):
     assert usage, usage
     assert "CONNECTION-URL ADDRESS [MESSAGE-COUNT]" in usage, usage
 
-    if not "run-qpid-jms-example" in command:
+    if not "run-example" in command:
         assert file_name(command) in usage, usage
 
 check_request_usage = check_send_usage
 check_respond_usage = check_receive_usage
 
 def jms_prog(class_name):
-    return "scripts/run-qpid-jms-example net.ssorj.messaging.examples.jms.{}".format(class_name)
+    return "scripts/run-example net.ssorj.messaging.examples.jms.{}".format(class_name)

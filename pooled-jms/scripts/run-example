@@ -18,36 +18,29 @@
 # under the License.
 #
 
-from plano import *
+import os
+import sys
 
-def main():
-    #set_message_threshold("warn")
+jar_file = os.path.join("target", "messaging-examples-jms-1.0.0-SNAPSHOT-jar-with-dependencies.jar")
+class_name = sys.argv[1]
 
-    jar_file = join("qpid-jms", "target", "messaging-examples-jms-1.0.0-SNAPSHOT-jar-with-dependencies.jar")
+args = [
+    "/usr/bin/env", "--", "java",
+    "-classpath", jar_file,
+    class_name,
+]
 
-    class_name = ARGS[1]
+if len(sys.argv) >= 3:
+    connection_url = sys.argv[2]
 
-    args = [
-        "/usr/bin/env", "--", "java",
-        "-classpath", jar_file,
-        class_name,
-    ]
+    if connection_url.startswith("//"):
+        connection_url = "amqp:" + connection_url
 
-    if len(ARGS) >= 3:
-        connection_url = ARGS[2]
+    args.append(connection_url)
 
-        if connection_url.startswith("//"):
-            connection_url = "amqp:" + connection_url
+if len(sys.argv) >= 4:
+    args += sys.argv[3:]
 
-        args += [connection_url]
+print("Calling '{}'".format(" ".join(args)))
 
-    if len(ARGS) >= 4:
-        args += ARGS[3:]
-
-    exec_process(args)
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        pass
+os.execvp(args[0], args[1:])

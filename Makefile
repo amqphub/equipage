@@ -3,6 +3,7 @@ export NODE_PATH := ${PWD}/rhea/node_modules
 
 .PHONY: build
 build:
+	cd pooled-jms && make build
 	cd qpid-jms && make build
 	cd qpid-proton-cpp && make build
 	cd qpid-proton-python && make build
@@ -14,6 +15,7 @@ test: build
 
 .PHONY: clean
 clean:
+	cd pooled-jms && make clean
 	cd qpid-jms && make clean
 	cd qpid-proton-cpp && make clean
 	cd qpid-proton-python && make clean
