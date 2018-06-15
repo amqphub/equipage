@@ -40,7 +40,7 @@
 #include <string>
 #include <thread>
 
-// Lock output from threads to avoid scramblin
+// Prevent garbled logging
 std::mutex out_lock_;
 #define OUT(x) do { std::lock_guard<std::mutex> l(out_lock_); x; } while (false)
 
@@ -57,8 +57,8 @@ class send_handler : public proton::messaging_handler {
     std::mutex lock_;
     proton::work_queue* work_queue_ {0};
     std::condition_variable sender_open_cv_;
-    bool sender_sendable_;
-    std::condition_variable sender_sendable_cv_;
+    bool sender_has_capacity_;
+    std::condition_variable sender_has_capacity_cv_;
 
 public:
     send_handler(const std::string& conn_url, const std::string& address)
@@ -68,8 +68,8 @@ public:
     void send(const proton::message& msg) {
         {
             std::unique_lock<std::mutex> l(lock_);
-            while (!sender_sendable_) sender_sendable_cv_.wait(l);
-            sender_sendable_ = false;
+            while (!sender_has_capacity_) sender_has_capacity_cv_.wait(l);
+            sender_has_capacity_ = false;
         }
 
         work_queue()->add([=]() { sender_.send(msg); });
@@ -109,8 +109,8 @@ private:
         std::lock_guard<std::mutex> l(lock_);
 
         if (snd.session().outgoing_bytes() < max_outgoing_bytes_) {
-            sender_sendable_ = true;
-            sender_sendable_cv_.notify_all();
+            sender_has_capacity_ = true;
+            sender_has_capacity_cv_.notify_all();
         } else {
             OUT(std::cout << "Max bytes exceeded.  Blocking sends.\n");
         }
