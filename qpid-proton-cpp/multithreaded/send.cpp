@@ -44,7 +44,7 @@
 std::mutex out_lock_;
 #define OUT(x) do { std::lock_guard<std::mutex> l(out_lock_); x; } while (false)
 
-// Handler for a single thread-safe sending and receiving connection.
+// Handler for a single thread-safe sending connection
 class send_handler : public proton::messaging_handler {
     const std::string conn_url_;
     const std::string address_;
