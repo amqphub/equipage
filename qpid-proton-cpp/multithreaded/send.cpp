@@ -66,25 +66,22 @@ public:
 
     // Thread safe
     void send(const proton::message& msg) {
-        {
-            std::unique_lock<std::mutex> l(lock_);
-            while (!sender_has_capacity_) sender_has_capacity_cv_.wait(l);
-            sender_has_capacity_ = false;
-        }
+        std::unique_lock<std::mutex> l(lock_);
+        while (!sender_has_capacity_) sender_has_capacity_cv_.wait(l);
+        sender_has_capacity_ = false;
 
-        work_queue()->add([=]() { sender_.send(msg); });
+        work_queue(l)->add([=]() { sender_.send(msg); });
     }
 
     // Thread safe
     void close() {
-        work_queue()->add([=]() { sender_.connection().close(); });
+        std::unique_lock<std::mutex> l(lock_);
+        work_queue(l)->add([=]() { sender_.connection().close(); });
     }
 
 private:
-    proton::work_queue* work_queue() {
-        std::unique_lock<std::mutex> l(lock_);
+    proton::work_queue* work_queue(std::unique_lock<std::mutex>& l) {
         while (!work_queue_) sender_open_cv_.wait(l);
-
         return work_queue_;
     }
 
