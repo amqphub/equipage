@@ -60,7 +60,7 @@ class RespondHandler < Qpid::Proton::MessagingHandler
   end
 end
 
-if ARGV.length > 2
+if ARGV.size > 1
   conn_url, address = ARGV[0..1]
 else
   abort "Usage: respond.rb CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n"
@@ -68,7 +68,7 @@ end
 
 begin
   desired = Integer(ARGV[2])
-rescue ArgumentError
+rescue TypeError
   desired = 0
 end
 
