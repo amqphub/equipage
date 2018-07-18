@@ -56,15 +56,17 @@ public class Respond {
                     continue;
                 }
 
-                System.out.println("RESPONDER: Received request '" + request.getText() + "'");
+                System.out.println("RESPOND: Received request '" + request.getText() + "'");
 
                 String processedText = request.getText().toUpperCase();
                 TextMessage response = session.createTextMessage();
 
                 response.setText(processedText);
+                response.setJMSCorrelationID(request.getJMSMessageID());
+
                 producer.send(request.getJMSReplyTo(), response);
 
-                System.out.println("RESPONDER: Sent response '" + processedText + "'");
+                System.out.println("RESPOND: Sent response '" + processedText + "'");
             }
         } catch (JMSException e) {
             throw new RuntimeException(e);

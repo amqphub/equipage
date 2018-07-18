@@ -29,7 +29,7 @@ public class Request {
     public static void main(String[] args) {
         ConnectionFactory factory;
         Destination requestQueue;
-        
+
         try {
             Context context = new InitialContext();
             factory = (ConnectionFactory) context.lookup("factoryLookup");
@@ -55,17 +55,17 @@ public class Request {
             request.setText("abc");
             request.setJMSReplyTo(responseQueue);
 
-            System.out.println("REQUESTER: Sent request '" + request.getText() + "'");
+            System.out.println("REQUEST: Sent request '" + request.getText() + "'");
 
             producer.send(request);
-            
+
             TextMessage response = (TextMessage) consumer.receive();
 
             if (response == null) {
                 throw new RuntimeException("Null response");
             }
 
-            System.out.println("REQUESTER: Received response: '" + response.getText() + "'");
+            System.out.println("REQUEST: Received response: '" + response.getText() + "'");
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }

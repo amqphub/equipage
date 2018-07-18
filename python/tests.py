@@ -52,6 +52,15 @@ def test_qpid_jms_send_and_receive(session):
             call("{} {} examples abc", jms_prog("Send"), server.connection_url)
             call("{} {} examples 1", jms_prog("Receive"), server.connection_url)
 
+# def test_qpid_jms_request_and_respond(session):
+#     with working_dir("qpid-jms"):
+#         check_request_usage(jms_prog("Request"))
+#         check_respond_usage(jms_prog("Respond"))
+
+#     # with TestServer() as server:
+#     #     with start_process("qpid-proton-python/respond.py {} examples 1", server.connection_url):
+#     #         call("qpid-proton-python/request.py {} examples abc", server.connection_url)
+
 def test_qpid_proton_cpp_connect(session):
     with TestServer() as server:
         call("qpid-proton-cpp/build/connect {}", server.connection_url)
