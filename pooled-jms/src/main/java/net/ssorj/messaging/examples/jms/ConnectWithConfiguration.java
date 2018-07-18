@@ -29,7 +29,7 @@ import org.messaginghub.pooled.jms.JmsPoolConnectionFactory;
 public class ConnectWithConfiguration {
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
-            System.err.println("Usage: Connect CONNECTION-URL");
+            System.err.println("Usage: ConnectWithConfiguration <connection-url>");
             System.exit(1);
         }
 
