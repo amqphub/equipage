@@ -57,11 +57,10 @@ PATH_VAR_SEP = _os.pathsep
 ENV = _os.environ
 ARGS = _sys.argv
 
-# XXX -> STDIN, STDOUT, STDERR, DEVNULL
-STD_IN = _sys.stdin
-STD_OUT = _sys.stdout
-STD_ERR = _sys.stderr
-NULL_DEV = _os.devnull
+STDIN = _sys.stdin
+STDOUT = _sys.stdout
+STDERR = _sys.stderr
+DEVNULL = _os.devnull
 
 _message_levels = (
     "debug",
@@ -75,18 +74,34 @@ _notice = _message_levels.index("notice")
 _warn = _message_levels.index("warn")
 _error = _message_levels.index("error")
 
-_message_output = STD_ERR
+_message_output = STDERR
 _message_threshold = _notice
 
 def set_message_output(writeable):
-    global _message_output
-    _message_output = writeable
+    warn("Deprecated! Use enable_logging(output=output) instead")
+    enable_logging(output=writeable)
 
 def set_message_threshold(level):
-    assert level in _message_levels
+    warn("Deprecated! Use enable_logging(level=level) instead")
+    enable_logging(level=level)
 
+def enable_logging(level=None, output=None):
+    if level is not None:
+        assert level in _message_levels
+
+        global _message_threshold
+        _message_threshold = _message_levels.index(level)
+
+    if output is not None:
+        if _is_string(output):
+            output = open(output, "w")
+
+        global _message_output
+        _message_output = output
+
+def disable_logging():
     global _message_threshold
-    _message_threshold = _message_levels.index(level)
+    _message_threshold = 4
 
 def fail(message, *args):
     error(message, *args)
@@ -166,7 +181,7 @@ def flush():
 absolute_path = _os.path.abspath
 normalize_path = _os.path.normpath
 real_path = _os.path.realpath
-exists = _os.path.exists
+exists = _os.path.lexists
 is_absolute = _os.path.isabs
 is_dir = _os.path.isdir
 is_file = _os.path.isfile
@@ -250,9 +265,13 @@ def prepend(file, string):
 
     return write(file, prepended)
 
-# XXX Should this work on directories?
 def touch(file):
-    return append(file, "")
+    try:
+        _os.utime(file, None)
+    except OSError:
+        append(file, "")
+
+    return file
 
 def tail(file, n):
     return "".join(tail_lines(file, n))
@@ -463,8 +482,6 @@ def find_only_one(dir, *patterns):
 
     return paths[0]
 
-# find_via_expr?
-
 def string_replace(string, expr, replacement, count=0):
     return _re.sub(expr, replacement, string, count)
 
@@ -527,10 +544,6 @@ def call_for_exit_code(command, *args, **kwargs):
     proc = start_process(command, *args, **kwargs)
     return wait_for_process(proc)
 
-# XXX
-def call_for_output(command, *args, **kwargs):
-    return call_for_stdout(command, *args, **kwargs)
-
 def call_for_stdout(command, *args, **kwargs):
     kwargs["stdout"] = _subprocess.PIPE
 
@@ -538,10 +551,7 @@ def call_for_stdout(command, *args, **kwargs):
     output = proc.communicate()[0]
     exit_code = proc.poll()
 
-    # XXX I don't know if None is possible here
-    assert exit_code is not None
-
-    if exit_code not in (None, 0):
+    if exit_code != 0:
         error = CalledProcessError(exit_code, proc.command_string)
         error.output = output
 
@@ -556,10 +566,7 @@ def call_for_stderr(command, *args, **kwargs):
     output = proc.communicate()[1]
     exit_code = proc.poll()
 
-    # XXX I don't know if None is possible here
-    assert exit_code is not None
-
-    if exit_code not in (None, 0):
+    if exit_code != 0:
         error = CalledProcessError(exit_code, proc.command_string)
         error.output = output
 
@@ -568,23 +575,20 @@ def call_for_stderr(command, *args, **kwargs):
     return output
 
 def call_and_print_on_error(command, *args, **kwargs):
-    with temp_file() as output_file:
-        try:
-            with open(output_file, "w") as out:
-                kwargs["output"] = out
-                call(command, *args, **kwargs)
-        except CalledProcessError:
-            eprint(read(output_file), end="")
-            raise
+    warn("Deprecated! Use call() with quiet=True instead")
+
+    kwargs["quiet"] = True
+    call(command, *args, **kwargs)
 
 _child_processes = list()
 
 class _Process(_subprocess.Popen):
-    def __init__(self, command, options, name, command_string):
+    def __init__(self, command, options, name, command_string, temp_output_file):
         super(_Process, self).__init__(command, **options)
 
         self.name = name
         self.command_string = command_string
+        self.temp_output_file = temp_output_file
 
         _child_processes.append(self)
 
@@ -606,8 +610,6 @@ def default_sigterm_handler(signum, frame):
         if proc.poll() is None:
             proc.terminate()
 
-    #_remove_temp_dir()
-
     exit(-(_signal.SIGTERM))
 
 _signal.signal(_signal.SIGTERM, default_sigterm_handler)
@@ -627,6 +629,8 @@ if _sys.platform == "linux2":
     except:
         _traceback.print_exc()
 
+# output - Send stdout and err to a file
+# quiet - No output unless there is an error
 def start_process(command, *args, **kwargs):
     if _is_string(command):
         command = command.format(*args)
@@ -652,14 +656,24 @@ def start_process(command, *args, **kwargs):
         kwargs["stdout"] = out
         kwargs["stderr"] = out
 
+    temp_output_file = None
+
+    if "quiet" in kwargs:
+        if kwargs.pop("quiet") is True:
+            temp_output_file = make_temp_file()
+            temp_output = open(temp_output_file, "w")
+
+            kwargs["stdout"] = temp_output
+            kwargs["stderr"] = temp_output
+
     if "preexec_fn" not in kwargs:
         if _libc is not None:
             kwargs["preexec_fn"] = _libc.prctl(1, _signal.SIGKILL)
 
     if "shell" in kwargs and kwargs["shell"] is True:
-        proc = _Process(command_string, kwargs, name, command_string)
+        proc = _Process(command_string, kwargs, name, command_string, temp_output_file)
     else:
-        proc = _Process(command_args, kwargs, name, command_string)
+        proc = _Process(command_args, kwargs, name, command_string, temp_output_file)
 
     debug("{0} started", proc)
 
@@ -700,7 +714,13 @@ def wait_for_process(proc):
     elif proc.returncode == -(_signal.SIGTERM):
         debug("{0} exited after termination", proc)
     else:
-        debug("{0} exited with code {1}", proc, proc.returncode)
+        debug("{0} exited with code {1}", proc, proc.exit_code)
+
+        if proc.temp_output_file is not None:
+            eprint(read(proc.temp_output_file), end="")
+
+    if proc.temp_output_file is not None:
+        _os.remove(proc.temp_output_file)
 
     return proc.returncode
 

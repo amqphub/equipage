@@ -1,5 +1,5 @@
-export PYTHONPATH := ${PWD}/python
-export NODE_PATH := ${PWD}/rhea/node_modules
+export PYTHONPATH := ${CURDIR}/python
+export NODE_PATH := ${CURDIR}/rhea/node_modules
 
 .PHONY: build
 build:

@@ -19,30 +19,36 @@
  *
  */
 
-package net.ssorj.messaging.examples.jms.authentication;
+package examples;
 
-import org.apache.qpid.jms.JmsConnectionFactory;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.naming.InitialContext;
 
-import javax.jms.*;
-import javax.naming.Context;
-import java.util.Hashtable;
-
-public class Kerberos {
-    public static void main(String[] args) throws Exception {
-        String authority = args[0];
-        String connUrl = "amqp://" + authority + "?amqp.saslMechanisms=GSSAPI";
-        
-        Connection conn = null;
-        ConnectionFactory connectionFactory = new JmsConnectionFactory(connUrl);
-
+public class Connect {
+    public static void main(String[] args) {
         try {
-            conn = connectionFactory.createConnection();
-            // XXX Need start here?
-            System.out.println("Connected!");
-        } finally {
-            if (conn != null) {
+            if (args.length != 1) {
+                System.err.println("Usage: Connect <connection-url>");
+                System.exit(1);
+            }
+
+            String url = args[0];
+            
+            InitialContext context = new InitialContext();
+            ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
+            Connection conn = factory.createConnection();
+
+            conn.start();
+
+            try {
+                System.out.println("CONNECT: Connected to '" + url + "'");
+            } finally {
                 conn.close();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 }

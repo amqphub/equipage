@@ -17,49 +17,45 @@
 # under the License.
 #
 
-import argparse
-import sys
-import time
-
 from plano import *
 
 def open_test_session(session):
-    set_message_threshold("error")
+    enable_logging(level="error")
 
-def test_pooled_jms_connect(session):
-    with working_dir("pooled-jms"):
-        check_connect_usage(jms_prog("Connect"))
+# def test_pooled_jms_connect(session):
+#     with working_dir("pooled-jms"):
+#         check_connect_usage(java_example("Connect"))
 
-    with TestServer() as server:
-        with working_dir("pooled-jms"):
-            call("{} {}", jms_prog("Connect"), server.connection_url)
+#     with TestServer() as server:
+#         with working_dir("pooled-jms"):
+#             call("{} {}", java_example("Connect"), server.connection_url)
 
 def test_qpid_jms_connect(session):
     with working_dir("qpid-jms"):
-        check_connect_usage(jms_prog("Connect"))
+        check_connect_usage(java_example("Connect"))
 
     with TestServer() as server:
         with working_dir("qpid-jms"):
-            call("{} {}", jms_prog("Connect"), server.connection_url)
+            call("{} {}", java_example("Connect"), server.connection_url)
 
 def test_qpid_jms_send_and_receive(session):
     with working_dir("qpid-jms"):
-        check_send_usage(jms_prog("Send"))
-        check_receive_usage(jms_prog("Receive"))
+        check_send_usage(java_example("Send"))
+        check_receive_usage(java_example("Receive"))
 
     with TestServer() as server:
         with working_dir("qpid-jms"):
-            call("{} {} examples abc", jms_prog("Send"), server.connection_url)
-            call("{} {} examples 1", jms_prog("Receive"), server.connection_url)
+            call("{} {} examples abc", java_example("Send"), server.connection_url)
+            call("{} {} examples 1", java_example("Receive"), server.connection_url)
 
-# def test_qpid_jms_request_and_respond(session):
-#     with working_dir("qpid-jms"):
-#         check_request_usage(jms_prog("Request"))
-#         check_respond_usage(jms_prog("Respond"))
+def test_qpid_jms_request_and_respond(session):
+    with working_dir("qpid-jms"):
+        check_request_usage(java_example("Request"))
+        check_respond_usage(java_example("Respond"))
 
-#     # with TestServer() as server:
-#     #     with start_process("qpid-proton-python/respond.py {} examples 1", server.connection_url):
-#     #         call("qpid-proton-python/request.py {} examples abc", server.connection_url)
+    with TestServer() as server:
+        with start_process("qpid-proton-python/respond.py {} examples 1", server.connection_url):
+            call("qpid-proton-python/request.py {} examples abc", server.connection_url)
 
 def test_qpid_proton_cpp_connect(session):
     with TestServer() as server:
@@ -69,6 +65,11 @@ def test_qpid_proton_cpp_send_and_receive(session):
     with TestServer() as server:
         call("qpid-proton-cpp/build/send {} examples abc", server.connection_url)
         call("qpid-proton-cpp/build/receive {} examples 1", server.connection_url)
+
+def test_qpid_proton_cpp_request_and_respond(session):
+    with TestServer() as server:
+        with start_process("qpid-proton-cpp/build/respond {} examples 1", server.connection_url):
+            call("qpid-proton-cpp/build/request {} examples abc", server.connection_url)
 
 def test_qpid_proton_python_connect(session):
     check_connect_usage("qpid-proton-python/connect.py")
@@ -134,6 +135,16 @@ def test_rhea_request_and_respond(session):
         with start_process("rhea/respond.js {} examples 1", server.connection_url):
             call("rhea/request.js {} examples abc", server.connection_url)
 
+# def test_vertx_proton_send_and_receive(session):
+#     with working_dir("vertx-proton"):
+#         check_send_usage(vertx_proton_prog("Send"))
+#         check_receive_usage(java_example("Receive"))
+
+#     with TestServer() as server:
+#         with working_dir("vertx-proton"):
+#             call("{} {} examples abc", java_example("Send"), server.connection_url)
+#             call("{} {} examples 1", java_example("Receive"), server.connection_url)
+
 class TestServer(object):
     def __init__(self):
         self.port = random_port()
@@ -149,7 +160,7 @@ class TestServer(object):
         self.proc = start_process("scripts/test-broker 127.0.0.1 {0}", self.port, output=self.output)
         self.proc.connection_url = self.connection_url
 
-        time.sleep(0.1) # XXX Ugh
+        sleep(0.1) # XXX Ugh
 
         return self.proc
 
@@ -173,9 +184,9 @@ def check_connect_usage(command):
         usage = e.output
 
     assert usage, usage
-    assert "CONNECTION-URL" in usage, usage
+    assert "CONNECTION-URL" in usage or "<connection-url>" in usage, usage
 
-    if not "run-example" in command:
+    if not "java" in command:
         assert file_name(command) in usage, usage
 
 def check_send_usage(command):
@@ -187,9 +198,10 @@ def check_send_usage(command):
         usage = e.output
 
     assert usage, usage
-    assert "CONNECTION-URL ADDRESS MESSAGE-BODY" in usage, usage
+    assert "CONNECTION-URL ADDRESS MESSAGE-BODY" in usage \
+        or "<connection-url> <address> <message-body>" in usage, usage
 
-    if not "run-example" in command:
+    if not "java" in command:
         assert file_name(command) in usage, usage
 
 def check_receive_usage(command):
@@ -201,13 +213,14 @@ def check_receive_usage(command):
         usage = e.output
 
     assert usage, usage
-    assert "CONNECTION-URL ADDRESS [MESSAGE-COUNT]" in usage, usage
+    assert "CONNECTION-URL ADDRESS [MESSAGE-COUNT]" in usage \
+        or "<connection-url> <address> [<message-count>]", usage
 
-    if not "run-example" in command:
+    if not "java" in command:
         assert file_name(command) in usage, usage
 
 check_request_usage = check_send_usage
 check_respond_usage = check_receive_usage
 
-def jms_prog(class_name):
-    return "scripts/run-example net.ssorj.messaging.examples.jms.{}".format(class_name)
+def java_example(class_name):
+    return "java -cp 'target/classes:target/dependency/*' examples.{}".format(class_name)
