@@ -59,7 +59,7 @@ public class Request {
                 MessageConsumer consumer = session.createConsumer(responseQueue);
                 TextMessage request = session.createTextMessage();
 
-                System.out.println("RESPOND: Created producer for target address '" + address + "'");
+                System.out.println("REQUEST: Created producer for target address '" + address + "'");
 
                 request.setText(messageBody);
                 request.setJMSReplyTo(responseQueue);
