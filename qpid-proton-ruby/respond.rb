@@ -55,7 +55,7 @@ class RespondHandler < Qpid::Proton::MessagingHandler
 
     if @received == @desired
       delivery.receiver.close
-      delivery.receiver.connection.close
+      delivery.connection.close
     end
   end
 end
