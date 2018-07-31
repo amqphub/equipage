@@ -28,6 +28,7 @@
 #include <proton/receiver.hpp>
 #include <proton/sender.hpp>
 #include <proton/source_options.hpp>
+#include <proton/target.hpp>
 
 #include <iostream>
 #include <string>
@@ -50,6 +51,15 @@ struct request_handler : public proton::messaging_handler {
         opts.source(sopts);
 
         conn.open_receiver("", opts);
+    }
+
+    void on_connection_open(proton::connection& conn) override {
+        std::cout << "REQUEST: Connected to '" << conn_url_ << "'\n";
+    }
+
+    void on_sender_open(proton::sender& snd) override {
+        std::cout << "REQUEST: Created sender for target address '"
+                  << snd.target().address() << "'\n";
     }
 
     void on_receiver_open(proton::receiver& rcv) override {

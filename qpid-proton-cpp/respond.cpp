@@ -26,8 +26,8 @@
 #include <proton/message.hpp>
 #include <proton/message_id.hpp>
 #include <proton/messaging_handler.hpp>
-#include <proton/tracker.hpp>
 #include <proton/receiver_options.hpp>
+#include <proton/source.hpp>
 #include <proton/source_options.hpp>
 
 #include <algorithm>
@@ -46,6 +46,15 @@ struct respond_handler : public proton::messaging_handler {
 
         conn.open_receiver(address_);
         sender_ = conn.open_sender("");
+    }
+
+    void on_connection_open(proton::connection& conn) override {
+        std::cout << "RESPOND: Connected to '" << conn_url_ << "'\n";
+    }
+
+    void on_receiver_open(proton::receiver& rcv) override {
+        std::cout << "RESPOND: Created receiver for source address '"
+                  << rcv.source().address() << "'\n";
     }
 
     void on_message(proton::delivery& dlv, proton::message& request) override {
