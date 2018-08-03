@@ -72,7 +72,7 @@ struct send_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 3 && argc != 4) {
-        std::cerr << "Usage: periodic-send CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n";
+        std::cerr << "Usage: periodic-send <connection-url> <address> [<message-count>]\n";
         return 1;
     }
 

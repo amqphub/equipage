@@ -40,7 +40,7 @@ end
 if ARGV.size == 1
   conn_url = ARGV[0]
 else
-  abort "Usage: connect.rb CONNECTION-URL\n"
+  abort "Usage: connect.rb <connection-url>\n"
 end
 
 handler = ConnectHandler.new(conn_url)

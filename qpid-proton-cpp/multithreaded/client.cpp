@@ -100,10 +100,10 @@ int main(int argc, const char** argv) {
     try {
         if (argc != 4) {
             std::cerr
-                << "Usage: multithreaded-client CONNECTION-URL ADDRESS MESSAGE-COUNT" << std::endl
-                << "  CONNECTION-URL: amqp://127.0.0.1" << std::endl
-                << "  ADDRESS: q0" << std::endl
-                << "  MESSAGE-COUNT: 10" << std::endl;
+                << "Usage: multithreaded-client <connection-url> <address> <message-count>" << std::endl
+                << "  <connection-url>: amqp://127.0.0.1" << std::endl
+                << "  <address>: q0" << std::endl
+                << "  <message-count>: 10" << std::endl;
             return 1;
         }
 

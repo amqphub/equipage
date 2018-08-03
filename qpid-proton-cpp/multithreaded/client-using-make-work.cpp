@@ -133,10 +133,10 @@ int main(int argc, const char** argv) {
   try {
     if (argc != 4) {
       std ::cerr <<
-        "Usage: " << argv[0] << " CONNECTION-URL AMQP-ADDRESS MESSAGE-COUNT\n"
-                "CONNECTION-URL: connection address, e.g.'amqp://127.0.0.1'\n"
-                "AMQP-ADDRESS: AMQP node address, e.g. 'examples'\n"
-        "MESSAGE-COUNT: number of messages to send\n";
+        "Usage: " << argv[0] << " <connection-url> <address> <message-count>\n"
+                "<connection-url>: connection address, e.g.'amqp://127.0.0.1'\n"
+                "<address>: AMQP node address, e.g. 'examples'\n"
+                "<message-count>: number of messages to send\n";
       return 1;
     }
     const char *url = argv[1];

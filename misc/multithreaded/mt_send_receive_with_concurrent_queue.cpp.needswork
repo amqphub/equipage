@@ -143,8 +143,8 @@ int main(int argc, const char** argv) {
     try {
         if (argc != 4) {
             std::cerr
-                << "Usage: mt_send_receive [CONNECTION-URL] [ADDRESS] [MESSAGE-COUNT]" << std::endl
-                << "  CONNECTION-URL: amqp://127.0.0.1" << std::endl
+                << "Usage: mt_send_receive [<connection-url>] [ADDRESS] [MESSAGE-COUNT]" << std::endl
+                << "  <connection-url>: amqp://127.0.0.1" << std::endl
                 << "  ADDRESS: examples" << std::endl
                 << "  MESSAGE-COUNT: 10" << std::endl;
             return 1;

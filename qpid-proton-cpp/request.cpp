@@ -81,7 +81,7 @@ struct request_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 4) {
-        std::cerr << "Usage: request CONNECTION-URL ADDRESS MESSAGE-BODY\n";
+        std::cerr << "Usage: request <connection-url> <address> <message-body>\n";
         return 1;
     }
 

@@ -42,7 +42,7 @@ def main():
     try:
         conn_url = sys.argv[1]
     except IndexError:
-        sys.exit("Usage: connect.py CONNECTION-URL")
+        sys.exit("Usage: connect.py <connection-url>")
 
     handler = ConnectHandler(conn_url)
     container = Container(handler)

@@ -77,7 +77,7 @@ struct subscribe_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 3 && argc != 4) {
-        std::cerr << "Usage: shared-subscribe CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n";
+        std::cerr << "Usage: shared-subscribe <connection-url> <address> [<message-count>]\n";
         return 1;
     }
 

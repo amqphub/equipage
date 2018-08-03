@@ -68,7 +68,7 @@ def main():
     try:
         conn_url, address = sys.argv[1:3]
     except ValueError:
-        sys.exit("Usage: respond.py CONNECTION-URL ADDRESS [MESSAGE-COUNT]")
+        sys.exit("Usage: respond.py <connection-url> <address> [<message-count>]")
 
     try:
         desired = int(sys.argv[3])

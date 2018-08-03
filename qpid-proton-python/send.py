@@ -59,7 +59,7 @@ def main():
     try:
         conn_url, address, message_body = sys.argv[1:4]
     except ValueError:
-        sys.exit("Usage: send.py CONNECTION-URL ADDRESS MESSAGE-BODY")
+        sys.exit("Usage: send.py <connection-url> <address> <message-body>")
 
     handler = SendHandler(conn_url, address, message_body)
     container = Container(handler)

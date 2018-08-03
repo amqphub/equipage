@@ -68,7 +68,7 @@ def main():
     try:
         conn_url, address, message_body = sys.argv[1:4]
     except ValueError:
-        sys.exit("Usage: request.py CONNECTION-URL ADDRESS MESSAGE-BODY")
+        sys.exit("Usage: request.py <connection-url> <address> <message-body>")
 
     handler = RequestHandler(conn_url, address, message_body)
     container = Container(handler)

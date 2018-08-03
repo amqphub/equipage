@@ -121,7 +121,7 @@ private:
 
 int main(int argc, const char** argv) {
     if (argc != 4) {
-        std::cerr << "Usage: send CONNECTION-URL ADDRESS MESSAGE-COUNT\n";
+        std::cerr << "Usage: send <connection-url> <address> <message-count>\n";
         return 1;
     }
 

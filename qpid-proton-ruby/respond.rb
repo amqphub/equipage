@@ -63,7 +63,7 @@ end
 if ARGV.size > 1
   conn_url, address = ARGV[0..1]
 else
-  abort "Usage: respond.rb CONNECTION-URL ADDRESS [MESSAGE-COUNT]\n"
+  abort "Usage: respond.rb <connection-url> <address> [<message-count>]\n"
 end
 
 begin

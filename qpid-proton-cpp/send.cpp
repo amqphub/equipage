@@ -57,7 +57,7 @@ struct send_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 4) {
-        std::cerr << "Usage: send CONNECTION-URL ADDRESS MESSAGE-BODY\n";
+        std::cerr << "Usage: send <connection-url> <address> <message-body>\n";
         return 1;
     }
 

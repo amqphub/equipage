@@ -222,7 +222,7 @@ def check_connect_usage(command):
         usage = e.output
 
     assert usage, usage
-    assert "CONNECTION-URL" in usage or "<connection-url>" in usage, usage
+    assert "<connection-url>" in usage or "<connection-url>" in usage, usage
 
 def check_send_usage(command):
     usage = None
@@ -233,8 +233,7 @@ def check_send_usage(command):
         usage = e.output
 
     assert usage, usage
-    assert "CONNECTION-URL ADDRESS MESSAGE-BODY" in usage \
-        or "<connection-url> <address> <message-body>" in usage, usage
+    assert "<connection-url> <address> <message-body>" in usage, usage
 
 def check_receive_usage(command):
     usage = None
@@ -245,8 +244,7 @@ def check_receive_usage(command):
         usage = e.output
 
     assert usage, usage
-    assert "CONNECTION-URL ADDRESS [MESSAGE-COUNT]" in usage \
-        or "<connection-url> <address> [<message-count>]", usage
+    assert "<connection-url> <address> [<message-count>]" in usage, usage
 
 check_request_usage = check_send_usage
 check_respond_usage = check_receive_usage

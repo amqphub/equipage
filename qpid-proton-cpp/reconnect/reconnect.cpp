@@ -54,7 +54,7 @@ struct reconnect_handler : public proton::messaging_handler {
 
 int main(int argc, char** argv) {
     if (argc != 2) {
-        std::cerr << "Usage: CONNECTION-URL\n";
+        std::cerr << "Usage: <connection-url>\n";
         return 1;
     }
     

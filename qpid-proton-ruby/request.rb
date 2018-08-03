@@ -56,7 +56,7 @@ end
 if ARGV.size == 3
   conn_url, address, message_body = ARGV
 else
-  abort "Usage: request.rb CONNECTION-URL ADDRESS MESSAGE-BODY\n"
+  abort "Usage: request.rb <connection-url> <address> <message-body>\n"
 end
 
 handler = RequestHandler.new(conn_url, address, message_body)

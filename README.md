@@ -18,14 +18,14 @@
 
 ## Connect
 
-Usage: `connect CONNECTION-URL`
+Usage: `connect <connection-url>`
 
         $ python connect.py amqp://example.net
         CONNECT: Connected to 'amqp://example.net'
 
 ## Send
 
-Usage: `send CONNECTION-URL ADDRESS MESSAGE-BODY`
+Usage: `send <connection-url> <address> <message-body>`
 
         $ python send.py amqp://example.net examples "Hello there"
         SEND: Opened sender for target address 'examples'
@@ -33,7 +33,7 @@ Usage: `send CONNECTION-URL ADDRESS MESSAGE-BODY`
 
 ## Receive
 
-Usage: `receive CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
+Usage: `receive <connection-url> <address> [<message-count>]`
 
         $ python receive.py amqp://example.net examples
         RECEIVE: Opened receiver for source address 'examples'
@@ -41,7 +41,7 @@ Usage: `receive CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
 
 ## Request
 
-Usage: `request CONNECTION-URL ADDRESS MESSAGE-BODY`
+Usage: `request <connection-url> <address> <message-body>`
 
         $ python request.py amqp://example.net examples "abcdef"
         REQUEST: Opened sender for target address 'examples'
@@ -51,7 +51,7 @@ Usage: `request CONNECTION-URL ADDRESS MESSAGE-BODY`
 
 ## Respond
 
-Usage: `respond CONNECTION-URL ADDRESS [MESSAGE-COUNT]`
+Usage: `respond <connection-url> <address> [<message-count>]`
 
         $ python respond.py amqp://example.net examples
         RESPOND: Opened receiver for source address 'examples'

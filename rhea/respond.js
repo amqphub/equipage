@@ -25,7 +25,7 @@ var rhea = require("rhea");
 var url = require("url");
 
 if (process.argv.length !== 4 && process.argv.length !== 5) {
-    console.error("Usage: respond.js CONNECTION-URL ADDRESS [MESSAGE-COUNT]");
+    console.error("Usage: respond.js <connection-url> <address> [<message-count>]");
     process.exit(1);
 }
 
