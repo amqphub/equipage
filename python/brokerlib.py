@@ -1,5 +1,3 @@
-#!/usr/bin/python2
-#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -25,69 +23,92 @@ from __future__ import unicode_literals
 from __future__ import with_statement
 
 import collections as _collections
+import os as _os
 import proton as _proton
 import proton.handlers as _handlers
 import proton.reactor as _reactor
-import sys as _sys
 import uuid as _uuid
+import shutil as _shutil
+import subprocess as _subprocess
+import sys as _sys
+import tempfile as _tempfile
 
-_description = "An AMQP message broker for testing"
+class Broker(object):
+    def __init__(self, host, port, id=None, user=None, password=None):
+        self.host = host
+        self.port = port
+        self.id = id
+        self.user = user
+        self.password = password
 
-class BrokerCommand(object):
-    def __init__(self):
-        super(BrokerCommand, self).__init__()
+        if self.id is None:
+            self.id = "broker-{0}".format(_uuid.uuid4())
 
-        self.container = _reactor.Container(_Handler(self))
-        self.container.container_id = "test-broker"
+        self.container = _reactor.Container(_Handler(self), self.id)
 
-        self.quiet = False
-        self.verbose = True
+        self._config_dir = None
 
     def init(self):
-        self.host, self.port = _sys.argv[1:3]
+        if self.user is not None:
+            if self.password is None:
+                self.fail("A password is required for user authentication")
 
-    def main(self):
+            self._init_sasl_config()
+
+    def _init_sasl_config(self):
+        self._config_dir = _tempfile.mkdtemp(prefix="brokerlib-", suffix="")
+        config_file = _os.path.join(self._config_dir, "proton-server.conf")
+        sasldb_file = _os.path.join(self._config_dir, "users.sasldb")
+
+        _os.environ["PN_SASL_CONFIG_PATH"] = self._config_dir
+
+        with open(config_file, "w") as f:
+            f.write("sasldb_path: {0}\n".format(sasldb_file))
+            f.write("mech_list: PLAIN SCRAM-SHA-1\n")
+
+        command = "echo '{0}' | saslpasswd2 -p -f {1} '{2}'".format \
+                  (self.password, sasldb_file, self.user)
+
         try:
-            self.init()
-
-            self.container.run()
-        except KeyboardInterrupt:
-            pass
+            _subprocess.check_call(command, shell=True)
+        except _subprocess.CalledProcessError as e:
+            self.fail("Failed adding user to SASL database: {0}", e)
 
     def info(self, message, *args):
-        if self.verbose:
-            self.print_message(message, *args)
+        pass
 
     def notice(self, message, *args):
-        if not self.quiet:
-            self.print_message(message, *args)
+        pass
 
     def warn(self, message, *args):
-        message = "Warning! {0}".format(message)
-        self.print_message(message, *args)
+        pass
 
-    def print_message(self, message, *args):
-        message = message[0].upper() + message[1:]
-        message = message.format(*args)
-        message = "{0}: {1}".format(self.container.container_id, message)
-
-        _sys.stderr.write("{0}\n".format(message))
+    def error(self, message, *args):
+        _sys.stderr.write("{0}\n".format(message.format(*args)))
         _sys.stderr.flush()
 
-class _Queue(object):
-    def __init__(self, command, address):
-        assert address is not None
+    def fail(self, message, *args):
+        self.error(message, *args)
+        _sys.exit(1)
 
-        self.command = command
+    def run(self):
+        self.container.run()
+
+        if _os.path.exists(self._config_dir):
+            _shutil.rmtree(self.dir, ignore_errors=True)
+
+class _Queue(object):
+    def __init__(self, broker, address):
+        self.broker = broker
         self.address = address
 
         self.messages = _collections.deque()
         self.consumers = _collections.deque()
 
-        self.command.info("Created {0}", self)
+        self.broker.info("Created {0}", self)
 
     def __repr__(self):
-        return "queue '{}'".format(self.address)
+        return "queue '{0}'".format(self.address)
 
     def add_consumer(self, link):
         assert link.is_sender
@@ -95,7 +116,7 @@ class _Queue(object):
 
         self.consumers.append(link)
 
-        self.command.info("Added consumer for {0} to {1}", link.connection, self)
+        self.broker.info("Added consumer for {0} to {1}", link.connection, self)
 
     def remove_consumer(self, link):
         assert link.is_sender
@@ -105,12 +126,12 @@ class _Queue(object):
         except ValueError:
             return
 
-        self.command.info("Removed consumer for {0} from {1}", link.connection, self)
+        self.broker.info("Removed consumer for {0} from {1}", link.connection, self)
 
     def store_message(self, delivery, message):
         self.messages.append(message)
 
-        self.command.notice("Stored {0} from {1} on {2}", message, delivery.connection, self)
+        self.broker.notice("Stored {0} from {1} on {2}", message, delivery.connection, self)
 
     def forward_messages(self):
         credit = sum([x.credit for x in self.consumers])
@@ -133,37 +154,37 @@ class _Queue(object):
                 consumer.send(message)
                 sent += 1
 
-                self.command.notice("Forwarded {0} on {1} to {2}", message, self, consumer.connection)
+                self.broker.notice("Forwarded {0} on {1} to {2}", message, self, consumer.connection)
 
         self.consumers.rotate(sent)
 
 class _Handler(_handlers.MessagingHandler):
-    def __init__(self, command):
+    def __init__(self, broker):
         super(_Handler, self).__init__()
 
-        self.command = command
+        self.broker = broker
         self.queues = dict()
         self.verbose = False
 
     def on_start(self, event):
-        interface = "{0}:{1}".format(self.command.host, self.command.port)
+        interface = "{0}:{1}".format(self.broker.host, self.broker.port)
 
         self.acceptor = event.container.listen(interface)
 
-        self.command.notice("Listening on '{0}'", interface)
+        self.broker.notice("Listening for connections on '{0}'", interface)
 
     def get_queue(self, address):
         try:
             queue = self.queues[address]
         except KeyError:
-            queue = self.queues[address] = _Queue(self.command, address)
+            queue = self.queues[address] = _Queue(self.broker, address)
 
         return queue
 
     def on_link_opening(self, event):
         if event.link.is_sender:
             if event.link.remote_source.dynamic:
-                address = str(_uuid.uuid4())
+                address = "{0}/{1}".format(event.connection.remote_container, event.link.name)
             else:
                 address = event.link.remote_source.address
 
@@ -188,16 +209,17 @@ class _Handler(_handlers.MessagingHandler):
         event.connection.container = event.container.container_id
 
     def on_connection_opened(self, event):
-        self.command.notice("Opened connection from {0}", event.connection)
+        self.broker.notice("Opened connection from {0}", event.connection)
 
     def on_connection_closing(self, event):
         self.remove_consumers(event.connection)
 
     def on_connection_closed(self, event):
-        self.command.notice("Closed connection from {0}", event.connection)
+        self.broker.notice("Closed connection from {0}", event.connection)
 
     def on_disconnected(self, event):
-        self.command.notice("Disconnected from {0}", event.connection)
+        self.broker.notice("Disconnected from {0}", event.connection)
+
         self.remove_consumers(event.connection)
 
     def remove_consumers(self, connection):
@@ -215,22 +237,19 @@ class _Handler(_handlers.MessagingHandler):
         queue.forward_messages()
 
     def on_settled(self, event):
-        pass
-        # delivery = event.delivery
+        template = "Container '{0}' {1} {2} to {3}"
+        container = event.connection.remote_container
+        source = event.link.source
+        delivery = event.delivery
 
-        # template = "{0} {{0}} {1} to {2}"
-        # template = template.format(_summarize(event.connection),
-        #                            _summarize(delivery),
-        #                            _summarize(event.link.source))
-
-        # if delivery.remote_state == delivery.ACCEPTED:
-        #     self.command.info(template, "accepted")
-        # elif delivery.remote_state == delivery.REJECTED:
-        #     self.command.warn(template, "rejected")
-        # elif delivery.remote_state == delivery.RELEASED:
-        #     self.command.notice(template, "released")
-        # elif delivery.remote_state == delivery.MODIFIED:
-        #     self.command.notice(template, "modified")
+        if delivery.remote_state == delivery.ACCEPTED:
+            self.broker.info(template, container, "accepted", delivery, source)
+        elif delivery.remote_state == delivery.REJECTED:
+            self.broker.warn(template, container, "rejected", delivery, source)
+        elif delivery.remote_state == delivery.RELEASED:
+            self.broker.notice(template, container, "released", delivery, source)
+        elif delivery.remote_state == delivery.MODIFIED:
+            self.broker.notice(template, container, "modified", delivery, source)
 
     def on_message(self, event):
         message = event.message
@@ -240,12 +259,36 @@ class _Handler(_handlers.MessagingHandler):
         if address is None:
             address = message.address
 
-        assert address is not None, message
-
         queue = self.get_queue(address)
         queue.store_message(delivery, message)
         queue.forward_messages()
 
 if __name__ == "__main__":
-    command = BrokerCommand()
-    command.main()
+    def _print(message, *args):
+        message = message.format(*args)
+        _sys.stderr.write("{0}\n".format(message))
+        _sys.stderr.flush()
+
+    class _Broker(Broker):
+        def info(self, message, *args): _print(message, *args)
+        def notice(self, message, *args): _print(message, *args)
+        def warn(self, message, *args): _print(message, *args)
+
+    try:
+        host, port = _sys.argv[1:3]
+    except IndexError:
+        _print("Usage: brokerlib <host> <port>")
+        _sys.exit(1)
+
+    try:
+        port = int(port)
+    except ValueError:
+        _print("The port must be an integer")
+        _sys.exit(1)
+
+    broker = _Broker(host, port)
+
+    try:
+        broker.run()
+    except KeyboardInterrupt:
+        pass

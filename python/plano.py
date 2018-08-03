@@ -670,10 +670,21 @@ def start_process(command, *args, **kwargs):
         if _libc is not None:
             kwargs["preexec_fn"] = _libc.prctl(1, _signal.SIGKILL)
 
-    if "shell" in kwargs and kwargs["shell"] is True:
-        proc = _Process(command_string, kwargs, name, command_string, temp_output_file)
-    else:
-        proc = _Process(command_args, kwargs, name, command_string, temp_output_file)
+    try:
+        if "shell" in kwargs and kwargs["shell"] is True:
+            proc = _Process(command_string, kwargs, name, command_string, temp_output_file)
+        else:
+            proc = _Process(command_args, kwargs, name, command_string, temp_output_file)
+    except OSError as e:
+        if (e.errno == 2):
+            message = "No such file {0}".format(command_string)
+
+            if not command_string.startswith("/"):
+                message = "{0} at {1}".format(message, current_dir())
+
+            raise Exception(error)
+
+        raise
 
     debug("{0} started", proc)
 

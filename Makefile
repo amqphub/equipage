@@ -11,7 +11,7 @@ build:
 
 .PHONY: test
 test: build
-	scripts/run-tests --timeout 10
+	scripts/test --timeout 10
 
 .PHONY: clean
 clean:

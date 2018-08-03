@@ -24,6 +24,11 @@
 var rhea = require("rhea");
 var url = require("url");
 
+if (process.argv.length !== 3) {
+    console.error("Usage: connect.js <connection-url>");
+    process.exit(1);
+}
+
 var conn_url = url.parse(process.argv[2]);
 
 var container = rhea.create_container();

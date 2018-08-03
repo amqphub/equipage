@@ -21,9 +21,10 @@
 
 package examples.authentication;
 
+import java.util.Hashtable;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import org.apache.qpid.jms.JmsConnectionFactory;
+import javax.naming.InitialContext;
 
 public class Kerberos {
     public static void main(String[] args) {
@@ -34,8 +35,13 @@ public class Kerberos {
             }
             
             String url = args[0] + "?amqp.saslMechanisms=GSSAPI";
-            ConnectionFactory factory = new JmsConnectionFactory(url);
-            Connection conn = factory.createConnection("alice", "secret");
+
+            Hashtable<Object, Object> env = new Hashtable<Object, Object>();
+            env.put("connectionfactory.factory1", url);
+            
+            InitialContext context = new InitialContext(env);
+            ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
+            Connection conn = factory.createConnection();
 
             conn.start();
             

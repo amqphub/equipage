@@ -21,6 +21,7 @@
 
 package examples;
 
+import java.util.Hashtable;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.naming.InitialContext;
@@ -35,7 +36,10 @@ public class Connect {
 
             String url = args[0];
             
-            InitialContext context = new InitialContext();
+            Hashtable<Object, Object> env = new Hashtable<Object, Object>();
+            env.put("connectionfactory.factory1", url);
+            
+            InitialContext context = new InitialContext(env);
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();
 
