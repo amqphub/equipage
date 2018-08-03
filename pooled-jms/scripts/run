@@ -1,0 +1,5 @@
+#!/bin/bash
+
+exec java -cp target/classes:target/dependency/\* \
+     -Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory \
+     "$@"

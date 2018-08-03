@@ -3,10 +3,11 @@ build:
 	mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests
 
 .PHONY: run
+run: URL := amqp://localhost
 run:
-	java -cp "target/classes:target/dependency/*" examples.Connect amqp://localhost
-	java -cp "target/classes:target/dependency/*" examples.Send amqp://localhost examples message1
-	java -cp "target/classes:target/dependency/*" examples.Receive amqp://localhost examples 1
+	scripts/run examples.Connect ${URL}
+	scripts/run examples.Send ${URL} examples message1
+	scripts/run examples.Receive ${URL} examples 1
 
 .PHONY: clean
 clean:

@@ -22,12 +22,26 @@ from plano import *
 def open_test_session(session):
     enable_logging(level="error")
 
-# def test_pooled_jms_connect(session):
-#     with working_dir("pooled-jms"):
-#         check_connect_usage(java_example("Connect"))
+def test_pooled_jms_connect(session):
+    with working_dir("pooled-jms"):
+        check_connect_usage("scripts/run examples.Connect")
+        check_connect_usage("scripts/run examples.Configure")
 
-#         with TestServer() as server:
-#             call("{} {}", java_example("Connect"), server.connection_url)
+        with TestServer() as server:
+            call("scripts/run examples.Connect {}", server.connection_url)
+            call("scripts/run examples.Configure {}", server.connection_url)
+
+def test_pooled_jms_configure(session):
+    with working_dir("pooled-jms"):
+        check_connect_usage("scripts/run examples.Configure")
+
+        with TestServer() as server:
+            call("scripts/run examples.Configure {}", server.connection_url)
+
+def test_pooled_jms_makefile(session):
+    with working_dir("pooled-jms"):
+        with TestServer() as server:
+            call("make run URL={}", server.connection_url)
 
 def test_qpid_jms_connect(session):
     with working_dir("qpid-jms"):
@@ -53,6 +67,11 @@ def test_qpid_jms_send_and_receive(session):
 #         with TestServer() as server:
 #             with start_process("scripts/run examples.Respond {} q1 1", server.connection_url):
 #                 call("scripts/run examples.Request {} q1 abc", server.connection_url)
+
+def test_qpid_jms_makefile(session):
+    with working_dir("qpid-jms"):
+        with TestServer() as server:
+            call("make run URL={}", server.connection_url)
 
 def test_qpid_proton_cpp_connect(session):
     with working_dir("qpid-proton-cpp"):
