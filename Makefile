@@ -8,6 +8,7 @@ build:
 	cd qpid-proton-cpp && make build
 	cd qpid-proton-python && make build
 	cd rhea && make build
+	cd vertx-proton && make build
 
 .PHONY: test
 test: build
@@ -20,6 +21,7 @@ clean:
 	cd qpid-proton-cpp && make clean
 	cd qpid-proton-python && make clean
 	cd rhea && make clean
+	cd vertx-proton && make clean
 	find python -name \*.pyc -delete
 
 .PHONY: update-%

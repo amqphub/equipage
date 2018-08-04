@@ -3,11 +3,12 @@ build:
 	mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests
 
 .PHONY: run
+run: COMMAND := java -cp target/classes:target/dependency/\* -Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory
 run: URL := amqp://localhost
 run:
-	scripts/run examples.Connect ${URL}
-	scripts/run examples.Send ${URL} examples message1
-	scripts/run examples.Receive ${URL} examples 1
+	${COMMAND} examples.Connect ${URL}
+	${COMMAND} examples.Send ${URL} examples message1
+	${COMMAND} examples.Receive ${URL} examples 1
 
 .PHONY: clean
 clean:

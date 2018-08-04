@@ -24,19 +24,17 @@ def open_test_session(session):
 
 def test_pooled_jms_connect(session):
     with working_dir("pooled-jms"):
-        check_connect_usage("scripts/run examples.Connect")
-        check_connect_usage("scripts/run examples.Configure")
+        check_connect_usage(qpid_jms_prog("examples.Connect"))
 
         with TestServer() as server:
-            call("scripts/run examples.Connect {}", server.connection_url)
-            call("scripts/run examples.Configure {}", server.connection_url)
+            call("{} {}", qpid_jms_prog("examples.Connect"), server.connection_url)
 
 def test_pooled_jms_configure(session):
     with working_dir("pooled-jms"):
-        check_connect_usage("scripts/run examples.Configure")
+        check_connect_usage(qpid_jms_prog("examples.Configure"))
 
         with TestServer() as server:
-            call("scripts/run examples.Configure {}", server.connection_url)
+            call("{} {}", qpid_jms_prog("examples.Configure"), server.connection_url)
 
 def test_pooled_jms_makefile(session):
     with working_dir("pooled-jms"):
@@ -45,19 +43,19 @@ def test_pooled_jms_makefile(session):
 
 def test_qpid_jms_connect(session):
     with working_dir("qpid-jms"):
-        check_connect_usage("scripts/run examples.Connect")
+        check_connect_usage(qpid_jms_prog("examples.Connect"))
 
         with TestServer() as server:
-            call("scripts/run examples.Connect {}", server.connection_url)
+            call("{} {}", qpid_jms_prog("examples.Connect"), server.connection_url)
 
 def test_qpid_jms_send_and_receive(session):
     with working_dir("qpid-jms"):
-        check_send_usage("scripts/run examples.Send")
-        check_receive_usage("scripts/run examples.Receive")
+        check_send_usage(qpid_jms_prog("examples.Send"))
+        check_receive_usage(qpid_jms_prog("examples.Receive"))
 
         with TestServer() as server:
-            call("scripts/run examples.Send {} q1 abc", server.connection_url)
-            call("scripts/run examples.Receive {} q1 1", server.connection_url)
+            call("{} {} q1 abc", qpid_jms_prog("examples.Send"), server.connection_url)
+            call("{} {} q1 1", qpid_jms_prog("examples.Receive"), server.connection_url)
 
 # def test_qpid_jms_request_and_respond(session):
 #     with working_dir("qpid-jms"):
@@ -173,15 +171,14 @@ def test_rhea_request_and_respond(session):
             with start_process("node respond.js {} q1 1", server.connection_url):
                 call("node request.js {} q1 abc", server.connection_url)
 
-# def test_vertx_proton_send_and_receive(session):
-#     with working_dir("vertx-proton"):
-#         check_send_usage(vertx_proton_prog("Send"))
-#         check_receive_usage(java_example("Receive"))
+def test_vertx_proton_send_and_receive(session):
+    with working_dir("vertx-proton"):
+        check_send_usage(java_prog("examples.Send"))
+        check_receive_usage(java_prog("examples.Receive"))
 
-#     with TestServer() as server:
-#         with working_dir("vertx-proton"):
-#             call("{} {} q1 abc", java_example("Send"), server.connection_url)
-#             call("{} {} q1 1", java_example("Receive"), server.connection_url)
+        with TestServer() as server:
+            call("{} {} q1 abc", java_prog("examples.Send"), server.connection_url)
+            call("{} {} q1 1", java_prog("examples.Receive"), server.connection_url)
 
 class TestServer(object):
     def __init__(self):
@@ -249,8 +246,13 @@ def check_receive_usage(command):
 check_request_usage = check_send_usage
 check_respond_usage = check_receive_usage
 
-def java_example(class_name, connection_url="amqp://localhost:5672"):
-    return "NOOOO"
+def java_prog(class_name):
+    return "java -cp target/classes:target/dependency/\\* {}".format(class_name)
+
+def qpid_jms_prog(class_name):
+    return "java -cp target/classes:target/dependency/\\*" \
+        " -Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory" \
+        " {}".format(class_name)
 
 # def java_example(class_name, connection_url="amqp://localhost:5672"):
 #     if not connection_url.startswith("amqp:"):
