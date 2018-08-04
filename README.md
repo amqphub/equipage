@@ -2,11 +2,13 @@
 
 ## APIs
 
+ - [Pooled JMS](https://github.com/messaginghub/pooled-jms)
  - [Qpid JMS](http://qpid.apache.org/components/jms/index.html)
  - [Qpid Proton C++](http://qpid.apache.org/proton/index.html)
  - [Qpid Proton Python](http://qpid.apache.org/proton/index.html)
  - [Qpid Proton Ruby](http://qpid.apache.org/proton/index.html)
  - [Rhea](https://github.com/grs/rhea)
+ - [Vert.x Proton](https://github.com/vert-x3/vertx-proton)
 
 ## Primary examples
 
@@ -28,6 +30,7 @@ Usage: `connect <connection-url>`
 Usage: `send <connection-url> <address> <message-body>`
 
         $ python send.py amqp://example.net examples "Hello there"
+        SEND: Connected to 'amqp://example.net'
         SEND: Opened sender for target address 'examples'
         SEND: Sent message 'Hello there'
 
@@ -36,6 +39,7 @@ Usage: `send <connection-url> <address> <message-body>`
 Usage: `receive <connection-url> <address> [<message-count>]`
 
         $ python receive.py amqp://example.net examples
+        RECEIVE: Connected to 'amqp://example.net'
         RECEIVE: Opened receiver for source address 'examples'
         RECEIVE: Received message 'Hello there'
 
@@ -44,8 +48,8 @@ Usage: `receive <connection-url> <address> [<message-count>]`
 Usage: `request <connection-url> <address> <message-body>`
 
         $ python request.py amqp://example.net examples "abcdef"
+        REQUEST: Connected to 'amqp://example.net'
         REQUEST: Opened sender for target address 'examples'
-        REQUEST: Opened receiver using a dynamic reply address # XXX
         REQUEST: Sent request message 'abcdef'
         REQUEST: Received response message 'ABCDEF'
 
@@ -54,6 +58,7 @@ Usage: `request <connection-url> <address> <message-body>`
 Usage: `respond <connection-url> <address> [<message-count>]`
 
         $ python respond.py amqp://example.net examples
+        RESPOND: Connected to 'amqp://example.net'
         RESPOND: Opened receiver for source address 'examples'
         RESPOND: Received request message 'abcdef'
         RESPOND: Sent response message 'ABCDEF'
@@ -64,7 +69,6 @@ Usage: `respond <connection-url> <address> [<message-count>]`
    - connect
    - send
    - receive
-   - browse
    - request
    - respond
  - Reconnect and failover (reconnect)
@@ -72,27 +76,22 @@ Usage: `respond <connection-url> <address> [<message-count>]`
    - failover
    - custom-failover
  - Authentication (authentication)
-   - connect
- - Multithreaded applications (multithreaded)
-   - send
-   - receive
- - Error handling (error-handling)
-   - send
-   - receive
- - Logging (logging)
-   - send
-   - receive
+   - password
+   - kerberos
  - Subscriptions (subscriptions)
    - subscribe
    - durable-subscribe
    - shared-subscribe
    - durable-shared-subscribe
- - Transactions (transactions)
- - Timers (timers)
- - Filters (filters)
  - Codec (codec)
- - Interoperating with JMS (jms-interop)
+ - Error handling (error-handling)
+ - Filters (filters)
  - IO integration (io-integration)
+ - Interoperating with JMS (jms-interop)
+ - Logging (logging)
+ - Multithreaded applications (multithreaded)
+ - Timers (timers)
+ - Transactions (transactions)
 
 ## General properties
 
@@ -107,7 +106,3 @@ Usage: `respond <connection-url> <address> [<message-count>]`
    where necessary.
 
  - Option parsing is deliberately simple, using positional arguments.
-
-## To do
-
- - Docs for getting dependencies
