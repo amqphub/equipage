@@ -21,15 +21,14 @@ import io.vertx.core.Vertx;
 import io.vertx.proton.ProtonClient;
 import io.vertx.proton.ProtonConnection;
 import io.vertx.proton.ProtonSender;
-import java.io.IOException;
+import io.vertx.proton.streams.ProtonStreams;
+import io.vertx.proton.streams.ProtonSubscriber;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.message.Message;
-
-import io.vertx.proton.streams.*;
-import org.reactivestreams.*;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
 
 public class Send {
     public static void main(String[] args) {
@@ -79,8 +78,6 @@ public class Send {
 
                     completion.countDown();
                 });
-
-            // XXX Ask about runOnContext
 
             completion.await();
             vertx.close();

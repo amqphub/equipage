@@ -21,16 +21,15 @@ import io.vertx.core.Vertx;
 import io.vertx.proton.ProtonClient;
 import io.vertx.proton.ProtonConnection;
 import io.vertx.proton.ProtonSender;
-import java.io.IOException;
+import io.vertx.proton.streams.ProtonPublisher;
+import io.vertx.proton.streams.ProtonStreams;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.message.Message;
-
-import io.vertx.proton.streams.*;
-import org.reactivestreams.*;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 public class Receive {
     public static void main(String[] args) {
@@ -43,7 +42,6 @@ public class Receive {
             String url = args[0];
             String address = args[1];
             AtomicInteger desired = new AtomicInteger(0);
-            AtomicInteger received = new AtomicInteger(0);
 
             if (args.length == 3) {
                 desired.set(Integer.parseInt(args[2]));
@@ -66,21 +64,26 @@ public class Receive {
                     System.exit(1);
                 });
 
-            client.connect(host, port, (result) -> {
-                    if (result.failed()) {
-                        throw new RuntimeException(result.cause());
+            client.connect(host, port, (connResult) -> {
+                    if (connResult.failed()) {
+                        throw new RuntimeException(connResult.cause());
                     }
 
                     System.out.println("RECEIVE: Connected to '" + url + "'");
 
-                    ProtonConnection conn = result.result();
+                    ProtonConnection conn = connResult.result();
                     ProtonPublisher<Message> publisher = ProtonStreams.createConsumer
                         (conn, address);
                     OutputSubscriber<Message> subscriber = new OutputSubscriber<>
-                        (desired, received, completion);
+                        (conn, desired);
+
+                    conn.closeHandler((result) -> {
+                            completion.countDown();
+                        });
+
+                    publisher.subscribe(subscriber);
 
                     conn.open();
-                    publisher.subscribe(subscriber);
                 });
 
             completion.await();
@@ -93,35 +96,42 @@ public class Receive {
 }
 
 class OutputSubscriber<T extends Message> implements Subscriber<T> {
-    AtomicInteger desired;
-    AtomicInteger received;
-    CountDownLatch completion;
-    Subscription subscription;
+    static final int WINDOW_SIZE = 10;
 
-    public OutputSubscriber(AtomicInteger desired, AtomicInteger received,
-                            CountDownLatch completion) {
+    ProtonConnection connection;
+    Subscription subscription;
+    AtomicInteger received = new AtomicInteger(0);
+    AtomicInteger desired;
+
+    public OutputSubscriber(ProtonConnection connection, AtomicInteger desired) {
+        this.connection = connection;
         this.desired = desired;
-        this.received = received;
-        this.completion = completion;
     }
 
     @Override
     public void onSubscribe(Subscription subscription) {
         this.subscription = subscription;
-
-        if (desired.get() > 0) {
-            this.subscription.request(desired.get());
-        }
+        this.subscription.request(WINDOW_SIZE);
     }
 
     @Override
     public void onNext(T t) {
         String body = (String) ((AmqpValue) t.getBody()).getValue();
+
         System.out.println("RECEIVE: Received message '" + body + "'");
 
-        if (received.incrementAndGet() == desired.get()) {
+        int rc = received.incrementAndGet();
+        int dc = desired.get();
+
+        if (rc % WINDOW_SIZE == 0 && rc < dc) {
+            if (dc - rc >= WINDOW_SIZE) {
+                subscription.request(WINDOW_SIZE);
+            } else {
+                subscription.request(dc - rc);
+            }
+        } else if (rc == dc) {
             subscription.cancel();
-            completion.countDown();
+            connection.close();
         }
     }
 
@@ -133,6 +143,6 @@ class OutputSubscriber<T extends Message> implements Subscriber<T> {
 
     @Override
     public void onComplete() {
-        System.err.println(111);
+        connection.close();
     }
 }

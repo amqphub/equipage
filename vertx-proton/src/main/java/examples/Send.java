@@ -21,11 +21,9 @@ import io.vertx.core.Vertx;
 import io.vertx.proton.ProtonClient;
 import io.vertx.proton.ProtonConnection;
 import io.vertx.proton.ProtonSender;
-import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.message.Message;
 
 public class Send {
@@ -51,6 +49,11 @@ public class Send {
             Vertx vertx = Vertx.vertx();
             ProtonClient client = ProtonClient.create(vertx);
             CountDownLatch completion = new CountDownLatch(1);
+
+            vertx.exceptionHandler((e) -> {
+                    e.printStackTrace();
+                    System.exit(1);
+                });
 
             client.connect(host, port, (connResult) -> {
                     if (connResult.failed()) {

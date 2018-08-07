@@ -180,7 +180,7 @@ def test_vertx_proton_send_and_receive(session):
             call("{} {} q1 abc", java_prog("examples.Send"), server.connection_url)
             call("{} {} q1 1", java_prog("examples.Receive"), server.connection_url)
 
-def test_vertx_proton_rs_send_and_receive(session):
+def test_vertx_proton_reactive_streams_send_and_receive(session):
     with working_dir("vertx-proton"):
         check_send_usage(java_prog("examples.reactivestreams.Send"))
         check_receive_usage(java_prog("examples.reactivestreams.Receive"))

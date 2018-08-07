@@ -21,12 +21,10 @@ import io.vertx.core.Vertx;
 import io.vertx.proton.ProtonClient;
 import io.vertx.proton.ProtonConnection;
 import io.vertx.proton.ProtonReceiver;
-import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
-import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.message.Message;
 
 public class Receive {
@@ -58,6 +56,11 @@ public class Receive {
             ProtonClient client = ProtonClient.create(vertx);
             CountDownLatch completion = new CountDownLatch(1);
 
+            vertx.exceptionHandler((e) -> {
+                    e.printStackTrace();
+                    System.exit(1);
+                });
+
             client.connect(host, port, (connResult) -> {
                     if (connResult.failed()) {
                         throw new RuntimeException(connResult.cause());
@@ -69,7 +72,8 @@ public class Receive {
                     ProtonReceiver receiver = conn.createReceiver(address);
 
                     receiver.openHandler((result) -> {
-                            System.out.println("RECEIVE: Created receiver for source address '" + address + "'");
+                            System.out.println("RECEIVE: Created receiver for source address " +
+                                               "'" + address + "'");
                         });
                     
                     receiver.handler((delivery, message) -> {
