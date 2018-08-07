@@ -40,7 +40,7 @@ public class Receive {
             
             String url = args[0];
             String address = args[1];
-            int desired = 1;
+            int desired = 0;
             int received = 0;
 
             if (args.length == 3) {
@@ -65,12 +65,16 @@ public class Receive {
 
                 System.out.println("RECEIVE: Created consumer for source address '" + address + "'");
 
-                while (received < desired) {
+                while (true) {
                     TextMessage message = (TextMessage) consumer.receive();
 
                     System.out.println("RECEIVE: Received message '" + message.getText() + "'");
 
                     received++;
+
+                    if (received == desired) {
+                        break;
+                    }
                 }
             } finally {
                 conn.close();

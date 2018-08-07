@@ -41,7 +41,7 @@ public class Respond {
 
             String url = args[0];
             String address = args[1];
-            int desired = 1;
+            int desired = 0;
             int received = 0;
 
             if (args.length == 3) {
@@ -67,7 +67,7 @@ public class Respond {
 
                 System.out.println("RESPOND: Created consumer for source address '" + address + "'");
                 
-                while (received < desired) {
+                while (true) {
                     TextMessage request = (TextMessage) consumer.receive();
 
                     System.out.println("RESPOND: Received request '" + request.getText() + "'");
@@ -83,6 +83,10 @@ public class Respond {
                     System.out.println("RESPOND: Sent response '" + response.getText() + "'");
 
                     received++;
+
+                    if (received == desired) {
+                        break;
+                    }
                 }
             } finally {
                 conn.close();
