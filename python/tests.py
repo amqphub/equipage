@@ -180,6 +180,20 @@ def test_vertx_proton_send_and_receive(session):
             call("{} {} q1 abc", java_prog("examples.Send"), server.connection_url)
             call("{} {} q1 1", java_prog("examples.Receive"), server.connection_url)
 
+def test_vertx_proton_rs_send_and_receive(session):
+    with working_dir("vertx-proton"):
+        check_send_usage(java_prog("examples.reactivestreams.Send"))
+        check_receive_usage(java_prog("examples.reactivestreams.Receive"))
+
+        with TestServer() as server:
+            call("{} {} q1 abc", java_prog("examples.reactivestreams.Send"), server.connection_url)
+            call("{} {} q1 1", java_prog("examples.reactivestreams.Receive"), server.connection_url)
+
+def test_vertx_proton_makefile(session):
+    with working_dir("vertx-proton"):
+        with TestServer() as server:
+            call("make run URL={}", server.connection_url)
+
 class TestServer(object):
     def __init__(self):
         self.port = random_port()
@@ -253,16 +267,3 @@ def qpid_jms_prog(class_name):
     return "java -cp target/classes:target/dependency/\\*" \
         " -Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory" \
         " {}".format(class_name)
-
-# def java_example(class_name, connection_url="amqp://localhost:5672"):
-#     if not connection_url.startswith("amqp:"):
-#         connection_url = "amqp:" + connection_url
-
-#     temp_config = make_temp_file()
-
-#     write(temp_config, "connectionfactory.factory1={}".format(connection_url)
-
-#     return "java -cp 'target/classes:target/dependency/*'" \
-#         " -Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory" \
-#         " -Djava.naming.provider.url=file:{}".format(temp_config) \
-#         " examples.{}".format(class_name)
