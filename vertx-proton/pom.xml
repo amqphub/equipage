@@ -15,7 +15,7 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-proton</artifactId>
-      <version>3.6.0-SNAPSHOT</version>
+      <version>3.6.2</version>
     </dependency>
 
     <dependency>
