@@ -76,7 +76,7 @@ public class Respond {
                     TextMessage response = session.createTextMessage();
 
                     response.setText(responseBody);
-                    response.setJMSCorrelationID(request.getJMSMessageID());
+                    response.setJMSCorrelationID(request.getJMSCorrelationID());
 
                     producer.send(request.getJMSReplyTo(), response);
 

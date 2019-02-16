@@ -22,6 +22,7 @@
 package examples;
 
 import java.util.Hashtable;
+import java.util.UUID;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
@@ -43,10 +44,10 @@ public class Request {
             String url = args[0];
             String address = args[1];
             String messageBody = args[2];
-            
+
             Hashtable<Object, Object> env = new Hashtable<Object, Object>();
             env.put("connectionfactory.factory1", url);
-            
+
             InitialContext context = new InitialContext(env);
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();
@@ -55,7 +56,7 @@ public class Request {
 
             try {
                 System.out.println("REQUEST: Connected to '" + url + "'");
-                
+
                 Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
                 Queue requestQueue = session.createQueue(address);
                 Queue responseQueue = session.createTemporaryQueue();
@@ -66,6 +67,7 @@ public class Request {
                 System.out.println("REQUEST: Created producer for target address '" + address + "'");
 
                 request.setText(messageBody);
+                request.setJMSCorrelationID(UUID.randomUUID().toString());
                 request.setJMSReplyTo(responseQueue);
 
                 producer.send(request);
