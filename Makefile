@@ -1,5 +1,6 @@
+.NOTPARALLEL:
+
 export PYTHONPATH := ${CURDIR}/python
-export NODE_PATH := ${CURDIR}/rhea/node_modules
 
 .PHONY: build
 build:
