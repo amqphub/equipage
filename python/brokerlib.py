@@ -1,3 +1,4 @@
+#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -31,20 +32,23 @@ import uuid as _uuid
 import shutil as _shutil
 import subprocess as _subprocess
 import sys as _sys
+import time as _time
 import tempfile as _tempfile
 
 class Broker(object):
-    def __init__(self, host, port, id=None, user=None, password=None):
+    def __init__(self, host, port, id=None, user=None, password=None, ready_file=None):
         self.host = host
         self.port = port
         self.id = id
         self.user = user
         self.password = password
+        self.ready_file = ready_file
 
         if self.id is None:
             self.id = "broker-{0}".format(_uuid.uuid4())
 
-        self.container = _reactor.Container(_Handler(self), self.id)
+        self.container = _reactor.Container(_Handler(self))
+        self.container.container_id = self.id # XXX Obnoxious
 
         self._config_dir = None
 
@@ -73,6 +77,9 @@ class Broker(object):
             _subprocess.check_call(command, shell=True)
         except _subprocess.CalledProcessError as e:
             self.fail("Failed adding user to SASL database: {0}", e)
+
+    def debug(self, message, *args):
+        pass
 
     def info(self, message, *args):
         pass
@@ -173,6 +180,10 @@ class _Handler(_handlers.MessagingHandler):
 
         self.broker.notice("Listening for connections on '{0}'", interface)
 
+        if self.broker.ready_file is not None:
+            with open(self.broker.ready_file, "w") as f:
+                f.write("ready\n")
+
     def get_queue(self, address):
         try:
             queue = self.queues[address]
@@ -232,6 +243,10 @@ class _Handler(_handlers.MessagingHandler):
 
             link = link.next(_proton.Endpoint.REMOTE_ACTIVE)
 
+    def on_link_flow(self, event):
+        if event.link.is_sender and event.link.drain_mode:
+            event.link.drained()
+
     def on_sendable(self, event):
         queue = self.get_queue(event.link.source.address)
         queue.forward_messages()
@@ -262,6 +277,9 @@ class _Handler(_handlers.MessagingHandler):
         queue = self.get_queue(address)
         queue.store_message(delivery, message)
         queue.forward_messages()
+
+    def on_unhandled(self, name, event):
+        self.broker.debug("Unhandled event: {0} {1}", name, event)
 
 if __name__ == "__main__":
     def _print(message, *args):
