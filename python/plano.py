@@ -806,7 +806,7 @@ def start_process(command, *args, **kwargs):
             proc = _Process(command_args, kwargs, name, command_string, temp_output_file)
     except OSError as e:
         if e.errno == 2:
-            fail("{0}: {1}", str(e))
+            fail(e)
 
         raise
 

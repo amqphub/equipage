@@ -188,26 +188,52 @@ class _Handler(_handlers.MessagingHandler):
         try:
             queue = self.queues[address]
         except KeyError:
-            queue = self.queues[address] = _Queue(self.broker, address)
+            queue = self.create_queue(address)
 
+        return queue
+
+    def create_queue(self, address):
+        assert address not in self.queues, address
+
+        queue = _Queue(self.broker, address)
+        self.queues[address] = queue
         return queue
 
     def on_link_opening(self, event):
         if event.link.is_sender:
+            # A client receiving from the broker
+
             if event.link.remote_source.dynamic:
+                # A temporary queue
                 address = "{0}/{1}".format(event.connection.remote_container, event.link.name)
+                queue = self.create_queue(address)
+            elif event.link.remote_source.address is None:
+                raise Exception("Not sure what this case is")
             else:
+                # A named queue
                 address = event.link.remote_source.address
+                queue = self.get_queue(address)
 
             assert address is not None
 
             event.link.source.address = address
-
-            queue = self.get_queue(address)
             queue.add_consumer(event.link)
 
         if event.link.is_receiver:
-            address = event.link.remote_target.address
+            # A client sending to the broker
+
+            if event.link.remote_target.dynamic:
+                # A temporary queue
+                address = "{0}/{1}".format(event.connection.remote_container, event.link.name)
+                queue = self.create_queue(address)
+            elif event.link.remote_target.address is None:
+                # Anonymous relay - no queueing
+                address = None
+            else:
+                # A named queue
+                address = event.link.remote_target.address
+                queue = self.get_queue(address)
+
             event.link.target.address = address
 
     def on_link_closing(self, event):
@@ -271,7 +297,7 @@ class _Handler(_handlers.MessagingHandler):
         delivery = event.delivery
         address = event.link.target.address
 
-        if address is None:
+        if address in (None, ""):
             address = message.address
 
         queue = self.get_queue(address)
