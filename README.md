@@ -71,13 +71,18 @@ Usage: `respond <connection-url> <address> [<message-count>]`
    - receive
    - request
    - respond
+ - Authentication (authentication)
+   - password
+   - kerberos
+ - Automatic resource creation (auto-create)
+   - queue-send
+   - queue-receive
+   - topic-send
+   - topic-receive
  - Reconnect and failover (reconnect)
    - connect
    - failover
    - custom-failover
- - Authentication (authentication)
-   - password
-   - kerberos
  - Subscriptions (subscriptions)
    - subscribe
    - durable-subscribe

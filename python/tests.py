@@ -136,6 +136,19 @@ def test_qpid_proton_python_request_respond(session):
             with start_process("python respond.py {} q1 1", server.connection_url):
                 call("python request.py {} q1 abc", server.connection_url)
 
+def test_qpid_proton_python_auto_create(session):
+    with working_dir("qpid-proton-python"):
+        check_send_usage("python auto-create/queue-send.py")
+        check_receive_usage("auto-create/queue-receive.py")
+        check_send_usage("python auto-create/topic-send.py")
+        check_receive_usage("python auto-create/topic-receive.py")
+
+        with TestServer() as server:
+            call("python auto-create/queue-send.py {} q1 abc", server.connection_url)
+            call("python auto-create/queue-receive.py {} q1 1", server.connection_url)
+            call("python auto-create/topic-send.py {} q2 abc", server.connection_url)
+            call("python auto-create/topic-receive.py {} q2 1", server.connection_url)
+
 def test_qpid_proton_ruby_connect(session):
     with working_dir("qpid-proton-ruby"):
         check_connect_usage("ruby connect.rb")
