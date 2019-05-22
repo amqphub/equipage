@@ -199,6 +199,19 @@ def test_rhea_request_respond(session):
             with start_process("node respond.js {} q1 1", server.connection_url):
                 call("node request.js {} q1 abc", server.connection_url)
 
+def test_rhea_auto_create(session):
+    with working_dir("rhea"):
+        check_send_usage("node auto-create/queue-send.js")
+        check_receive_usage("auto-create/queue-receive.js")
+        check_send_usage("node auto-create/topic-send.js")
+        check_receive_usage("node auto-create/topic-receive.js")
+
+        with TestServer() as server:
+            call("node auto-create/queue-send.js {} q1 abc", server.connection_url)
+            call("node auto-create/queue-receive.js {} q1 1", server.connection_url)
+            call("node auto-create/topic-send.js {} q2 abc", server.connection_url)
+            call("node auto-create/topic-receive.js {} q2 1", server.connection_url)
+
 def test_vertx_proton_send_receive(session):
     with working_dir("vertx-proton"):
         check_send_usage(java_prog("examples.Send"))
