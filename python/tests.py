@@ -174,6 +174,19 @@ def test_qpid_proton_ruby_request_respond(session):
             with start_process("ruby respond.rb {} q1 1", server.connection_url):
                 call("ruby request.rb {} q1 abc", server.connection_url)
 
+def test_qpid_proton_ruby_auto_create(session):
+    with working_dir("qpid-proton-ruby"):
+        check_send_usage("ruby auto-create/queue-send.rb")
+        check_receive_usage("auto-create/queue-receive.rb")
+        check_send_usage("ruby auto-create/topic-send.rb")
+        check_receive_usage("ruby auto-create/topic-receive.rb")
+
+        with TestServer() as server:
+            call("ruby auto-create/queue-send.rb {} q1 abc", server.connection_url)
+            call("ruby auto-create/queue-receive.rb {} q1 1", server.connection_url)
+            call("ruby auto-create/topic-send.rb {} q2 abc", server.connection_url)
+            call("ruby auto-create/topic-receive.rb {} q2 1", server.connection_url)
+
 def test_rhea_connect(session):
     with working_dir("rhea"):
         check_connect_usage("node connect.js")
