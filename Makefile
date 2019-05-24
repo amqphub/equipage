@@ -15,6 +15,19 @@ build:
 test: build
 	scripts/test --timeout 10
 
+.PHONY: big-test
+big-test: test test-centos-7
+
+.PHONY: test-centos-7
+test-centos-7: clean
+	sudo docker build -f scripts/test-centos-7.dockerfile -t me-test-centos-7 .
+	sudo docker run --rm me-test-centos-7
+
+.PHONY: debug-centos-7
+debug-centos-7: clean
+	sudo docker build -f scripts/test-centos-7.dockerfile -t me-test-centos-7 .
+	sudo docker run --rm -it me-test-centos-7 /bin/bash
+
 .PHONY: clean
 clean:
 	cd pooled-jms && make clean

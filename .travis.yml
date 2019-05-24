@@ -1,7 +1,16 @@
-before_install:
-  - sudo add-apt-repository -y ppa:qpid/released
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install build-essential make openjdk-8-jdk maven nodejs python-numpy python xz-utils libqpidmessaging-dev libqpidtypes-dev libqpidcommon-dev libqpid-proton8-dev python-qpid python-qpid-messaging python-qpid-proton
+sudo: enabled
+language: generic
+
+services:
+ - docker
 
 script:
- - make test
+ - make test-centos-7
+
+#  before_install:
+#   - sudo add-apt-repository -y ppa:qpid/released
+#   - sudo apt-get -qq update
+#   - sudo apt-get -qq install build-essential make openjdk-8-jdk maven nodejs python-numpy python xz-utils libqpidmessaging-dev libqpidtypes-dev libqpidcommon-dev libqpid-proton8-dev python-qpid python-qpid-messaging python-qpid-proton
+
+# script:
+#  - make test
