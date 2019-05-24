@@ -43,7 +43,7 @@ class ReceiveHandler < Qpid::Proton::MessagingHandler
       }
     }
 
-    conn.open_receiver(opts=opts)
+    conn.open_receiver(opts)
   end
 
   def on_receiver_open(receiver)
