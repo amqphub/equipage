@@ -16,7 +16,7 @@ test: build
 	scripts/test --timeout 10
 
 .PHONY: big-test
-big-test: test test-centos-7
+big-test: test test-centos-7 test-ubuntu
 
 .PHONY: test-centos-7
 test-centos-7: clean
@@ -27,6 +27,16 @@ test-centos-7: clean
 debug-centos-7: clean
 	sudo docker build -f scripts/test-centos-7.dockerfile -t me-test-centos-7 .
 	sudo docker run --rm -it me-test-centos-7 /bin/bash
+
+.PHONY: test-ubuntu
+test-ubuntu: clean
+	sudo docker build -f scripts/test-ubuntu.dockerfile -t me-test-ubuntu .
+	sudo docker run --rm me-test-ubuntu
+
+.PHONY: debug-ubuntu
+debug-ubuntu: clean
+	sudo docker build -f scripts/test-ubuntu.dockerfile -t me-test-ubuntu .
+	sudo docker run --rm -it me-test-ubuntu /bin/bash
 
 .PHONY: clean
 clean:

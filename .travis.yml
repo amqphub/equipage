@@ -5,4 +5,4 @@ services:
  - docker
 
 script:
- - make test-centos-7
+ - make test-centos-7 test-ubuntu
