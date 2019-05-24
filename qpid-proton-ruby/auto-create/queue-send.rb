@@ -31,7 +31,17 @@ class SendHandler < Qpid::Proton::MessagingHandler
 
   def on_container_start(container)
     conn = container.connect(@conn_url)
-    conn.open_sender(@address)
+
+    opts = {
+      target: {
+        address: @address,
+        capabilities: {
+          :queue => ""
+        }
+      }
+    }
+
+    conn.open_sender(opts)
   end
 
   def on_sender_open(sender)

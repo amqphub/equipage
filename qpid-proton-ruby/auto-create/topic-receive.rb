@@ -33,7 +33,17 @@ class ReceiveHandler < Qpid::Proton::MessagingHandler
 
   def on_container_start(container)
     conn = container.connect(@conn_url)
-    conn.open_receiver(@address)
+
+    opts = {
+      source: {
+        address: @address,
+        capabilities: {
+          :topic => ""
+        }
+      }
+    }
+
+    conn.open_receiver(opts)
   end
 
   def on_receiver_open(receiver)

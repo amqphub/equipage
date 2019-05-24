@@ -38,11 +38,11 @@ class ReceiveHandler < Qpid::Proton::MessagingHandler
       source: {
         address: @address,
         capabilities: {
-          :queue => nil
+          :queue => ""
         }
       }
     }
-    
+
     conn.open_receiver(opts=opts)
   end
 
