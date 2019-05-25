@@ -2,6 +2,10 @@
 build:
 	mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests
 
+.PHONY: test
+test: build
+	cd .. && PYTHONPATH=$$PWD/python scripts/test test_qpid_jms\*
+
 .PHONY: run
 run: COMMAND := java -cp target/classes:target/dependency/\* -Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory
 run: URL := amqp://localhost

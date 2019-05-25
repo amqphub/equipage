@@ -5,6 +5,10 @@ TARGETS := ${SOURCES:./%.cpp=build/%}
 .PHONY: build
 build: ${TARGETS}
 
+.PHONY: test
+test: build
+	cd .. && PYTHONPATH=$$PWD/python scripts/test test_qpid_proton_cpp\*
+
 .PHONY: clean
 clean:
 	rm -rf build

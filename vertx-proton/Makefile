@@ -2,6 +2,10 @@
 build:
 	mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests
 
+.PHONY: test
+test: build
+	cd .. && PYTHONPATH=$$PWD/python scripts/test test_vertx_proton\*
+
 .PHONY: run
 run: COMMAND := java -cp target/classes:target/dependency/\*
 run: URL := amqp://localhost
