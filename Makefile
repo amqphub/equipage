@@ -16,7 +16,7 @@ test: build
 	scripts/test --timeout 10
 
 .PHONY: big-test
-big-test: test test-centos-7 test-ubuntu
+big-test: test test-centos-7 test-fedora test-ubuntu
 
 .PHONY: test-centos-7
 test-centos-7: clean
@@ -27,6 +27,16 @@ test-centos-7: clean
 debug-centos-7: clean
 	sudo docker build -f scripts/test-centos-7.dockerfile -t me-test-centos-7 .
 	sudo docker run --rm -it me-test-centos-7 /bin/bash
+
+.PHONY: test-fedora
+test-fedora: clean
+	sudo docker build -f scripts/test-fedora.dockerfile -t me-test-fedora .
+	sudo docker run --rm me-test-fedora
+
+.PHONY: debug-fedora
+debug-fedora: clean
+	sudo docker build -f scripts/test-fedora.dockerfile -t me-test-fedora .
+	sudo docker run --rm -it me-test-fedora /bin/bash
 
 .PHONY: test-ubuntu
 test-ubuntu: clean

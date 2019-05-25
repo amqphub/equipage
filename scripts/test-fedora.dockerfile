@@ -17,15 +17,13 @@
 # under the License.
 #
 
-FROM centos:7
+FROM fedora
 
-RUN yum -q -y update && yum -q clean all
+RUN dnf -qy update && dnf -q clean all
 
-RUN yum -q -y install epel-release
+RUN dnf -y install gcc-c++ java-1.8.0-openjdk-devel maven make npm qpid-proton-c-devel qpid-proton-cpp-devel
 
-RUN yum -y install gcc-c++ java-1.8.0-openjdk-devel maven make npm qpid-proton-c-devel qpid-proton-cpp-devel
-
-RUN yum -y install nodejs python python2-qpid-proton ruby rubygem-qpid_proton cyrus-sasl-plain cyrus-sasl-md5
+RUN dnf -y install nodejs python python2-qpid-proton ruby rubygem-qpid_proton cyrus-sasl-plain cyrus-sasl-md5
 
 RUN npm install -g rhea
 
