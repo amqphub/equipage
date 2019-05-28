@@ -64,12 +64,7 @@ install:
 
 .PHONY: test
 test: build
-	cd pooled-jms && make build
-	cd qpid-jms && make build
-	cd qpid-proton-cpp && make build
-	cd qpid-proton-python && make build
-	cd rhea && make build
-	cd vertx-proton && make build
+	qexamples build
 	qexamples-test
 
 .PHONY: big-test

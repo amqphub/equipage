@@ -202,6 +202,12 @@ sleep = _time.sleep
 def home_dir(user=None):
     return _os.path.expanduser("~{0}".format(user or ""))
 
+def username():
+    return _getpass.getuser()
+
+def hostname():
+    return _socket.gethostname()
+
 def parent_dir(path):
     path = normalize_path(path)
     parent, child = split(path)
@@ -393,7 +399,7 @@ def user_temp_dir():
     try:
         return ENV["XDG_RUNTIME_DIR"]
     except KeyError:
-        return _tempfile.gettempdir()
+        return join(_tempfile.gettempdir(), username())
 
 def make_temp_file(suffix="", dir=None):
     if dir is None:
