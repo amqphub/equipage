@@ -30,10 +30,15 @@ import sys as _sys
 _description = "Build messaging example projects"
 
 _epilog = """
+operations:
+  list        Show the available example projects
+  build       Copy the example projects to a working directory and build them
+  clean       Clean the project working directories
+
 example usage:
-  $ qexamples list-projects
-  $ qexamples build qpid-jms
-  $ qexamples clean qpid-jms
+  $ qexamples list
+  $ qexamples build qpid-jms    # Build the 'qpid-jms' project
+  $ qexamples clean qpid-jms    # Clean up build artifacts for the 'qpid-jms' project
 """
 
 _call = _plano.call
@@ -48,10 +53,12 @@ class ExamplesCommand(_commandant.Command):
         self.epilog = _epilog.lstrip()
 
         self.add_argument("operation", metavar="OPERATION",
-                          choices=["list-projects", "build", "clean"],
-                          help="'list-projects', 'build', or 'clean'")
+                          choices=["list", "build", "clean"],
+                          help="Either 'list', 'build', or 'clean'. "
+                          "See the 'operations' section below.")
         self.add_argument("projects", metavar="PROJECT", nargs="*",
-                          help="A named project containing example programs")
+                          help="A named project containing example programs. "
+                          "If no projects are specified, the operation is applied to all of them.")
 
         self.projects = [
             _PooledJms(self, "pooled-jms"),
@@ -76,9 +83,11 @@ class ExamplesCommand(_commandant.Command):
             self.selected_projects = self.projects
 
     def run(self):
-        if self.operation == "list-projects":
+        if self.operation == "list":
+            print("{0:20} {1}".format("NAME", "SOURCE"))
+
             for project in self.selected_projects:
-                print(project.name)
+                print("{0:20} {1}".format(project.name, project.source_dir))
 
         if self.operation == "build":
             for project in self.selected_projects:
@@ -98,7 +107,7 @@ class _Project:
         self.name = name
 
         self.source_dir = _join(self.command.home, name)
-        self.work_dir = _join(_plano.user_temp_dir(), "qexamples", name)
+        self.work_dir = _join(_plano.get_user_temp_dir(), "qexamples", name)
 
     def build(self):
         pass
