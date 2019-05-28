@@ -434,7 +434,7 @@ def get_user_temp_dir():
     try:
         return ENV["XDG_RUNTIME_DIR"]
     except KeyError:
-        return join(get_temp_dir(), username())
+        return join(get_temp_dir(), get_user())
 
 def user_temp_dir():
     warn("Deprecated! Use get_user_temp_dir() instead")
