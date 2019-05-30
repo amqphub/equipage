@@ -21,12 +21,12 @@
 import os
 import sys
 
-default_home = os.path.normpath("@qexamples_home@")
-home = os.environ.get("QEXAMPLES_HOME", default_home)
+default_home = os.path.normpath("@equipage_home@")
+home = os.environ.get("EQUIPAGE_HOME", default_home)
 sys.path.insert(0, os.path.join(home, "python"))
 
-from qexamples.main import ExamplesCommand
+from equipage.main import EquipageCommand
 
 if __name__ == "__main__":
-    command = ExamplesCommand(home)
+    command = EquipageCommand(home)
     command.main()

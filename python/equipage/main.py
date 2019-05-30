@@ -25,10 +25,10 @@ from __future__ import with_statement
 
 import commandant as _commandant
 import plano as _plano
-import qexamples.tests as _tests
+import equipage.tests as _tests
 import sys as _sys
 
-_description = "Build messaging example projects"
+_description = "Build and test messaging example projects"
 
 _epilog = """
 operations:
@@ -38,21 +38,21 @@ operations:
   clean       Clean the project working directories
 
 example usage:
-  $ qexamples list
-  $ qexamples build qpid-jms    # Build the 'qpid-jms' project
-  $ qexamples test qpid-jms     # Run tests for the 'qpid-jms' project
-  $ qexamples clean qpid-jms    # Clean up build artifacts for the 'qpid-jms' project
+  $ equipage list
+  $ equipage build qpid-jms    # Build the 'qpid-jms' project
+  $ equipage test qpid-jms     # Run tests for the 'qpid-jms' project
+  $ equipage clean qpid-jms    # Clean up build artifacts for the 'qpid-jms' project
 """
 
 _call = _plano.call
 _join = _plano.join
 _working_dir = _plano.working_dir
 
-class ExamplesCommand(_commandant.Command):
+class EquipageCommand(_commandant.Command):
     def __init__(self, home):
-        super(ExamplesCommand, self).__init__(home, "qexamples")
+        super(EquipageCommand, self).__init__(home, "equipage")
 
-        self.work_dir = _join(_plano.get_user_temp_dir(), "qexamples")
+        self.work_dir = _join(_plano.get_user_temp_dir(), "equipage")
 
         self.description = _description.lstrip()
         self.epilog = _epilog.lstrip()
@@ -85,7 +85,7 @@ class ExamplesCommand(_commandant.Command):
         ]
 
     def init(self):
-        super(ExamplesCommand, self).init()
+        super(EquipageCommand, self).init()
 
         if "func" not in self.args:
             _plano.exit("Missing subcommand")
@@ -142,7 +142,7 @@ class _Project(object):
 
         pattern = "test_{0}*".format(self.name.replace("-", "_"))
 
-        _call("qexamples-test {0}", pattern)
+        _call("equipage-test {0}", pattern)
 
 class _MavenProject(_Project):
     def build(self):

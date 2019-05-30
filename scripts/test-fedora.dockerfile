@@ -34,4 +34,4 @@ WORKDIR /src
 
 RUN make install
 
-CMD ["qexamples", "test"]
+CMD ["equipage", "test"]

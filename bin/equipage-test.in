@@ -21,12 +21,12 @@
 import os
 import sys
 
-default_home = os.path.normpath("@qexamples_home@")
-home = os.environ.get("QEXAMPLES_HOME", default_home)
+default_home = os.path.normpath("@equipage_home@")
+home = os.environ.get("EQUIPAGE_HOME", default_home)
 sys.path.insert(0, os.path.join(home, "python"))
 
 import plano
-import qexamples.tests
+import equipage.tests
 
 from commandant import TestCommand
 
@@ -34,9 +34,9 @@ from commandant import TestCommand
 plano.ENV["PYTHONPATH"] = plano.join(home, "python")
 
 if __name__ == "__main__":
-    default_examples_dir = plano.join(plano.get_user_temp_dir(), "qexamples")
+    default_examples_dir = plano.join(plano.get_user_temp_dir(), "equipage")
 
-    command = TestCommand([qexamples.tests])
+    command = TestCommand([equipage.tests])
     command.add_argument("--examples-dir", metavar="EXAMPLES-DIR",
                          help="The directory containing the example projects "
                          "(default {0})".format(default_examples_dir),

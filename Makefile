@@ -21,21 +21,21 @@
 
 DESTDIR := ""
 PREFIX := /usr/local
-INSTALLED_QEXAMPLES_HOME = ${PREFIX}/share/qexamples
+INSTALLED_EQUIPAGE_HOME = ${PREFIX}/share/equipage
 
-export QEXAMPLES_HOME := ${CURDIR}/build/qexamples
+export EQUIPAGE_HOME := ${CURDIR}/build/equipage
 export PATH := ${CURDIR}/build/bin:${PATH}
-export PYTHONPATH := ${QEXAMPLES_HOME}/python:${CURDIR}/python
+export PYTHONPATH := ${EQUIPAGE_HOME}/python:${CURDIR}/python
 
 BIN_SOURCES := $(shell find bin -type f -name \*.in)
 BIN_TARGETS := ${BIN_SOURCES:%.in=build/%}
 
 PYTHON_SOURCES := $(shell find python -type f -name \*.py)
-PYTHON_TARGETS := ${PYTHON_SOURCES:%=build/qexamples/%}
+PYTHON_TARGETS := ${PYTHON_SOURCES:%=build/equipage/%}
 
 EXAMPLE_DIRS := pooled-jms qpid-jms qpid-proton-cpp qpid-proton-python qpid-proton-ruby rhea vertx-proton
 EXAMPLE_SOURCES := $(shell find ${EXAMPLE_DIRS})
-EXAMPLE_TARGETS := ${EXAMPLE_SOURCES:%=build/qexamples/%}
+EXAMPLE_TARGETS := ${EXAMPLE_SOURCES:%=build/equipage/%}
 
 .PHONY: default
 default: build
@@ -60,56 +60,56 @@ build: ${BIN_TARGETS} ${PYTHON_TARGETS} ${EXAMPLE_TARGETS} build/prefix.txt
 .PHONY: install
 install: clean build
 	scripts/install-files build/bin ${DESTDIR}$$(cat build/prefix.txt)/bin
-	scripts/install-files build/qexamples ${DESTDIR}$$(cat build/prefix.txt)/share/qexamples
+	scripts/install-files build/equipage ${DESTDIR}$$(cat build/prefix.txt)/share/equipage
 
 .PHONY: test
 test: build
-	qexamples test
+	equipage test
 
 .PHONY: big-test
 big-test: test test-centos-7 test-fedora test-ubuntu
 
 .PHONY: test-centos-7
 test-centos-7: clean
-	sudo docker build -f scripts/test-centos-7.dockerfile -t qexamples-test-centos-7 .
-	sudo docker run --rm qexamples-test-centos-7
+	sudo docker build -f scripts/test-centos-7.dockerfile -t equipage-test-centos-7 .
+	sudo docker run --rm equipage-test-centos-7
 
 .PHONY: debug-centos-7
 debug-centos-7: clean
-	sudo docker build -f scripts/test-centos-7.dockerfile -t qexamples-test-centos-7 .
-	sudo docker run --rm -it qexamples-test-centos-7 /bin/bash
+	sudo docker build -f scripts/test-centos-7.dockerfile -t equipage-test-centos-7 .
+	sudo docker run --rm -it equipage-test-centos-7 /bin/bash
 
 .PHONY: test-fedora
 test-fedora: clean
-	sudo docker build -f scripts/test-fedora.dockerfile -t qexamples-test-fedora .
-	sudo docker run --rm qexamples-test-fedora
+	sudo docker build -f scripts/test-fedora.dockerfile -t equipage-test-fedora .
+	sudo docker run --rm equipage-test-fedora
 
 .PHONY: debug-fedora
 debug-fedora: clean
-	sudo docker build -f scripts/test-fedora.dockerfile -t qexamples-test-fedora .
-	sudo docker run --rm -it qexamples-test-fedora /bin/bash
+	sudo docker build -f scripts/test-fedora.dockerfile -t equipage-test-fedora .
+	sudo docker run --rm -it equipage-test-fedora /bin/bash
 
 .PHONY: test-ubuntu
 test-ubuntu: clean
-	sudo docker build -f scripts/test-ubuntu.dockerfile -t qexamples-test-ubuntu .
-	sudo docker run --rm qexamples-test-ubuntu
+	sudo docker build -f scripts/test-ubuntu.dockerfile -t equipage-test-ubuntu .
+	sudo docker run --rm equipage-test-ubuntu
 
 .PHONY: debug-ubuntu
 debug-ubuntu: clean
-	sudo docker build -f scripts/test-ubuntu.dockerfile -t qexamples-test-ubuntu .
-	sudo docker run --rm -it qexamples-test-ubuntu /bin/bash
+	sudo docker build -f scripts/test-ubuntu.dockerfile -t equipage-test-ubuntu .
+	sudo docker run --rm -it equipage-test-ubuntu /bin/bash
 
 build/prefix.txt:
 	echo ${PREFIX} > build/prefix.txt
 
 build/bin/%: bin/%.in
-	scripts/configure-file -a qexamples_home=${INSTALLED_QEXAMPLES_HOME} $< $@
+	scripts/configure-file -a equipage_home=${INSTALLED_EQUIPAGE_HOME} $< $@
 
-build/qexamples/python/qexamples/%: python/qexamples/% python/brokerlib.py python/commandant.py python/plano.py
+build/equipage/python/equipage/%: python/equipage/% python/brokerlib.py python/commandant.py python/plano.py
 	@mkdir -p ${@D}
 	cp $< $@
 
-build/qexamples/%: %
+build/equipage/%: %
 	@mkdir -p ${@D}
 	cp -r $< $@
 
