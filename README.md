@@ -1,4 +1,4 @@
-# Messaging examples
+# Equipage
 
 ## APIs
 
@@ -83,6 +83,9 @@ Usage: `respond <connection-url> <address> [<message-count>]`
    - connect
    - failover
    - custom-failover
+ - Servers (servers)
+   - receive
+   - respond
  - Subscriptions (subscriptions)
    - subscribe
    - durable-subscribe
