@@ -1,5 +1,10 @@
 # Equipage
 
+[![Build Status](https://travis-ci.org/ssorj/equipage.svg?branch=master)](https://travis-ci.org/ssorj/equipage)
+
+AMQP 1.0 messaging example programs implemented using a variety of
+messaging APIs
+
 ## APIs
 
  - [Pooled JMS](https://github.com/messaginghub/pooled-jms)
