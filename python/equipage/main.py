@@ -28,7 +28,7 @@ import plano as _plano
 import equipage.tests as _tests
 import sys as _sys
 
-_description = "Build and test messaging example projects"
+_description = "Build and test AMQP 1.0 messaging example programs"
 
 _epilog = """
 operations:
