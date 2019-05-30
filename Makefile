@@ -72,33 +72,33 @@ big-test: test test-centos-7 test-fedora test-ubuntu
 
 .PHONY: test-centos-7
 test-centos-7: clean
-	sudo docker build -f scripts/test-centos-7.dockerfile -t me-test-centos-7 .
-	sudo docker run --rm me-test-centos-7
+	sudo docker build -f scripts/test-centos-7.dockerfile -t qexamples-test-centos-7 .
+	sudo docker run --rm qexamples-test-centos-7
 
 .PHONY: debug-centos-7
 debug-centos-7: clean
-	sudo docker build -f scripts/test-centos-7.dockerfile -t me-test-centos-7 .
-	sudo docker run --rm -it me-test-centos-7 /bin/bash
+	sudo docker build -f scripts/test-centos-7.dockerfile -t qexamples-test-centos-7 .
+	sudo docker run --rm -it qexamples-test-centos-7 /bin/bash
 
 .PHONY: test-fedora
 test-fedora: clean
-	sudo docker build -f scripts/test-fedora.dockerfile -t me-test-fedora .
-	sudo docker run --rm me-test-fedora
+	sudo docker build -f scripts/test-fedora.dockerfile -t qexamples-test-fedora .
+	sudo docker run --rm qexamples-test-fedora
 
 .PHONY: debug-fedora
 debug-fedora: clean
-	sudo docker build -f scripts/test-fedora.dockerfile -t me-test-fedora .
-	sudo docker run --rm -it me-test-fedora /bin/bash
+	sudo docker build -f scripts/test-fedora.dockerfile -t qexamples-test-fedora .
+	sudo docker run --rm -it qexamples-test-fedora /bin/bash
 
 .PHONY: test-ubuntu
 test-ubuntu: clean
-	sudo docker build -f scripts/test-ubuntu.dockerfile -t me-test-ubuntu .
-	sudo docker run --rm me-test-ubuntu
+	sudo docker build -f scripts/test-ubuntu.dockerfile -t qexamples-test-ubuntu .
+	sudo docker run --rm qexamples-test-ubuntu
 
 .PHONY: debug-ubuntu
 debug-ubuntu: clean
-	sudo docker build -f scripts/test-ubuntu.dockerfile -t me-test-ubuntu .
-	sudo docker run --rm -it me-test-ubuntu /bin/bash
+	sudo docker build -f scripts/test-ubuntu.dockerfile -t qexamples-test-ubuntu .
+	sudo docker run --rm -it qexamples-test-ubuntu /bin/bash
 
 build/prefix.txt:
 	echo ${PREFIX} > build/prefix.txt

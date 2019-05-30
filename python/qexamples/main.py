@@ -25,6 +25,7 @@ from __future__ import with_statement
 
 import commandant as _commandant
 import plano as _plano
+import qexamples.tests as _tests
 import sys as _sys
 
 _description = "Build messaging example projects"
@@ -33,11 +34,13 @@ _epilog = """
 operations:
   list        Show the available example projects
   build       Copy the example projects to a working directory and build them
+  test        Run tests against the examples
   clean       Clean the project working directories
 
 example usage:
   $ qexamples list
   $ qexamples build qpid-jms    # Build the 'qpid-jms' project
+  $ qexamples test qpid-jms     # Run tests for the 'qpid-jms' project
   $ qexamples clean qpid-jms    # Clean up build artifacts for the 'qpid-jms' project
 """
 
@@ -49,16 +52,27 @@ class ExamplesCommand(_commandant.Command):
     def __init__(self, home):
         super(ExamplesCommand, self).__init__(home, "qexamples")
 
+        self.work_dir = _join(_plano.get_user_temp_dir(), "qexamples")
+
         self.description = _description.lstrip()
         self.epilog = _epilog.lstrip()
 
-        self.add_argument("operation", metavar="OPERATION",
-                          choices=["list", "build", "clean"],
-                          help="Either 'list', 'build', or 'clean'. "
-                          "See the 'operations' section below.")
-        self.add_argument("projects", metavar="PROJECT", nargs="*",
-                          help="A named project containing example programs. "
-                          "If no projects are specified, the operation is applied to all of them.")
+        subparsers = self.add_subparsers()
+
+        list_parser = subparsers.add_parser("list")
+        list_parser.set_defaults(func=self.list_command)
+
+        build_parser = subparsers.add_parser("build")
+        self.add_project_args(build_parser)
+        build_parser.set_defaults(func=self.build_command)
+
+        test_parser = subparsers.add_parser("test")
+        self.add_project_args(test_parser)
+        test_parser.set_defaults(func=self.test_command)
+
+        clean_parser = subparsers.add_parser("clean")
+        self.add_project_args(clean_parser)
+        clean_parser.set_defaults(func=self.clean_command)
 
         self.projects = [
             _PooledJms(self, "pooled-jms"),
@@ -73,54 +87,73 @@ class ExamplesCommand(_commandant.Command):
     def init(self):
         super(ExamplesCommand, self).init()
 
-        self.operation = self.args.operation
-
-        # XXX Check for bad project names
-
-        if self.args.projects:
-            self.selected_projects = [x for x in self.projects if x.name in self.args.projects]
-        else:
-            self.selected_projects = self.projects
+        if "func" not in self.args:
+            _plano.exit("Missing subcommand")
 
     def run(self):
-        if self.operation == "list":
-            print("{0:20} {1}".format("NAME", "SOURCE"))
+        self.args.func()
 
-            for project in self.selected_projects:
-                print("{0:20} {1}".format(project.name, project.source_dir))
+    def list_command(self):
+        print("{0:20} {1}".format("NAME", "SOURCE"))
 
-        if self.operation == "build":
-            for project in self.selected_projects:
-                _plano.copy(project.source_dir, project.work_dir)
+        for project in self.projects:
+            print("{0:20} {1}".format(project.name, project.source_dir))
 
-                with _working_dir(project.work_dir):
-                    project.build()
+    def build_command(self):
+        for project in self.get_selected_projects():
+            project.build()
 
-        if self.operation == "clean":
-            for project in self.selected_projects:
-                with _working_dir(project.work_dir):
-                    project.clean()
+    def test_command(self):
+        for project in self.get_selected_projects():
+            project.test()
 
-class _Project:
+    def clean_command(self):
+        for project in self.get_selected_projects():
+            project.clean()
+
+    def add_project_args(self, parser):
+        parser.add_argument("projects", metavar="PROJECT", nargs="*",
+                            help="A named project containing example programs. "
+                            "If no projects are specified, the operation is applied to all of them.")
+
+    def get_selected_projects(self):
+        if self.args.projects:
+            return [x for x in self.projects if x.name in self.args.projects]
+        else:
+            return self.projects
+
+class _Project(object):
     def __init__(self, command, name):
         self.command = command
         self.name = name
 
         self.source_dir = _join(self.command.home, name)
-        self.work_dir = _join(_plano.get_user_temp_dir(), "qexamples", name)
+        self.work_dir = _join(self.command.work_dir, name)
 
     def build(self):
-        pass
+        _plano.remove(self.work_dir)
+        _plano.copy(self.source_dir, self.work_dir)
 
     def clean(self):
         pass
+
+    def test(self):
+        self.build()
+
+        pattern = "test_{0}*".format(self.name.replace("-", "_"))
+
+        _call("qexamples-test {0}", pattern)
 
 class _MavenProject(_Project):
     def build(self):
-        _call("mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests")
+        super(_MavenProject, self).build()
+
+        with _working_dir(self.work_dir):
+            _call("mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests")
 
     def clean(self):
-        _call("mvn clean")
+        with _working_dir(self.work_dir):
+            _call("mvn clean")
 
 class _PooledJms(_MavenProject):
     pass
@@ -130,15 +163,20 @@ class _QpidJms(_MavenProject):
 
 class _QpidProtonCpp(_Project):
     def build(self):
-        _call("make build")
+        super(_QpidProtonCpp, self).build()
+
+        with _working_dir(self.work_dir):
+            _call("make build")
 
     def clean(self):
-        _call("make clean")
+        with _working_dir(self.work_dir):
+            _call("make clean")
 
 class _QpidProtonPython(_Project):
     def clean(self):
-        for path in _plano.find("*.pyc"):
-            _plano.remove(path)
+        with _working_dir(self.work_dir):
+            for path in _plano.find("*.pyc"):
+                _plano.remove(path)
 
 class _QpidProtonRuby(_Project):
     pass

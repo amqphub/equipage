@@ -21,6 +21,7 @@
 
 set -e
 
-qexamples build --init-only > /dev/null
-qexamples clean --init-only > /dev/null
+qexamples list > /dev/null
+qexamples --init-only build > /dev/null
+qexamples --init-only clean > /dev/null
 qexamples-test --init-only > /dev/null

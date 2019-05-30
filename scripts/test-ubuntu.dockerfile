@@ -41,6 +41,6 @@ ENV NODE_PATH=/usr/local/lib/node_modules
 ENV PYTHONPATH=/src/python:$PYTHONPATH
 WORKDIR /src
 
-RUN make
+RUN make install
 
-CMD ["/src/scripts/test", "--exclude", "*ruby*"]
+CMD ["qexamples test"]
