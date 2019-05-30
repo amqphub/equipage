@@ -23,7 +23,6 @@ def open_test_session(session):
     enable_logging(level="error")
 
     session.base_dir = session.module.command.args.examples_dir
-    #join(get_user_temp_dir(), "qexamples")
 
 def test_pooled_jms_connect(session):
     with working_dir(join(session.base_dir, "pooled-jms")):
@@ -38,11 +37,6 @@ def test_pooled_jms_configure(session):
 
         with TestServer() as server:
             call("{} {}", qpid_jms_prog("examples.Configure"), server.connection_url)
-
-def test_pooled_jms_makefile(session):
-    with working_dir(join(session.base_dir, "pooled-jms")):
-        with TestServer() as server:
-            call("make run URL={}", server.connection_url)
 
 def test_qpid_jms_connect(session):
     with working_dir(join(session.base_dir, "qpid-jms")):
@@ -69,11 +63,6 @@ def test_qpid_jms_request_respond(session):
             with start_process("{} {} q1 1", qpid_jms_prog("examples.Respond"), server.connection_url):
                 sleep(1)
                 call("{} {} q1 abc", qpid_jms_prog("examples.Request"), server.connection_url)
-
-def test_qpid_jms_makefile(session):
-    with working_dir(join(session.base_dir, "qpid-jms")):
-        with TestServer() as server:
-            call("make run URL={}", server.connection_url)
 
 def test_qpid_proton_cpp_connect(session):
     with working_dir(join(session.base_dir, "qpid-proton-cpp")):
@@ -245,11 +234,6 @@ def test_vertx_proton_reactive_streams_send_receive(session):
             call("{} {} q1 abc", java_prog("examples.reactivestreams.Send"), server.connection_url)
             call("{} {} q1 1", java_prog("examples.reactivestreams.Receive"), server.connection_url)
 
-def test_vertx_proton_makefile(session):
-    with working_dir(join(session.base_dir, "vertx-proton")):
-        with TestServer() as server:
-            call("make run URL={}", server.connection_url)
-
 class TestServer(object):
     def __init__(self):
         self.port = random_port()
@@ -265,7 +249,7 @@ class TestServer(object):
         self.proc = start_process("python -m brokerlib 127.0.0.1 {0}", self.port, output=self.output)
         self.proc.connection_url = self.connection_url
 
-        sleep(0.1) # XXX Ugh
+        sleep(0.2) # XXX Ugh
 
         return self.proc
 

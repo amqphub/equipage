@@ -38,9 +38,8 @@ RUN npm install -g rhea
 COPY . /src
 
 ENV NODE_PATH=/usr/local/lib/node_modules
-ENV PYTHONPATH=/src/python:$PYTHONPATH
 WORKDIR /src
 
 RUN make install
 
-CMD ["qexamples test"]
+CMD ["qexamples", "test", "pooled-jms", "qpid-jms", "qpid-proton-cpp", "qpid-proton-python", "rhea", "vertx-proton"]

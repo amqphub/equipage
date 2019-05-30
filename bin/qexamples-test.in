@@ -30,6 +30,9 @@ import qexamples.tests
 
 from commandant import TestCommand
 
+# The tests need this in order to run the test broker
+plano.ENV["PYTHONPATH"] = plano.join(home, "python")
+
 if __name__ == "__main__":
     default_examples_dir = plano.join(plano.get_user_temp_dir(), "qexamples")
 

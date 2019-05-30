@@ -58,14 +58,13 @@ build: ${BIN_TARGETS} ${PYTHON_TARGETS} ${EXAMPLE_TARGETS} build/prefix.txt
 	scripts/smoke-test
 
 .PHONY: install
-install:
+install: clean build
 	scripts/install-files build/bin ${DESTDIR}$$(cat build/prefix.txt)/bin
 	scripts/install-files build/qexamples ${DESTDIR}$$(cat build/prefix.txt)/share/qexamples
 
 .PHONY: test
 test: build
-	qexamples build
-	qexamples-test
+	qexamples test
 
 .PHONY: big-test
 big-test: test test-centos-7 test-fedora test-ubuntu
@@ -117,13 +116,3 @@ build/qexamples/%: %
 .PHONY: update-%
 update-%:
 	curl "https://raw.githubusercontent.com/ssorj/$*/master/python/$*.py" -o python/$*.py
-
-# .PHONY: clean
-# clean:
-#	cd pooled-jms && make clean
-#	cd qpid-jms && make clean
-#	cd qpid-proton-cpp && make clean
-#	cd qpid-proton-python && make clean
-#	cd rhea && make clean
-#	cd vertx-proton && make clean
-#	find python -name \*.pyc -delete

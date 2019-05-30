@@ -32,4 +32,6 @@ COPY . /src
 ENV NODE_PATH=/usr/lib/node_modules
 WORKDIR /src
 
-CMD ["make", "clean", "test"]
+RUN make install
+
+CMD ["qexamples", "test"]
