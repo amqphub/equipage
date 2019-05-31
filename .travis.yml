@@ -5,4 +5,4 @@ services:
  - docker
 
 script:
- - make test-centos-7 test-fedora test-ubuntu
+ - make test-centos-6 test-centos-7 test-fedora test-ubuntu

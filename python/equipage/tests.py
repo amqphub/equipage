@@ -78,7 +78,7 @@ def test_qpid_proton_cpp_send_receive(session):
 
         with TestServer() as server:
             call("build/send {0} q1 abc", server.connection_url)
-            call("build/receive {1} q1 1", server.connection_url)
+            call("build/receive {0} q1 1", server.connection_url)
 
 def test_qpid_proton_cpp_request_respond(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
