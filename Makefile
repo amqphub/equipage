@@ -58,7 +58,7 @@ build: ${BIN_TARGETS} ${PYTHON_TARGETS} ${EXAMPLE_TARGETS} build/prefix.txt
 	scripts/smoke-test
 
 .PHONY: install
-install: clean build
+install: build
 	scripts/install-files build/bin ${DESTDIR}$$(cat build/prefix.txt)/bin
 	scripts/install-files build/equipage ${DESTDIR}$$(cat build/prefix.txt)/share/equipage
 
