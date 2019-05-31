@@ -44,7 +44,7 @@ def main():
 
      for attribute in args.attribute:
           name, value = attribute.split("=", 1)
-          content = content.replace("@{}@".format(name), value)
+          content = content.replace("@{0}@".format(name), value)
 
      with open(args.output_file, "w") as f:
           f.write(content)

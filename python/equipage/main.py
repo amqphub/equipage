@@ -142,18 +142,18 @@ class _Project(object):
 
         pattern = "test_{0}*".format(self.name.replace("-", "_"))
 
-        _call("equipage-test {0}", pattern)
+        _call("equipage-test {0}", pattern, shell=True)
 
 class _MavenProject(_Project):
     def build(self):
         super(_MavenProject, self).build()
 
         with _working_dir(self.work_dir):
-            _call("mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests")
+            _call("mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests", shell=True)
 
     def clean(self):
         with _working_dir(self.work_dir):
-            _call("mvn clean")
+            _call("mvn clean", shell=True)
 
 class _PooledJms(_MavenProject):
     pass
@@ -166,7 +166,7 @@ class _QpidProtonCpp(_Project):
         super(_QpidProtonCpp, self).build()
 
         with _working_dir(self.work_dir):
-            _call("make build")
+            _call("make build", shell=True)
 
     def clean(self):
         with _working_dir(self.work_dir):

@@ -29,21 +29,21 @@ def test_pooled_jms_connect(session):
         check_connect_usage(qpid_jms_prog("examples.Connect"))
 
         with TestServer() as server:
-            call("{} {}", qpid_jms_prog("examples.Connect"), server.connection_url)
+            call("{0} {1}", qpid_jms_prog("examples.Connect"), server.connection_url)
 
 def test_pooled_jms_configure(session):
     with working_dir(join(session.examples_dir, "pooled-jms")):
         check_connect_usage(qpid_jms_prog("examples.Configure"))
 
         with TestServer() as server:
-            call("{} {}", qpid_jms_prog("examples.Configure"), server.connection_url)
+            call("{0} {1}", qpid_jms_prog("examples.Configure"), server.connection_url)
 
 def test_qpid_jms_connect(session):
     with working_dir(join(session.examples_dir, "qpid-jms")):
         check_connect_usage(qpid_jms_prog("examples.Connect"))
 
         with TestServer() as server:
-            call("{} {}", qpid_jms_prog("examples.Connect"), server.connection_url)
+            call("{0} {1}", qpid_jms_prog("examples.Connect"), server.connection_url)
 
 def test_qpid_jms_send_receive(session):
     with working_dir(join(session.examples_dir, "qpid-jms")):
@@ -51,8 +51,8 @@ def test_qpid_jms_send_receive(session):
         check_receive_usage(qpid_jms_prog("examples.Receive"))
 
         with TestServer() as server:
-            call("{} {} q1 abc", qpid_jms_prog("examples.Send"), server.connection_url)
-            call("{} {} q1 1", qpid_jms_prog("examples.Receive"), server.connection_url)
+            call("{0} {1} q1 abc", qpid_jms_prog("examples.Send"), server.connection_url)
+            call("{0} {1} q1 1", qpid_jms_prog("examples.Receive"), server.connection_url)
 
 def test_qpid_jms_request_respond(session):
     with working_dir(join(session.examples_dir, "qpid-jms")):
@@ -60,16 +60,16 @@ def test_qpid_jms_request_respond(session):
         check_respond_usage(qpid_jms_prog("examples.Respond"))
 
         with TestServer() as server:
-            with start_process("{} {} q1 1", qpid_jms_prog("examples.Respond"), server.connection_url):
+            with start_process("{0} {1} q1 1", qpid_jms_prog("examples.Respond"), server.connection_url):
                 sleep(1)
-                call("{} {} q1 abc", qpid_jms_prog("examples.Request"), server.connection_url)
+                call("{0} {1} q1 abc", qpid_jms_prog("examples.Request"), server.connection_url)
 
 def test_qpid_proton_cpp_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
         check_connect_usage("build/connect")
 
         with TestServer() as server:
-            call("build/connect {}", server.connection_url)
+            call("build/connect {0}", server.connection_url)
 
 def test_qpid_proton_cpp_send_receive(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
@@ -77,8 +77,8 @@ def test_qpid_proton_cpp_send_receive(session):
         check_receive_usage("build/receive")
 
         with TestServer() as server:
-            call("build/send {} q1 abc", server.connection_url)
-            call("build/receive {} q1 1", server.connection_url)
+            call("build/send {0} q1 abc", server.connection_url)
+            call("build/receive {1} q1 1", server.connection_url)
 
 def test_qpid_proton_cpp_request_respond(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
@@ -86,8 +86,8 @@ def test_qpid_proton_cpp_request_respond(session):
         check_respond_usage("build/respond")
 
         with TestServer() as server:
-            with start_process("build/respond {} q1 1", server.connection_url):
-                call("build/request {} q1 abc", server.connection_url)
+            with start_process("build/respond {0} q1 1", server.connection_url):
+                call("build/request {0} q1 abc", server.connection_url)
 
 def test_qpid_proton_cpp_auto_create(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
@@ -97,17 +97,17 @@ def test_qpid_proton_cpp_auto_create(session):
         check_receive_usage("build/auto-create/topic-receive")
 
         with TestServer() as server:
-            call("build/auto-create/queue-send {} q1 abc", server.connection_url)
-            call("build/auto-create/queue-receive {} q1 1", server.connection_url)
-            call("build/auto-create/topic-send {} q2 abc", server.connection_url)
-            call("build/auto-create/topic-receive {} q2 1", server.connection_url)
+            call("build/auto-create/queue-send {0} q1 abc", server.connection_url)
+            call("build/auto-create/queue-receive {0} q1 1", server.connection_url)
+            call("build/auto-create/topic-send {0} q2 abc", server.connection_url)
+            call("build/auto-create/topic-receive {0} q2 1", server.connection_url)
 
 def test_qpid_proton_python_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
         check_connect_usage("python connect.py")
 
         with TestServer() as server:
-            call("python connect.py {}", server.connection_url)
+            call("python connect.py {0}", server.connection_url)
 
 def test_qpid_proton_python_send_receive(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
@@ -115,8 +115,8 @@ def test_qpid_proton_python_send_receive(session):
         check_receive_usage("python receive.py")
 
         with TestServer() as server:
-            call("python send.py {} q1 abc", server.connection_url)
-            call("python receive.py {} q1 1", server.connection_url)
+            call("python send.py {0} q1 abc", server.connection_url)
+            call("python receive.py {0} q1 1", server.connection_url)
 
 def test_qpid_proton_python_request_respond(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
@@ -124,8 +124,8 @@ def test_qpid_proton_python_request_respond(session):
         check_respond_usage("python respond.py")
 
         with TestServer() as server:
-            with start_process("python respond.py {} q1 1", server.connection_url):
-                call("python request.py {} q1 abc", server.connection_url)
+            with start_process("python respond.py {0} q1 1", server.connection_url):
+                call("python request.py {0} q1 abc", server.connection_url)
 
 def test_qpid_proton_python_auto_create(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
@@ -135,17 +135,17 @@ def test_qpid_proton_python_auto_create(session):
         check_receive_usage("python auto-create/topic-receive.py")
 
         with TestServer() as server:
-            call("python auto-create/queue-send.py {} q1 abc", server.connection_url)
-            call("python auto-create/queue-receive.py {} q1 1", server.connection_url)
-            call("python auto-create/topic-send.py {} q2 abc", server.connection_url)
-            call("python auto-create/topic-receive.py {} q2 1", server.connection_url)
+            call("python auto-create/queue-send.py {0} q1 abc", server.connection_url)
+            call("python auto-create/queue-receive.py {0} q1 1", server.connection_url)
+            call("python auto-create/topic-send.py {0} q2 abc", server.connection_url)
+            call("python auto-create/topic-receive.py {0} q2 1", server.connection_url)
 
 def test_qpid_proton_ruby_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-ruby")):
         check_connect_usage("ruby connect.rb")
 
         with TestServer() as server:
-            call("ruby connect.rb {}", server.connection_url)
+            call("ruby connect.rb {0}", server.connection_url)
 
 def test_qpid_proton_ruby_send_receive(session):
     with working_dir(join(session.examples_dir, "qpid-proton-ruby")):
@@ -153,8 +153,8 @@ def test_qpid_proton_ruby_send_receive(session):
         check_receive_usage("ruby receive.rb")
 
         with TestServer() as server:
-            call("ruby send.rb {} q1 abc", server.connection_url)
-            call("ruby receive.rb {} q1 1", server.connection_url)
+            call("ruby send.rb {0} q1 abc", server.connection_url)
+            call("ruby receive.rb {0} q1 1", server.connection_url)
 
 def test_qpid_proton_ruby_request_respond(session):
     with working_dir(join(session.examples_dir, "qpid-proton-ruby")):
@@ -162,8 +162,8 @@ def test_qpid_proton_ruby_request_respond(session):
         check_respond_usage("ruby respond.rb")
 
         with TestServer() as server:
-            with start_process("ruby respond.rb {} q1 1", server.connection_url):
-                call("ruby request.rb {} q1 abc", server.connection_url)
+            with start_process("ruby respond.rb {0} q1 1", server.connection_url):
+                call("ruby request.rb {0} q1 abc", server.connection_url)
 
 def test_qpid_proton_ruby_auto_create(session):
     with working_dir(join(session.examples_dir, "qpid-proton-ruby")):
@@ -173,17 +173,17 @@ def test_qpid_proton_ruby_auto_create(session):
         check_receive_usage("ruby auto-create/topic-receive.rb")
 
         with TestServer() as server:
-            call("ruby auto-create/queue-send.rb {} q1 abc", server.connection_url)
-            call("ruby auto-create/queue-receive.rb {} q1 1", server.connection_url)
-            call("ruby auto-create/topic-send.rb {} q2 abc", server.connection_url)
-            call("ruby auto-create/topic-receive.rb {} q2 1", server.connection_url)
+            call("ruby auto-create/queue-send.rb {0} q1 abc", server.connection_url)
+            call("ruby auto-create/queue-receive.rb {0} q1 1", server.connection_url)
+            call("ruby auto-create/topic-send.rb {0} q2 abc", server.connection_url)
+            call("ruby auto-create/topic-receive.rb {0} q2 1", server.connection_url)
 
 def test_rhea_connect(session):
     with working_dir(join(session.examples_dir, "rhea")):
         check_connect_usage("node connect.js")
 
         with TestServer() as server:
-            call("node connect.js {}", server.connection_url)
+            call("node connect.js {0}", server.connection_url)
 
 def test_rhea_send_receive(session):
     with working_dir(join(session.examples_dir, "rhea")):
@@ -191,8 +191,8 @@ def test_rhea_send_receive(session):
         check_receive_usage("node receive.js")
 
         with TestServer() as server:
-            call("node send.js {} q1 abc", server.connection_url)
-            call("node receive.js {} q1 1", server.connection_url)
+            call("node send.js {0} q1 abc", server.connection_url)
+            call("node receive.js {0} q1 1", server.connection_url)
 
 def test_rhea_request_respond(session):
     with working_dir(join(session.examples_dir, "rhea")):
@@ -200,8 +200,8 @@ def test_rhea_request_respond(session):
         check_respond_usage("node respond.js")
 
         with TestServer() as server:
-            with start_process("node respond.js {} q1 1", server.connection_url):
-                call("node request.js {} q1 abc", server.connection_url)
+            with start_process("node respond.js {0} q1 1", server.connection_url):
+                call("node request.js {0} q1 abc", server.connection_url)
 
 def test_rhea_auto_create(session):
     with working_dir(join(session.examples_dir, "rhea")):
@@ -211,10 +211,10 @@ def test_rhea_auto_create(session):
         check_receive_usage("node auto-create/topic-receive.js")
 
         with TestServer() as server:
-            call("node auto-create/queue-send.js {} q1 abc", server.connection_url)
-            call("node auto-create/queue-receive.js {} q1 1", server.connection_url)
-            call("node auto-create/topic-send.js {} q2 abc", server.connection_url)
-            call("node auto-create/topic-receive.js {} q2 1", server.connection_url)
+            call("node auto-create/queue-send.js {0} q1 abc", server.connection_url)
+            call("node auto-create/queue-receive.js {0} q1 1", server.connection_url)
+            call("node auto-create/topic-send.js {0} q2 abc", server.connection_url)
+            call("node auto-create/topic-receive.js {0} q2 1", server.connection_url)
 
 def test_vertx_proton_send_receive(session):
     with working_dir(join(session.examples_dir, "vertx-proton")):
@@ -222,8 +222,8 @@ def test_vertx_proton_send_receive(session):
         check_receive_usage(java_prog("examples.Receive"))
 
         with TestServer() as server:
-            call("{} {} q1 abc", java_prog("examples.Send"), server.connection_url)
-            call("{} {} q1 1", java_prog("examples.Receive"), server.connection_url)
+            call("{0} {1} q1 abc", java_prog("examples.Send"), server.connection_url)
+            call("{0} {1} q1 1", java_prog("examples.Receive"), server.connection_url)
 
 def test_vertx_proton_reactive_streams_send_receive(session):
     with working_dir(join(session.examples_dir, "vertx-proton")):
@@ -231,13 +231,13 @@ def test_vertx_proton_reactive_streams_send_receive(session):
         check_receive_usage(java_prog("examples.reactivestreams.Receive"))
 
         with TestServer() as server:
-            call("{} {} q1 abc", java_prog("examples.reactivestreams.Send"), server.connection_url)
-            call("{} {} q1 1", java_prog("examples.reactivestreams.Receive"), server.connection_url)
+            call("{0} {1} q1 abc", java_prog("examples.reactivestreams.Send"), server.connection_url)
+            call("{0} {1} q1 1", java_prog("examples.reactivestreams.Receive"), server.connection_url)
 
 class TestServer(object):
     def __init__(self):
         self.port = random_port()
-        self.connection_url = "amqp://127.0.0.1:{}".format(self.port)
+        self.connection_url = "amqp://127.0.0.1:{0}".format(self.port)
         self.output_file = make_temp_file()
 
         self.output = None
@@ -262,7 +262,7 @@ class TestServer(object):
         print("-- Server output --")
 
         for line in read_lines(self.output_file):
-            print("> {}".format(line[:-1]))
+            print("> {0}".format(line[:-1]))
 
 def check_connect_usage(command):
     usage = None
@@ -301,9 +301,9 @@ check_request_usage = check_send_usage
 check_respond_usage = check_receive_usage
 
 def java_prog(class_name):
-    return "java -cp target/classes:target/dependency/\\* {}".format(class_name)
+    return "java -cp target/classes:target/dependency/\\* {0}".format(class_name)
 
 def qpid_jms_prog(class_name):
     return "java -cp target/classes:target/dependency/\\*" \
         " -Djava.naming.factory.initial=org.apache.qpid.jms.jndi.JmsInitialContextFactory" \
-        " {}".format(class_name)
+        " {0}".format(class_name)

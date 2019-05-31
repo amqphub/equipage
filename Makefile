@@ -69,6 +69,16 @@ test: build
 .PHONY: big-test
 big-test: test test-centos-7 test-fedora test-ubuntu
 
+.PHONY: test-centos-6
+test-centos-6: clean
+	sudo docker build -f scripts/test-centos-6.dockerfile -t equipage-test-centos-6 .
+	sudo docker run --rm equipage-test-centos-6
+
+.PHONY: debug-centos-6
+debug-centos-6: clean
+	sudo docker build -f scripts/test-centos-6.dockerfile -t equipage-test-centos-6 .
+	sudo docker run --rm -it equipage-test-centos-6 /bin/bash
+
 .PHONY: test-centos-7
 test-centos-7: clean
 	sudo docker build -f scripts/test-centos-7.dockerfile -t equipage-test-centos-7 .
