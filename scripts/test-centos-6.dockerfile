@@ -23,11 +23,11 @@ RUN yum -q -y update && yum -q clean all
 
 RUN yum -q -y install epel-release
 
-RUN yum -y install gcc-c++ java-1.8.0-openjdk-devel make npm qpid-proton-c-devel qpid-proton-cpp-devel wget
+RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel make nodejs npm python python-argparse wget cyrus-sasl-plain cyrus-sasl-md5
 
-RUN yum -y install nodejs python python-argparse python2-qpid-proton cyrus-sasl-plain cyrus-sasl-md5
+RUN yum -y install python2-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel
 
-RUN wget https://www-us.apache.org/dist/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.tar.gz
+RUN wget -q https://www-us.apache.org/dist/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.tar.gz
 RUN tar -xf apache-maven-3.6.1-bin.tar.gz
 ENV PATH=/apache-maven-3.6.1/bin:$PATH
 

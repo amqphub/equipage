@@ -149,11 +149,11 @@ class _MavenProject(_Project):
         super(_MavenProject, self).build()
 
         with _working_dir(self.work_dir):
-            _call("mvn package dependency:copy-dependencies -DincludeScope=runtime -DskipTests", shell=True)
+            _call("mvn -B -q package dependency:copy-dependencies -DincludeScope=runtime -DskipTests", shell=True)
 
     def clean(self):
         with _working_dir(self.work_dir):
-            _call("mvn clean", shell=True)
+            _call("mvn -B -q clean", shell=True)
 
 class _PooledJms(_MavenProject):
     pass
