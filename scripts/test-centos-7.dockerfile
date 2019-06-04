@@ -23,7 +23,7 @@ RUN yum -q -y update && yum -q clean all
 
 RUN yum -q -y install epel-release
 
-RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel maven nodejs npm ruby cyrus-sasl-plain cyrus-sasl-md5
+RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel make maven nodejs npm ruby cyrus-sasl-plain cyrus-sasl-md5
 
 RUN yum -y install python2-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton
 
