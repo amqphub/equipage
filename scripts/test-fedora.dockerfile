@@ -21,9 +21,9 @@ FROM fedora
 
 RUN dnf -qy update && dnf -q clean all
 
-RUN dnf -y install gcc-c++ java-1.8.0-openjdk-devel maven make npm qpid-proton-c-devel qpid-proton-cpp-devel
+RUN dnf -qy install gcc-c++ java-1.8.0-openjdk-devel maven nodejs python npm ruby cyrus-sasl-plain cyrus-sasl-md5
 
-RUN dnf -y install nodejs python python2-qpid-proton ruby rubygem-qpid_proton cyrus-sasl-plain cyrus-sasl-md5
+RUN dnf -y install python2-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton
 
 RUN npm install -g rhea
 
