@@ -57,10 +57,9 @@ namespace receive
                 while (true)
                 {
                     Message message = receiver.Receive();
-
                     receiver.Accept(message);
 
-                    Console.WriteLine("Received message '{0}'", message.Body);
+                    Console.WriteLine("RECEIVE: Received message '{0}'", message.Body);
 
                     received++;
 
