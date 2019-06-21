@@ -27,6 +27,8 @@ RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel make maven nodejs npm rub
 
 RUN yum -y install python2-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton
 
+RUN rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm && yum -q -y update && yum -y install dotnet-sdk-2.2
+
 RUN npm install -g rhea
 
 COPY . /src
