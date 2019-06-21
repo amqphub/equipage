@@ -5,16 +5,14 @@
 AMQP 1.0 messaging example programs implemented using a variety of
 messaging APIs
 
-## APIs
-
- - [AMQP.Net Lite](https://github.com/Azure/amqpnetlite)
- - [Pooled JMS](https://github.com/messaginghub/pooled-jms)
- - [Qpid JMS](http://qpid.apache.org/components/jms/index.html)
- - [Qpid Proton C++](http://qpid.apache.org/proton/index.html)
- - [Qpid Proton Python](http://qpid.apache.org/proton/index.html)
- - [Qpid Proton Ruby](http://qpid.apache.org/proton/index.html)
- - [Rhea](https://github.com/grs/rhea)
- - [Vert.x Proton](https://github.com/vert-x3/vertx-proton)
+| API | Connect | Send | Receive | Request | Respond |
+| --- | ------- | ---- | ------- | ------- | ------- |
+| [AMQP.Net Lite](https://github.com/Azure/amqpnetlite) | [connect](amqpnetlite/connect/Program.cs) | [send](amqpnetlite/send/Program.cs) | [receive](amqpnetlite/receive/Program.cs) | |
+| [Qpid JMS](http://qpid.apache.org/components/jms/index.html) | [Connect.java](qpid-jms/src/main/java/examples/Connect.java) | [Send.java](qpid-jms/src/main/java/examples/Send.java) | [Receive.java](qpid-jms/src/main/java/examples/Receive.java) | [Request.java](qpid-jms/src/main/java/examples/Request.java) | [Respond.java](qpid-jms/src/main/java/examples/Respond.java)
+| [Qpid Proton C++](http://qpid.apache.org/proton/index.html) | [connect.cpp](qpid-proton-cpp/connect.cpp) | [send.cpp](qpid-proton-cpp/send.cpp) | [receive.cpp](qpid-proton-cpp/receive.cpp) | [request.cpp](qpid-proton-cpp/request.cpp) | [respond.cpp](qpid-proton-cpp/respond.cpp)
+| [Qpid Proton Python](http://qpid.apache.org/proton/index.html) | [connect.py](qpid-proton-python/connect.py) | [send.py](qpid-proton-python/send.py) | [receive.py](qpid-proton-python/receive.py) | [request.py](qpid-proton-python/request.py) | [respond.py](qpid-proton-python/respond.py)
+| [Qpid Proton Ruby](http://qpid.apache.org/proton/index.html) | [connect.rb](qpid-proton-ruby/connect.rb) | [send.rb](qpid-proton-ruby/send.rb) | [receive.rb](qpid-proton-ruby/receive.rb) | [request.rb](qpid-proton-ruby/request.rb) | [respond.rb](qpid-proton-ruby/respond.rb)
+| [Rhea](https://github.com/grs/rhea) | [connect.js](rhea/connect.js) | [send.js](rhea/send.js) | [receive.js](rhea/receive.js) | [request.js](rhea/request.js) | [respond.js](rhea/respond.js)
 
 ## Primary examples
 
