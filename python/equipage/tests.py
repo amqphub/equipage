@@ -24,6 +24,22 @@ def open_test_session(session):
 
     session.examples_dir = session.module.command.args.examples_dir
 
+def test_amqpnetlite_connect(session):
+    with working_dir(join(session.examples_dir, "amqpnetlite")):
+        check_connect_usage(dotnet_prog("connect"))
+
+        with TestServer() as server:
+            call("{0} {1}", dotnet_prog("connect"), server.connection_url)
+
+def test_amqpnetlite_send_receive(session):
+    with working_dir(join(session.examples_dir, "amqpnetlite")):
+        check_send_usage(dotnet_prog("send"))
+        check_receive_usage(dotnet_prog("receive"))
+
+        with TestServer() as server:
+            call("{0} {1} q1 abc", dotnet_prog("send"), server.connection_url)
+            call("{0} {1} q1 1", dotnet_prog("receive"), server.connection_url)
+
 def test_pooled_jms_connect(session):
     with working_dir(join(session.examples_dir, "pooled-jms")):
         check_connect_usage(qpid_jms_prog("examples.Connect"))
@@ -299,6 +315,9 @@ def check_receive_usage(command):
 
 check_request_usage = check_send_usage
 check_respond_usage = check_receive_usage
+
+def dotnet_prog(project_dir):
+    return "dotnet run --project {0}".format(project_dir)
 
 def java_prog(class_name):
     return "java -cp target/classes:target/dependency/\\* {0}".format(class_name)

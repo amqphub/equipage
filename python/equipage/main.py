@@ -75,6 +75,7 @@ class EquipageCommand(_commandant.Command):
         clean_parser.set_defaults(func=self.clean_command)
 
         self.projects = [
+            _AmqpNetLite(self, "amqpnetlite"),
             _PooledJms(self, "pooled-jms"),
             _QpidJms(self, "qpid-jms"),
             _QpidProtonCpp(self, "qpid-proton-cpp"),
@@ -154,6 +155,20 @@ class _MavenProject(_Project):
     def clean(self):
         with _working_dir(self.work_dir):
             _call("mvn -B -q clean", shell=True)
+
+class _AmqpNetLite(_Project):
+    def build(self):
+        super(_AmqpNetLite, self).build()
+
+        for name in _plano.list_dir(self.work_dir):
+            if not name.startswith("."):
+                _call("dotnet build {0}", _join(self.work_dir, name))
+
+    def clean(self):
+        for name in _plano.list_dir(self.work_dir):
+            if not name.startswith("."):
+                _plano.remove(_join(self.work_dir, name, "bin"))
+                _plano.remove(_join(self.work_dir, name, "obj"))
 
 class _PooledJms(_MavenProject):
     pass

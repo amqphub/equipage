@@ -7,6 +7,7 @@ messaging APIs
 
 ## APIs
 
+ - [AMQP.Net Lite](https://github.com/Azure/amqpnetlite)
  - [Pooled JMS](https://github.com/messaginghub/pooled-jms)
  - [Qpid JMS](http://qpid.apache.org/components/jms/index.html)
  - [Qpid Proton C++](http://qpid.apache.org/proton/index.html)
@@ -79,6 +80,8 @@ Usage: `respond <connection-url> <address> [<message-count>]`
  - Authentication (authentication)
    - password
    - kerberos
+ - TLS (tls)
+   - connect
  - Automatic resource creation (auto-create)
    - queue-send
    - queue-receive
@@ -104,7 +107,6 @@ Usage: `respond <connection-url> <address> [<message-count>]`
  - Logging (logging)
  - Multithreaded applications (multithreaded)
  - Timers (timers)
- - Transactions (transactions)
 
 ## General properties
 
