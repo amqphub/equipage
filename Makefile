@@ -123,6 +123,10 @@ build/equipage/%: %
 	@mkdir -p ${@D}
 	cp -Tr $< $@
 
+.PHONY: update-brokerlib
+update-brokerlib:
+	curl -sfo python/brokerlib.py "https://raw.githubusercontent.com/ssorj/qtools/master/python/brokerlib.py"
+
 .PHONY: update-%
 update-%:
-	curl "https://raw.githubusercontent.com/ssorj/$*/master/python/$*.py" -o python/$*.py
+	curl -sfo python/$*.py "https://raw.githubusercontent.com/ssorj/$*/master/python/$*.py"

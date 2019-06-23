@@ -17,6 +17,7 @@
 # under the License.
 #
 
+from brokerlib import wait_for_broker
 from plano import *
 
 def open_test_session(session):
@@ -270,10 +271,12 @@ class TestServer(object):
     def __enter__(self):
         self.output = open(self.output_file, "w")
 
-        self.proc = start_process("python -m brokerlib 127.0.0.1 {0}", self.port, output=self.output)
-        self.proc.connection_url = self.connection_url
+        with temp_file() as ready_file:
+            self.proc = start_process("python -m brokerlib --host 127.0.0.1 --port {0} --ready-file {1}",
+                                      self.port, ready_file, output=self.output)
+            self.proc.connection_url = self.connection_url
 
-        sleep(0.2) # XXX Ugh
+            wait_for_broker(ready_file)
 
         return self.proc
 

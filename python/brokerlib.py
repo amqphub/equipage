@@ -207,7 +207,7 @@ class _Handler(_handlers.MessagingHandler):
                 # A temporary queue
                 address = "{0}/{1}".format(event.connection.remote_container, event.link.name)
                 queue = self.create_queue(address)
-            elif event.link.remote_source.address is None:
+            elif event.link.remote_source.address in (None, ""):
                 raise Exception("Not sure what this case is")
             else:
                 # A named queue
@@ -226,7 +226,7 @@ class _Handler(_handlers.MessagingHandler):
                 # A temporary queue
                 address = "{0}/{1}".format(event.connection.remote_container, event.link.name)
                 queue = self.create_queue(address)
-            elif event.link.remote_target.address is None:
+            elif event.link.remote_target.address in (None, ""):
                 # Anonymous relay - no queueing
                 address = None
             else:
@@ -307,7 +307,43 @@ class _Handler(_handlers.MessagingHandler):
     def on_unhandled(self, name, event):
         self.broker.debug("Unhandled event: {0} {1}", name, event)
 
+def wait_for_broker(ready_file, timeout=10):
+    start_time = _time.time()
+    interval = 0.05
+
+    while True:
+        if _time.time() - start_time > timeout:
+            raise Exception("Timed out waiting for the broker")
+
+        with open(ready_file, "r") as f:
+            if f.read() == "ready\n":
+                break
+
+        _time.sleep(interval)
+
+        if interval < 1:
+            interval = interval * 2
+
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--host", metavar="HOST", default="127.0.0.1",
+                        help="Listen for connections on HOST (default 127.0.0.1)")
+    parser.add_argument("--port", metavar="PORT", default=5672, type=int,
+                        help="Listen for connections on PORT (default 5672)")
+    parser.add_argument("--id", metavar="ID",
+                        help="Set the container identity to ID (default is generated)")
+    parser.add_argument("--ready-file", metavar="FILE",
+                        help="The file used to indicate the server is ready")
+    # parser.add_argument("--user", metavar="USER",
+    #                   help="Require USER")
+    # parser.add_argument("--password", metavar="SECRET",
+    #                   help="Require SECRET")
+
+    args = parser.parse_args()
+
     def _print(message, *args):
         message = message.format(*args)
         _sys.stderr.write("{0}\n".format(message))
@@ -318,19 +354,7 @@ if __name__ == "__main__":
         def notice(self, message, *args): _print(message, *args)
         def warn(self, message, *args): _print(message, *args)
 
-    try:
-        host, port = _sys.argv[1:3]
-    except IndexError:
-        _print("Usage: brokerlib <host> <port>")
-        _sys.exit(1)
-
-    try:
-        port = int(port)
-    except ValueError:
-        _print("The port must be an integer")
-        _sys.exit(1)
-
-    broker = _Broker(host, port)
+    broker = _Broker(args.host, args.port, id=args.id, ready_file=args.ready_file)
 
     try:
         broker.run()
