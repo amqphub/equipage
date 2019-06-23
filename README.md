@@ -24,12 +24,16 @@ messaging APIs
 
 ## Connect
 
+Establish a connection, print to the console when connected, and exit.
+
 Usage: `connect <connection-url>`
 
         $ python connect.py amqp://example.net
         CONNECT: Connected to 'amqp://example.net'
 
 ## Send
+
+Send one message and exit.
 
 Usage: `send <connection-url> <address> <message-body>`
 
@@ -40,6 +44,10 @@ Usage: `send <connection-url> <address> <message-body>`
 
 ## Receive
 
+Receive messages until the program is terminated.  If specified, exit
+after `<message-count>` messages are received.
+
+
 Usage: `receive <connection-url> <address> [<message-count>]`
 
         $ python receive.py amqp://example.net examples
@@ -48,6 +56,9 @@ Usage: `receive <connection-url> <address> [<message-count>]`
         RECEIVE: Received message 'Hello there'
 
 ## Request
+
+Send one request, receive the response, print the response to the
+console, and exit.
 
 Usage: `request <connection-url> <address> <message-body>`
 
@@ -58,6 +69,9 @@ Usage: `request <connection-url> <address> <message-body>`
         REQUEST: Received response message 'ABCDEF'
 
 ## Respond
+
+Receive requests and send responses until the program is terminated.
+If specified, exit after `<message-count>` messages are received.
 
 Usage: `respond <connection-url> <address> [<message-count>]`
 
@@ -97,14 +111,14 @@ Usage: `respond <connection-url> <address> [<message-count>]`
    - durable-subscribe
    - shared-subscribe
    - durable-shared-subscribe
- - Codec (codec)
  - Error handling (error-handling)
  - Filters (filters)
- - IO integration (io-integration)
  - Interoperating with JMS (jms-interop)
  - Logging (logging)
- - Multithreaded applications (multithreaded)
+ - Multithreaded applications (multithreading)
  - Timers (timers)
+ - Codec (codec)
+ - IO integration (io-integration)
 
 ## General properties
 
