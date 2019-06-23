@@ -47,7 +47,6 @@ def test_amqpnetlite_request_respond(session):
 
         with TestServer() as server:
             with start_process("{0} {1} q1 1", dotnet_prog("Respond"), server.connection_url):
-                sleep(1)
                 call("{0} {1} q1 abc", dotnet_prog("Request"), server.connection_url)
 
 def test_pooled_jms_connect(session):
@@ -87,7 +86,6 @@ def test_qpid_jms_request_respond(session):
 
         with TestServer() as server:
             with start_process("{0} {1} q1 1", qpid_jms_prog("examples.Respond"), server.connection_url):
-                sleep(1)
                 call("{0} {1} q1 abc", qpid_jms_prog("examples.Request"), server.connection_url)
 
 def test_qpid_proton_cpp_connect(session):
