@@ -20,9 +20,11 @@
  */
 
 using System;
+using System.Threading;
 using Amqp;
+using Amqp.Framing;
 
-namespace send
+namespace request
 {
     class Program
     {
@@ -30,7 +32,7 @@ namespace send
         {
             if (args.Length != 3)
             {
-                Console.Error.WriteLine("Usage: send <connection-url> <address> <message-body>");
+                Console.Error.WriteLine("Usage: request <connection-url> <address> <message-body>");
                 Environment.Exit(1);
             }
 
@@ -42,18 +44,37 @@ namespace send
 
             try
             {
-                Console.WriteLine("SEND: Connected to '{0}'", connUrl);
+                Console.WriteLine("REQUEST: Connected to '{0}'", connUrl);
 
                 Session session = new Session(conn);
                 SenderLink sender = new SenderLink(session, "send-1", address);
 
-                Console.WriteLine("SEND: Created sender for target address '{0}'", address);
+                Console.WriteLine("REQUEST: Created sender for target address '{0}'", address);
 
-                Message message = new Message(messageBody);
+                string responseAddress = null;
+                ManualResetEvent done = new ManualResetEvent(false);
+                Source source = new Source() { Dynamic = true };
 
-                sender.Send(message);
+                OnAttached onReceiverAttached = (link, attach) => {
+                    responseAddress = ((Source) attach.Source).Address;
+                    done.Set();
+                };
 
-                Console.WriteLine("SEND: Sent message '{0}'", messageBody);
+                ReceiverLink receiver = new ReceiverLink(session, "receive-1", source, onReceiverAttached);
+                done.WaitOne();
+
+                Message request = new Message(messageBody);
+                request.Properties = new Properties() { ReplyTo = responseAddress };
+
+                sender.Send(request);
+
+                Console.WriteLine("REQUEST: Sent request '{0}'", messageBody);
+
+                Message response = receiver.Receive();
+
+                Console.WriteLine("REQUEST: Received response '{0}'", response.Body);
+
+                done.WaitOne(1000);
             }
             finally
             {

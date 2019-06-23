@@ -161,8 +161,10 @@ class _AmqpNetLite(_Project):
         super(_AmqpNetLite, self).build()
 
         for name in _plano.list_dir(self.work_dir):
-            if not name.startswith("."):
-                _call("dotnet build {0}", _join(self.work_dir, name))
+            if name.startswith(".") or name == "Makefile":
+                continue
+
+            _call("dotnet build {0}", _join(self.work_dir, name))
 
     def clean(self):
         for name in _plano.list_dir(self.work_dir):

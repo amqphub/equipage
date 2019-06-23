@@ -40,6 +40,16 @@ def test_amqpnetlite_send_receive(session):
             call("{0} {1} q1 abc", dotnet_prog("send"), server.connection_url)
             call("{0} {1} q1 1", dotnet_prog("receive"), server.connection_url)
 
+def test_amqpnetlite_request_respond(session):
+    with working_dir(join(session.examples_dir, "amqpnetlite")):
+        check_request_usage(dotnet_prog("request"))
+        check_respond_usage(dotnet_prog("respond"))
+
+        with TestServer() as server:
+            with start_process("{0} {1} q1 1", dotnet_prog("respond"), server.connection_url):
+                sleep(1)
+                call("{0} {1} q1 abc", dotnet_prog("request"), server.connection_url)
+
 def test_pooled_jms_connect(session):
     with working_dir(join(session.examples_dir, "pooled-jms")):
         check_connect_usage(qpid_jms_prog("examples.Connect"))
