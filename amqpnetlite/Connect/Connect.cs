@@ -22,38 +22,25 @@
 using System;
 using Amqp;
 
-namespace send
+namespace Connect
 {
     class Program
     {
         static void Main(string[] args)
         {
-            if (args.Length != 3)
+            if (args.Length != 1)
             {
-                Console.Error.WriteLine("Usage: send <connection-url> <address> <message-body>");
+                Console.Error.WriteLine("Usage: Connect <connection-url>");
                 Environment.Exit(1);
             }
 
             string connUrl = args[0];
-            string address = args[1];
-            string messageBody = args[2];
 
             Connection conn = new Connection(new Address(connUrl));
 
             try
             {
-                Console.WriteLine("SEND: Connected to '{0}'", connUrl);
-
-                Session session = new Session(conn);
-                SenderLink sender = new SenderLink(session, "send-1", address);
-
-                Console.WriteLine("SEND: Created sender for target address '{0}'", address);
-
-                Message message = new Message(messageBody);
-
-                sender.Send(message);
-
-                Console.WriteLine("SEND: Sent message '{0}'", messageBody);
+                Console.WriteLine("CONNECT: Connected to '{0}'", connUrl);
             }
             finally
             {

@@ -21,9 +21,8 @@
 
 using System;
 using Amqp;
-using Amqp.Framing;
 
-namespace respond
+namespace Receive
 {
     class Program
     {
@@ -31,7 +30,7 @@ namespace respond
         {
             if (args.Length != 2 && args.Length != 3)
             {
-                Console.Error.WriteLine("Usage: respond <connection-url> <address> [<message-count>]");
+                Console.Error.WriteLine("Usage: receive <connection-url> <address> [<message-count>]");
                 Environment.Exit(1);
             }
 
@@ -48,29 +47,19 @@ namespace respond
 
             try
             {
-                Console.WriteLine("RESPOND: Connected to '{0}'", connUrl);
+                Console.WriteLine("RECEIVE: Connected to '{0}'", connUrl);
 
                 Session session = new Session(conn);
-                SenderLink sender = new SenderLink(session, "send-1", null);
                 ReceiverLink receiver = new ReceiverLink(session, "receive-1", address);
 
-                Console.WriteLine("RESPOND: Created receiver for source address '{0}'", address);
+                Console.WriteLine("RECEIVE: Created receiver for source address '{0}'", address);
 
                 while (true)
                 {
-                    Message request = receiver.Receive();
-                    receiver.Accept(request);
+                    Message message = receiver.Receive();
+                    receiver.Accept(message);
 
-                    Console.WriteLine("RESPOND: Received request '{0}'", request.Body);
-
-                    string responseBody = ((string) request.Body).ToUpper();
-                    Message response = new Message(responseBody);
-
-                    response.Properties = new Properties() { To = request.Properties.ReplyTo };
-
-                    sender.Send(response);
-
-                    Console.WriteLine("RESPOND: Sent response '{0}'", response.Body);
+                    Console.WriteLine("RECEIVE: Received message '{0}'", message.Body);
 
                     received++;
 

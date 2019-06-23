@@ -7,7 +7,7 @@ messaging APIs
 
 | API | Connect | Send | Receive | Request | Respond |
 | --- | ------- | ---- | ------- | ------- | ------- |
-| [AMQP.Net Lite](https://github.com/Azure/amqpnetlite) | [connect](amqpnetlite/connect/Program.cs) | [send](amqpnetlite/send/Program.cs) | [receive](amqpnetlite/receive/Program.cs) | [request](amqpnetlite/request/Program.cs) | [respond](amqpnetlite/respond/Program.cs)
+| [AMQP.Net Lite](https://github.com/Azure/amqpnetlite) | [Connect.cs](amqpnetlite/Connect/Connect.cs) | [Send.cs](amqpnetlite/Send/Send.cs) | [Receive.cs](amqpnetlite/Receive/Receive.cs) | [Request.cs](amqpnetlite/Request/Request.cs) | [Respond.cs](amqpnetlite/Respond/Respond.cs)
 | [Qpid JMS](http://qpid.apache.org/components/jms/index.html) | [Connect.java](qpid-jms/src/main/java/examples/Connect.java) | [Send.java](qpid-jms/src/main/java/examples/Send.java) | [Receive.java](qpid-jms/src/main/java/examples/Receive.java) | [Request.java](qpid-jms/src/main/java/examples/Request.java) | [Respond.java](qpid-jms/src/main/java/examples/Respond.java)
 | [Qpid Proton C++](http://qpid.apache.org/proton/index.html) | [connect.cpp](qpid-proton-cpp/connect.cpp) | [send.cpp](qpid-proton-cpp/send.cpp) | [receive.cpp](qpid-proton-cpp/receive.cpp) | [request.cpp](qpid-proton-cpp/request.cpp) | [respond.cpp](qpid-proton-cpp/respond.cpp)
 | [Qpid Proton Python](http://qpid.apache.org/proton/index.html) | [connect.py](qpid-proton-python/connect.py) | [send.py](qpid-proton-python/send.py) | [receive.py](qpid-proton-python/receive.py) | [request.py](qpid-proton-python/request.py) | [respond.py](qpid-proton-python/respond.py)

@@ -1,10 +1,10 @@
 .PHONY: build
 build:
-	dotnet build connect
-	dotnet build send
-	dotnet build receive
-	dotnet build request
-	dotnet build respond
+	dotnet build Connect
+	dotnet build Send
+	dotnet build Receive
+	dotnet build Request
+	dotnet build Respond
 
 .PHONY: clean
 clean:

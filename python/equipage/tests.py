@@ -26,29 +26,29 @@ def open_test_session(session):
 
 def test_amqpnetlite_connect(session):
     with working_dir(join(session.examples_dir, "amqpnetlite")):
-        check_connect_usage(dotnet_prog("connect"))
+        check_connect_usage(dotnet_prog("Connect"))
 
         with TestServer() as server:
-            call("{0} {1}", dotnet_prog("connect"), server.connection_url)
+            call("{0} {1}", dotnet_prog("Connect"), server.connection_url)
 
 def test_amqpnetlite_send_receive(session):
     with working_dir(join(session.examples_dir, "amqpnetlite")):
-        check_send_usage(dotnet_prog("send"))
-        check_receive_usage(dotnet_prog("receive"))
+        check_send_usage(dotnet_prog("Send"))
+        check_receive_usage(dotnet_prog("Receive"))
 
         with TestServer() as server:
-            call("{0} {1} q1 abc", dotnet_prog("send"), server.connection_url)
-            call("{0} {1} q1 1", dotnet_prog("receive"), server.connection_url)
+            call("{0} {1} q1 abc", dotnet_prog("Send"), server.connection_url)
+            call("{0} {1} q1 1", dotnet_prog("Receive"), server.connection_url)
 
 def test_amqpnetlite_request_respond(session):
     with working_dir(join(session.examples_dir, "amqpnetlite")):
-        check_request_usage(dotnet_prog("request"))
-        check_respond_usage(dotnet_prog("respond"))
+        check_request_usage(dotnet_prog("Request"))
+        check_respond_usage(dotnet_prog("Respond"))
 
         with TestServer() as server:
-            with start_process("{0} {1} q1 1", dotnet_prog("respond"), server.connection_url):
+            with start_process("{0} {1} q1 1", dotnet_prog("Respond"), server.connection_url):
                 sleep(1)
-                call("{0} {1} q1 abc", dotnet_prog("request"), server.connection_url)
+                call("{0} {1} q1 abc", dotnet_prog("Request"), server.connection_url)
 
 def test_pooled_jms_connect(session):
     with working_dir(join(session.examples_dir, "pooled-jms")):
