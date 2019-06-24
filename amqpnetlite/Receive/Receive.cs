@@ -30,7 +30,7 @@ namespace Receive
         {
             if (args.Length != 2 && args.Length != 3)
             {
-                Console.Error.WriteLine("Usage: receive <connection-url> <address> [<message-count>]");
+                Console.Error.WriteLine("Usage: Receive <connection-url> <address> [<message-count>]");
                 Environment.Exit(1);
             }
 

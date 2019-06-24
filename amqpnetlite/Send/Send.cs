@@ -30,7 +30,7 @@ namespace Send
         {
             if (args.Length != 3)
             {
-                Console.Error.WriteLine("Usage: send <connection-url> <address> <message-body>");
+                Console.Error.WriteLine("Usage: Send <connection-url> <address> <message-body>");
                 Environment.Exit(1);
             }
 

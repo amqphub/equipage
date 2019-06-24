@@ -32,7 +32,7 @@ namespace Request
         {
             if (args.Length != 3)
             {
-                Console.Error.WriteLine("Usage: request <connection-url> <address> <message-body>");
+                Console.Error.WriteLine("Usage: Request <connection-url> <address> <message-body>");
                 Environment.Exit(1);
             }
 

@@ -31,7 +31,7 @@ namespace Respond
         {
             if (args.Length != 2 && args.Length != 3)
             {
-                Console.Error.WriteLine("Usage: respond <connection-url> <address> [<message-count>]");
+                Console.Error.WriteLine("Usage: Respond <connection-url> <address> [<message-count>]");
                 Environment.Exit(1);
             }
 
