@@ -48,12 +48,12 @@ struct respond_handler : public proton::messaging_handler {
         sender_ = conn.open_sender("");
     }
 
-    void on_connection_open(proton::connection& conn) override {
-        std::cout << "RESPOND: Connected to '" << conn_url_ << "'\n";
+    void on_sender_open(proton::sender& snd) override {
+        std::cout << "RESPOND: Opened anonymous sender for responses\n";
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
-        std::cout << "RESPOND: Created receiver for source address '"
+        std::cout << "RESPOND: Opened receiver for source address '"
                   << rcv.source().address() << "'\n";
     }
 
@@ -65,7 +65,7 @@ struct respond_handler : public proton::messaging_handler {
 
         proton::message response {body};
         response.to(request.reply_to());
-        response.correlation_id(request.correlation_id());
+        response.correlation_id(request.id());
 
         sender_.send(response);
 

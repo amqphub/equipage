@@ -46,7 +46,7 @@ container.on("receiver_open", function (event) {
         reply_to: event.receiver.source.address,
         body: message_body
     };
-    
+
     sender.send(request);
 
     console.log("REQUEST: Sent request '" + request.body + "'");

@@ -23,12 +23,14 @@
 #include <proton/container.hpp>
 #include <proton/delivery.hpp>
 #include <proton/message.hpp>
+#include <proton/message_id.hpp>
 #include <proton/messaging_handler.hpp>
 #include <proton/receiver_options.hpp>
 #include <proton/receiver.hpp>
 #include <proton/sender.hpp>
 #include <proton/source_options.hpp>
 #include <proton/target.hpp>
+#include <proton/uuid.hpp>
 
 #include <iostream>
 #include <string>
@@ -53,17 +55,16 @@ struct request_handler : public proton::messaging_handler {
         conn.open_receiver("", opts);
     }
 
-    void on_connection_open(proton::connection& conn) override {
-        std::cout << "REQUEST: Connected to '" << conn_url_ << "'\n";
-    }
-
     void on_sender_open(proton::sender& snd) override {
-        std::cout << "REQUEST: Created sender for target address '"
+        std::cout << "REQUEST: Opened sender for target address '"
                   << snd.target().address() << "'\n";
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
+        std::cout << "REQUEST: Opened dynamic receiver for responses\n";
+
         proton::message request {message_body_};
+        request.id(proton::message_id {proton::uuid::random()});
         request.reply_to(rcv.source().address());
 
         sender_.send(request);

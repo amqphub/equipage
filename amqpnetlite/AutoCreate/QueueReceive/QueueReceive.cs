@@ -41,7 +41,8 @@ namespace QueueReceive
             int desired = 0;
             int received = 0;
 
-            if (args.Length == 3) {
+            if (args.Length == 3)
+            {
                 desired = Int32.Parse(args[2]);
             }
 
@@ -49,8 +50,6 @@ namespace QueueReceive
 
             try
             {
-                Console.WriteLine("RECEIVE: Connected to '{0}'", connUrl);
-
                 Session session = new Session(conn);
 
                 Source source = new Source() {
@@ -58,9 +57,11 @@ namespace QueueReceive
                     Capabilities = new Symbol[] {"queue"},
                 };
 
-                ReceiverLink receiver = new ReceiverLink(session, "receive-1", source, null);
+                OnAttached onAttached = (link, attach) => {
+                    Console.WriteLine("RECEIVE: Opened receiver for source address '{0}'", address);
+                };
 
-                Console.WriteLine("RECEIVE: Created receiver for source address '{0}'", address);
+                ReceiverLink receiver = new ReceiverLink(session, "r1", source, onAttached);
 
                 while (true)
                 {

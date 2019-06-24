@@ -44,8 +44,6 @@ namespace QueueSend
 
             try
             {
-                Console.WriteLine("SEND: Connected to '{0}'", connUrl);
-
                 Session session = new Session(conn);
 
                 Target target = new Target() {
@@ -53,9 +51,11 @@ namespace QueueSend
                     Capabilities = new Symbol[] {"queue"},
                 };
 
-                SenderLink sender = new SenderLink(session, "send-1", target, null);
+                OnAttached onAttached = (link, attach) => {
+                    Console.WriteLine("SEND: Opened sender for target address '{0}'", address);
+                };
 
-                Console.WriteLine("SEND: Created sender for target address '{0}'", address);
+                SenderLink sender = new SenderLink(session, "s1", target, onAttached);
 
                 Message message = new Message(messageBody);
 

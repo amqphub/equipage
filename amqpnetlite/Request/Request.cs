@@ -44,37 +44,45 @@ namespace Request
 
             try
             {
-                Console.WriteLine("REQUEST: Connected to '{0}'", connUrl);
-
                 Session session = new Session(conn);
-                SenderLink sender = new SenderLink(session, "send-1", address);
 
-                Console.WriteLine("REQUEST: Created sender for target address '{0}'", address);
+                Target target = new Target() { Address = address };
+
+                OnAttached onSenderAttached = (link, attach) => {
+                    Console.WriteLine("REQUEST: Opened sender for target address '{0}'", address);
+                };
+
+                SenderLink sender = new SenderLink(session, "s1", target, onSenderAttached);
 
                 string responseAddress = null;
                 ManualResetEvent done = new ManualResetEvent(false);
                 Source source = new Source() { Dynamic = true };
 
                 OnAttached onReceiverAttached = (link, attach) => {
+                    Console.WriteLine("REQUEST: Opened dynamic receiver for responses");
+
                     responseAddress = ((Source) attach.Source).Address;
                     done.Set();
                 };
 
-                ReceiverLink receiver = new ReceiverLink(session, "receive-1", source, onReceiverAttached);
+                ReceiverLink receiver = new ReceiverLink(session, "r1", source, onReceiverAttached);
                 done.WaitOne();
 
                 Message request = new Message(messageBody);
-                request.Properties = new Properties() { ReplyTo = responseAddress };
+
+                request.Properties = new Properties() {
+                    MessageId = Guid.NewGuid().ToString(),
+                    ReplyTo = responseAddress,
+                };
 
                 sender.Send(request);
 
                 Console.WriteLine("REQUEST: Sent request '{0}'", messageBody);
 
                 Message response = receiver.Receive();
+                receiver.Accept(response);
 
                 Console.WriteLine("REQUEST: Received response '{0}'", response.Body);
-
-                done.WaitOne(1000);
             }
             finally
             {

@@ -45,7 +45,7 @@ public class Send {
             if (port == -1) {
                 port = 5672;
             }
-            
+
             Vertx vertx = Vertx.vertx();
             ProtonClient client = ProtonClient.create(vertx);
             CountDownLatch completion = new CountDownLatch(1);
@@ -60,14 +60,12 @@ public class Send {
                         throw new RuntimeException(connResult.cause());
                     }
 
-                    System.out.println("SEND: Connected to '" + url + "'");
-                    
                     ProtonConnection conn = connResult.result();
                     ProtonSender sender = conn.createSender(address);
 
                     sender.openHandler((result) -> {
-                            System.out.println("SEND: Created sender for target address '" + address + "'");
-                
+                            System.out.println("SEND: Opened sender for target address '" + address + "'");
+
                             Message message = Message.Factory.create();
                             message.setBody(new AmqpValue(messageBody));
 

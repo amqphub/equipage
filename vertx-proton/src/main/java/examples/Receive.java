@@ -66,13 +66,11 @@ public class Receive {
                         throw new RuntimeException(connResult.cause());
                     }
 
-                    System.out.println("RECEIVE: Connected to '" + url + "'");
-                    
                     ProtonConnection conn = connResult.result();
                     ProtonReceiver receiver = conn.createReceiver(address);
 
                     receiver.openHandler((result) -> {
-                            System.out.println("RECEIVE: Created receiver for source address " +
+                            System.out.println("RECEIVE: Opened receiver for source address " +
                                                "'" + address + "'");
                         });
                     

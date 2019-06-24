@@ -36,7 +36,8 @@ namespace Connect
 
             string connUrl = args[0];
 
-            Connection conn = new Connection(new Address(connUrl));
+            Address address = new Address(connUrl);
+            Connection conn = new Connection(address);
 
             try
             {

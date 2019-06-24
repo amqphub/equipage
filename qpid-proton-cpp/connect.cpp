@@ -30,7 +30,6 @@ struct connect_handler : public proton::messaging_handler {
     std::string conn_url_;
 
     void on_container_start(proton::container& cont) override {
-        std::cout << "CONNECT: Connecting to '" << conn_url_ << "'\n";
         cont.connect(conn_url_);
     }
 

@@ -135,6 +135,8 @@ class _Project(object):
         _plano.remove(self.work_dir)
         _plano.copy(self.source_dir, self.work_dir)
 
+        self.clean()
+
     def clean(self):
         pass
 
@@ -153,8 +155,9 @@ class _MavenProject(_Project):
             _call("mvn -B -q package dependency:copy-dependencies -DincludeScope=runtime -DskipTests", shell=True)
 
     def clean(self):
-        with _working_dir(self.work_dir):
-            _call("mvn -B -q clean", shell=True)
+        if _plano.exists(_join(self.work_dir, "pom.xml")):
+            with _working_dir(self.work_dir):
+                _call("mvn -B -q clean", shell=True)
 
 class _AmqpNetLite(_Project):
     def build(self):
@@ -184,8 +187,9 @@ class _QpidProtonCpp(_Project):
             _call("make build", shell=True)
 
     def clean(self):
-        with _working_dir(self.work_dir):
-            _call("make clean")
+        if _plano.exists(_join(self.work_dir, "Makefile")):
+            with _working_dir(self.work_dir):
+                _call("make clean")
 
 class _QpidProtonPython(_Project):
     def clean(self):

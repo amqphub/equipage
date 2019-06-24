@@ -21,6 +21,7 @@
 
 using System;
 using Amqp;
+using Amqp.Framing;
 
 namespace Receive
 {
@@ -47,12 +48,15 @@ namespace Receive
 
             try
             {
-                Console.WriteLine("RECEIVE: Connected to '{0}'", connUrl);
-
                 Session session = new Session(conn);
-                ReceiverLink receiver = new ReceiverLink(session, "receive-1", address);
 
-                Console.WriteLine("RECEIVE: Created receiver for source address '{0}'", address);
+                Source source = new Source() { Address = address };
+
+                OnAttached onAttached = (link, attach) => {
+                    Console.WriteLine("RECEIVE: Opened receiver for source address '{0}'", address);
+                };
+
+                ReceiverLink receiver = new ReceiverLink(session, "r1", source, onAttached);
 
                 while (true)
                 {

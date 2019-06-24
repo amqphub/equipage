@@ -41,7 +41,7 @@ class ReceiveHandler(MessagingHandler):
         event.container.create_receiver(conn, self.address, options=CapabilityOptions())
 
     def on_link_opened(self, event):
-        print("RECEIVE: Created receiver for source address '{0}'".format
+        print("RECEIVE: Opened receiver for source address '{0}'".format
               (event.receiver.source.address))
 
     def on_message(self, event):

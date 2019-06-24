@@ -40,7 +40,8 @@ namespace Respond
             int desired = 0;
             int received = 0;
 
-            if (args.Length == 3) {
+            if (args.Length == 3)
+            {
                 desired = Int32.Parse(args[2]);
             }
 
@@ -48,13 +49,21 @@ namespace Respond
 
             try
             {
-                Console.WriteLine("RESPOND: Connected to '{0}'", connUrl);
-
                 Session session = new Session(conn);
-                SenderLink sender = new SenderLink(session, "send-1", null);
-                ReceiverLink receiver = new ReceiverLink(session, "receive-1", address);
 
-                Console.WriteLine("RESPOND: Created receiver for source address '{0}'", address);
+                OnAttached onSenderAttached = (link, attach) => {
+                    Console.WriteLine("RESPOND: Opened anonymous sender for responses");
+                 };
+
+                SenderLink sender = new SenderLink(session, "s1", (Target) null, onSenderAttached);
+
+                Source source = new Source() { Address = address };
+
+                OnAttached onReceiverAttached = (link, attach) => {
+                    Console.WriteLine("RESPOND: Opened receiver for source address '{0}'", address);
+                };
+
+                ReceiverLink receiver = new ReceiverLink(session, "r1", source, onReceiverAttached);
 
                 while (true)
                 {
@@ -66,7 +75,11 @@ namespace Respond
                     string responseBody = ((string) request.Body).ToUpper();
 
                     Message response = new Message(responseBody);
-                    response.Properties = new Properties() { To = request.Properties.ReplyTo };
+
+                    response.Properties = new Properties() {
+                        To = request.Properties.ReplyTo,
+                        CorrelationId = request.Properties.MessageId,
+                    };
 
                     sender.Send(response);
 

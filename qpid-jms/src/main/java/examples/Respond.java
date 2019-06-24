@@ -47,10 +47,10 @@ public class Respond {
             if (args.length == 3) {
                 desired = Integer.parseInt(args[2]);
             }
-            
+
             Hashtable<Object, Object> env = new Hashtable<Object, Object>();
             env.put("connectionfactory.factory1", url);
-            
+
             InitialContext context = new InitialContext(env);
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();
@@ -59,14 +59,14 @@ public class Respond {
 
             try {
                 System.out.println("RESPOND: Connected to '" + url + "'");
-                
+
                 Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
                 Queue queue = session.createQueue(address);
                 MessageProducer producer = session.createProducer(null);
                 MessageConsumer consumer = session.createConsumer(queue);
 
                 System.out.println("RESPOND: Created consumer for source address '" + address + "'");
-                
+
                 while (true) {
                     TextMessage request = (TextMessage) consumer.receive();
 

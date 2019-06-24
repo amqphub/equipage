@@ -22,6 +22,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys
+import uuid
 
 from proton import Message
 from proton.handlers import MessagingHandler
@@ -47,14 +48,19 @@ class RequestHandler(MessagingHandler):
 
     def on_link_opened(self, event):
         if event.link.is_sender:
-            return
+            print("REQUEST: Opened sender for target address '{0}'".format
+                  (event.sender.target.address))
 
-        request = Message(self.message_body)
-        request.reply_to = event.receiver.remote_source.address
+        if event.link.is_receiver:
+            print("REQUEST: Opened dynamic receiver for responses")
 
-        self.sender.send(request)
+            request = Message(self.message_body)
+            request.id = uuid.uuid4()
+            request.reply_to = event.receiver.remote_source.address
 
-        print("REQUEST: Sent request '{0}'".format(request.body))
+            self.sender.send(request)
+
+            print("REQUEST: Sent request '{0}'".format(request.body))
 
     def on_message(self, event):
         message = event.message

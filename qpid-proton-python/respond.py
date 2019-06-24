@@ -43,6 +43,14 @@ class RespondHandler(MessagingHandler):
         event.container.create_receiver(conn, self.address)
         self.sender = event.container.create_sender(conn, None)
 
+    def on_link_opened(self, event):
+        if event.link.is_sender:
+            print("RESPOND: Opened anonymous sender for responses")
+
+        if event.link.is_receiver:
+            print("RESPOND: Opened receiver for source address '{0}'".format
+                  (event.receiver.source.address))
+
     def on_message(self, event):
         request = event.message
 
@@ -52,7 +60,7 @@ class RespondHandler(MessagingHandler):
 
         response = Message(message_body)
         response.address = request.reply_to
-        response.correlation_id = request.correlation_id
+        response.correlation_id = request.id
 
         self.sender.send(response)
 
