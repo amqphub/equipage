@@ -24,39 +24,58 @@ using Amqp;
 using Amqp.Framing;
 using Amqp.Types;
 
-namespace QueueSend
+namespace QueueReceive
 {
     class Program
     {
         static void Main(string[] args)
         {
-            if (args.Length != 3)
+            if (args.Length != 2 && args.Length != 3)
             {
-                Console.Error.WriteLine("Usage: QueueSend <connection-url> <address> <message-body>");
+                Console.Error.WriteLine("Usage: QueueReceive <connection-url> <address> [<message-count>]");
                 Environment.Exit(1);
             }
 
             string connUrl = args[0];
             string address = args[1];
-            string messageBody = args[2];
+            int desired = 0;
+            int received = 0;
+
+            if (args.Length == 3) {
+                desired = Int32.Parse(args[2]);
+            }
 
             Connection conn = new Connection(new Address(connUrl));
 
             try
             {
-                Console.WriteLine("SEND: Connected to '{0}'", connUrl);
+                Console.WriteLine("RECEIVE: Connected to '{0}'", connUrl);
 
                 Session session = new Session(conn);
-                Target target = new Target() { Address = address, Capabilities = new Symbol[] {"queue"} };
-                SenderLink sender = new SenderLink(session, "send-1", target, null);
 
-                Console.WriteLine("SEND: Created sender for target address '{0}'", address);
+                Source source = new Source() {
+                    Address = address,
+                    Capabilities = new Symbol[] {"queue"},
+                };
 
-                Message message = new Message(messageBody);
+                ReceiverLink receiver = new ReceiverLink(session, "receive-1", source, null);
 
-                sender.Send(message);
+                Console.WriteLine("RECEIVE: Created receiver for source address '{0}'", address);
 
-                Console.WriteLine("SEND: Sent message '{0}'", messageBody);
+                while (true)
+                {
+                    Message message = receiver.Receive();
+                    receiver.Accept(message);
+
+                    Console.WriteLine("RECEIVE: Received message '{0}'", message.Body);
+
+                    received++;
+
+                    if (received == desired)
+                    {
+                        break;
+                    }
+                }
             }
             finally
             {

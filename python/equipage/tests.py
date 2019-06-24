@@ -50,6 +50,19 @@ def test_amqpnetlite_request_respond(session):
             with start_process("{0} {1} q1 1", dotnet_prog("Respond"), server.connection_url):
                 call("{0} {1} q1 abc", dotnet_prog("Request"), server.connection_url)
 
+def test_amqpnetlite_auto_create(session):
+    with working_dir(join(session.examples_dir, "amqpnetlite")):
+        check_send_usage(dotnet_prog("AutoCreate/QueueSend"))
+        check_receive_usage(dotnet_prog("AutoCreate/QueueReceive"))
+        check_send_usage(dotnet_prog("AutoCreate/TopicSend"))
+        check_receive_usage(dotnet_prog("AutoCreate/TopicReceive"))
+
+        with TestServer() as server:
+            call("{0} {1} q1 abc", dotnet_prog("AutoCreate/QueueSend"), server.connection_url)
+            call("{0} {1} q1 1", dotnet_prog("AutoCreate/QueueReceive"), server.connection_url)
+            call("{0} {1} t1 abc", dotnet_prog("AutoCreate/TopicSend"), server.connection_url)
+            call("{0} {1} t1 1", dotnet_prog("AutoCreate/TopicReceive"), server.connection_url)
+
 def test_pooled_jms_connect(session):
     with working_dir(join(session.examples_dir, "pooled-jms")):
         check_connect_usage(qpid_jms_prog("examples.Connect"))
@@ -124,8 +137,8 @@ def test_qpid_proton_cpp_auto_create(session):
         with TestServer() as server:
             call("build/auto-create/queue-send {0} q1 abc", server.connection_url)
             call("build/auto-create/queue-receive {0} q1 1", server.connection_url)
-            call("build/auto-create/topic-send {0} q2 abc", server.connection_url)
-            call("build/auto-create/topic-receive {0} q2 1", server.connection_url)
+            call("build/auto-create/topic-send {0} t1 abc", server.connection_url)
+            call("build/auto-create/topic-receive {0} t1 1", server.connection_url)
 
 def test_qpid_proton_python_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
@@ -162,8 +175,8 @@ def test_qpid_proton_python_auto_create(session):
         with TestServer() as server:
             call("python auto-create/queue-send.py {0} q1 abc", server.connection_url)
             call("python auto-create/queue-receive.py {0} q1 1", server.connection_url)
-            call("python auto-create/topic-send.py {0} q2 abc", server.connection_url)
-            call("python auto-create/topic-receive.py {0} q2 1", server.connection_url)
+            call("python auto-create/topic-send.py {0} t1 abc", server.connection_url)
+            call("python auto-create/topic-receive.py {0} t1 1", server.connection_url)
 
 def test_qpid_proton_ruby_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-ruby")):
@@ -200,8 +213,8 @@ def test_qpid_proton_ruby_auto_create(session):
         with TestServer() as server:
             call("ruby auto-create/queue-send.rb {0} q1 abc", server.connection_url)
             call("ruby auto-create/queue-receive.rb {0} q1 1", server.connection_url)
-            call("ruby auto-create/topic-send.rb {0} q2 abc", server.connection_url)
-            call("ruby auto-create/topic-receive.rb {0} q2 1", server.connection_url)
+            call("ruby auto-create/topic-send.rb {0} t1 abc", server.connection_url)
+            call("ruby auto-create/topic-receive.rb {0} t1 1", server.connection_url)
 
 def test_rhea_connect(session):
     with working_dir(join(session.examples_dir, "rhea")):
@@ -238,8 +251,8 @@ def test_rhea_auto_create(session):
         with TestServer() as server:
             call("node auto-create/queue-send.js {0} q1 abc", server.connection_url)
             call("node auto-create/queue-receive.js {0} q1 1", server.connection_url)
-            call("node auto-create/topic-send.js {0} q2 abc", server.connection_url)
-            call("node auto-create/topic-receive.js {0} q2 1", server.connection_url)
+            call("node auto-create/topic-send.js {0} t1 abc", server.connection_url)
+            call("node auto-create/topic-receive.js {0} t1 1", server.connection_url)
 
 def test_vertx_proton_send_receive(session):
     with working_dir(join(session.examples_dir, "vertx-proton")):

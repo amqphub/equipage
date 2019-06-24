@@ -160,17 +160,15 @@ class _AmqpNetLite(_Project):
     def build(self):
         super(_AmqpNetLite, self).build()
 
-        for name in _plano.list_dir(self.work_dir):
-            if name.startswith(".") or name == "Makefile":
-                continue
-
-            _call("dotnet build {0}", _join(self.work_dir, name))
+        for path in _plano.find(self.work_dir, "*.csproj"):
+            project_dir = _plano.get_parent_dir(path)
+            _call("dotnet build {0}", _join(self.work_dir, project_dir))
 
     def clean(self):
-        for name in _plano.list_dir(self.work_dir):
-            if not name.startswith("."):
-                _plano.remove(_join(self.work_dir, name, "bin"))
-                _plano.remove(_join(self.work_dir, name, "obj"))
+        for path in _plano.find(self.work_dir, "*.csproj"):
+            project_dir = _plano.get_parent_dir(path)
+            _plano.remove(_join(self.work_dir, project_dir, "bin"))
+            _plano.remove(_join(self.work_dir, project_dir, "obj"))
 
 class _PooledJms(_MavenProject):
     pass
