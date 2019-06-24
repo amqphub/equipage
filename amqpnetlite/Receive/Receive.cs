@@ -40,7 +40,8 @@ namespace Receive
             int desired = 0;
             int received = 0;
 
-            if (args.Length == 3) {
+            if (args.Length == 3)
+            {
                 desired = Int32.Parse(args[2]);
             }
 
