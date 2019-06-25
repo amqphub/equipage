@@ -143,9 +143,14 @@ class _Project(object):
     def test(self):
         self.build()
 
+        options = ""
+
+        if self.command.args.verbose:
+            options = "--verbose"
+
         pattern = "test_{0}*".format(self.name.replace("-", "_"))
 
-        _call("equipage-test {0}", pattern, shell=True)
+        _call("equipage-test {0} {1}", options, pattern, shell=True)
 
 class _MavenProject(_Project):
     def build(self):
