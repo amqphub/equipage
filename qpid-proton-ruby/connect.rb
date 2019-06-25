@@ -32,7 +32,7 @@ class ConnectHandler < Qpid::Proton::MessagingHandler
   end
 
   def on_connection_open(conn)
-    puts "CONNECT: Connected to #{@conn_url}\n"
+    puts "CONNECT: Connected to '#{@conn_url}'\n"
     conn.close()
   end
 end

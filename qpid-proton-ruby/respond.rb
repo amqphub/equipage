@@ -38,6 +38,14 @@ class RespondHandler < Qpid::Proton::MessagingHandler
     @sender = conn.open_sender({:target => nil})
   end
 
+  def on_sender_open(sender)
+    puts "RESPOND: Opened anonymous sender for responses\n"
+  end
+
+  def on_receiver_open(receiver)
+    puts "RESPOND: Opened receiver for source address '#{receiver.source.address}'\n"
+  end
+
   def on_message(delivery, message)
     puts "RESPOND: Received request '#{message.body}'\n"
 
@@ -45,7 +53,7 @@ class RespondHandler < Qpid::Proton::MessagingHandler
 
     response = Qpid::Proton::Message.new(message_body)
     response.address = message.reply_to
-    response.correlation_id = message.correlation_id
+    response.correlation_id = message.id
 
     @sender.send(response)
 

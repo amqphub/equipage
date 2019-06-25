@@ -19,6 +19,7 @@
 #
 
 require 'qpid_proton'
+require 'securerandom'
 
 class RequestHandler < Qpid::Proton::MessagingHandler
   def initialize(conn_url, address, message_body)
@@ -36,8 +37,15 @@ class RequestHandler < Qpid::Proton::MessagingHandler
     conn.open_receiver({:dynamic => true})
   end
 
+  def on_sender_open(sender)
+    puts "REQUEST: Opened sender for target address '#{sender.target.address}'\n"
+  end
+
   def on_receiver_open(receiver)
+    puts "REQUEST: Opened dynamic receiver for responses\n"
+
     request = Qpid::Proton::Message.new(@message_body)
+    request.id = SecureRandom.uuid
     request.reply_to = receiver.remote_source.address
 
     @sender.send(request)
