@@ -26,16 +26,16 @@ from proton.handlers import MessagingHandler
 from proton.reactor import Container
 
 class ConnectHandler(MessagingHandler):
-    def __init__(self, connection_url):
+    def __init__(self, conn_url):
         super(ConnectHandler, self).__init__()
 
-        self.connection_url = connection_url
+        self.conn_url = conn_url
 
     def on_start(self, event):
-        event.container.connect(self.connection_url)
+        event.container.connect(self.conn_url)
 
     def on_connection_opened(self, event):
-        print("CONNECT: Connected to '{0}'".format(self.connection_url))
+        print("CONNECT: Connected to '{0}'".format(self.conn_url))
         event.connection.close()
 
 def main():
