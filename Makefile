@@ -22,6 +22,7 @@
 DESTDIR := ""
 PREFIX := /usr/local
 INSTALLED_EQUIPAGE_HOME = ${PREFIX}/share/equipage
+PYTHON_EXECUTABLE := /usr/bin/python
 
 export EQUIPAGE_HOME := ${CURDIR}/build/equipage
 export PATH := ${CURDIR}/build/bin:${PATH}
@@ -113,7 +114,7 @@ build/prefix.txt:
 	echo ${PREFIX} > build/prefix.txt
 
 build/bin/%: bin/%.in
-	scripts/configure-file -a equipage_home=${INSTALLED_EQUIPAGE_HOME} $< $@
+	scripts/configure-file -a equipage_home=${INSTALLED_EQUIPAGE_HOME} -a python_executable=${PYTHON_EXECUTABLE} $< $@
 
 build/equipage/python/equipage/%: python/equipage/% python/brokerlib.py python/commandant.py python/plano.py
 	@mkdir -p ${@D}
