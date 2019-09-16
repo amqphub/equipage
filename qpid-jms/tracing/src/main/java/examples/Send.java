@@ -31,8 +31,8 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 import io.jaegertracing.Configuration;
-import io.opentracing.util.GlobalTracer;
 import io.opentracing.Tracer;
+import io.opentracing.util.GlobalTracer;
 
 public class Send {
     public static void main(String[] args) {

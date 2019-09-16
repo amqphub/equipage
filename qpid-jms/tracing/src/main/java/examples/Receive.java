@@ -32,7 +32,6 @@ import javax.naming.InitialContext;
 
 import io.jaegertracing.Configuration;
 import io.opentracing.Tracer;
-import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
 
 public class Receive {
