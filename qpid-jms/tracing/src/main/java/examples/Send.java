@@ -19,34 +19,70 @@
  *
  */
 
-package examples.authentication;
+package examples;
 
 import java.util.Hashtable;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-public class Kerberos {
+import io.jaegertracing.Configuration;
+import io.opentracing.util.GlobalTracer;
+import io.opentracing.Tracer;
+
+public class Send {
     public static void main(String[] args) {
         try {
-            if (args.length != 1) {
-                System.err.println("Usage: Kerberos <connection-url>");
+            if (args.length != 3) {
+                System.err.println("Usage: Send <connection-url> <address> <message-body>");
                 System.exit(1);
             }
-            
-            String url = args[0] + "?amqp.saslMechanisms=GSSAPI";
+
+            String url = args[0];
+            String address = args[1];
+            String messageBody = args[2];
+
+            {
+                // Configure tracing
+
+                System.setProperty("JAEGER_SERVICE_NAME", "send");
+                System.setProperty("JAEGER_SAMPLER_TYPE", "const");
+                System.setProperty("JAEGER_SAMPLER_PARAM", "1");
+
+                Tracer tracer = Configuration.fromEnv().getTracer();
+                GlobalTracer.registerIfAbsent(tracer);
+
+                assert !url.contains("?");
+                url = url + "?jms.tracing=opentracing";
+            }
 
             Hashtable<Object, Object> env = new Hashtable<Object, Object>();
             env.put("connectionfactory.factory1", url);
-            
+
             InitialContext context = new InitialContext(env);
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();
 
             conn.start();
-            
+
             try {
-                System.out.println("CONNECT: Connected to '" + url + "'");
+                System.out.println("SEND: Connected to '" + url + "'");
+
+                Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                Queue queue = session.createQueue(address);
+                MessageProducer producer = session.createProducer(queue);
+
+                System.out.println("SEND: Created producer for target address '" + address + "'");
+
+                TextMessage message = session.createTextMessage(messageBody);
+
+                producer.send(message);
+
+                System.out.println("SEND: Sent message '" + messageBody + "'");
             } finally {
                 conn.close();
             }

@@ -78,14 +78,14 @@ def test_pooled_jms_configure(session):
             call("{0} {1}", qpid_jms_prog("examples.Configure"), server.connection_url)
 
 def test_qpid_jms_connect(session):
-    with working_dir(join(session.examples_dir, "qpid-jms")):
+    with working_dir(join(session.examples_dir, "qpid-jms/basic")):
         check_connect_usage(qpid_jms_prog("examples.Connect"))
 
         with TestServer() as server:
             call("{0} {1}", qpid_jms_prog("examples.Connect"), server.connection_url)
 
 def test_qpid_jms_send_receive(session):
-    with working_dir(join(session.examples_dir, "qpid-jms")):
+    with working_dir(join(session.examples_dir, "qpid-jms/basic")):
         check_send_usage(qpid_jms_prog("examples.Send"))
         check_receive_usage(qpid_jms_prog("examples.Receive"))
 
@@ -94,13 +94,22 @@ def test_qpid_jms_send_receive(session):
             call("{0} {1} q1 1", qpid_jms_prog("examples.Receive"), server.connection_url)
 
 def test_qpid_jms_request_respond(session):
-    with working_dir(join(session.examples_dir, "qpid-jms")):
+    with working_dir(join(session.examples_dir, "qpid-jms/basic")):
         check_request_usage(qpid_jms_prog("examples.Request"))
         check_respond_usage(qpid_jms_prog("examples.Respond"))
 
         with TestServer() as server:
             with start_process("{0} {1} q1 1", qpid_jms_prog("examples.Respond"), server.connection_url):
                 call("{0} {1} q1 abc", qpid_jms_prog("examples.Request"), server.connection_url)
+
+def test_qpid_jms_tracing_send_receive(session):
+    with working_dir(join(session.examples_dir, "qpid-jms/tracing")):
+        check_send_usage(qpid_jms_prog("examples.Send"))
+        check_receive_usage(qpid_jms_prog("examples.Receive"))
+
+        with TestServer() as server:
+            call("{0} {1} q1 abc", qpid_jms_prog("examples.Send"), server.connection_url)
+            call("{0} {1} q1 1", qpid_jms_prog("examples.Receive"), server.connection_url)
 
 def test_qpid_proton_cpp_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):

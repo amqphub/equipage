@@ -14,7 +14,7 @@ messaging APIs
 | [Qpid Proton Ruby](http://qpid.apache.org/proton/index.html) | [connect.rb](qpid-proton-ruby/connect.rb) | [send.rb](qpid-proton-ruby/send.rb) | [receive.rb](qpid-proton-ruby/receive.rb) | [request.rb](qpid-proton-ruby/request.rb) | [respond.rb](qpid-proton-ruby/respond.rb)
 | [Rhea](https://github.com/grs/rhea) | [connect.js](rhea/connect.js) | [send.js](rhea/send.js) | [receive.js](rhea/receive.js) | [request.js](rhea/request.js) | [respond.js](rhea/respond.js)
 
-## Primary examples
+## Basic examples
 
  - **connect** - Connect to a messaging server
  - **send** - Send a message
@@ -83,7 +83,7 @@ Usage: `respond <connection-url> <address> [<message-count>]`
 
 ## Content outline
 
- - Primary examples (in the root dir)
+ - Basic examples (in the root dir or 'basic')
    - connect
    - send
    - receive
@@ -117,6 +117,7 @@ Usage: `respond <connection-url> <address> [<message-count>]`
  - Logging (logging)
  - Multithreaded applications (multithreading)
  - Timers (timers)
+ - Tracing (tracing)
  - Codec (codec)
  - IO integration (io-integration)
 

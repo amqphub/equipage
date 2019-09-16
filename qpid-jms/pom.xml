@@ -2,20 +2,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>examples</groupId>
-  <artifactId>messaging-examples</artifactId>
+  <groupId>equipage</groupId>
+  <artifactId>equipage-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.qpid</groupId>
-      <artifactId>qpid-jms-client</artifactId>
-      <version>0.42.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.21</version>
-    </dependency>
-  </dependencies>
+  <packaging>pom</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <qpid-jms-version>0.45.0</qpid-jms-version>
+    <slf4j-version>1.7.28</slf4j-version>
+  </properties>
+
+  <modules>
+    <module>basic</module>
+    <module>authentication</module>
+    <module>tracing</module>
+  </modules>
 </project>
