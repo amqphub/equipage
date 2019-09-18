@@ -108,8 +108,10 @@ def test_qpid_jms_tracing_send_receive(session):
         check_receive_usage(qpid_jms_prog("examples.Receive"))
 
         with TestServer() as server:
-            call("{0} {1} q1 abc", qpid_jms_prog("examples.Send"), server.connection_url)
-            call("{0} {1} q1 1", qpid_jms_prog("examples.Receive"), server.connection_url)
+            url = server.connection_url + "?jms.tracing=opentracing"
+
+            call("{0} {1} q1 abc", qpid_jms_prog("examples.Send"), url)
+            call("{0} {1} q1 1", qpid_jms_prog("examples.Receive"), url)
 
 def test_qpid_proton_cpp_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):

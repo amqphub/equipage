@@ -35,6 +35,15 @@ import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 
 public class Receive {
+    static {
+        System.setProperty("JAEGER_SERVICE_NAME", "receive");
+        System.setProperty("JAEGER_SAMPLER_TYPE", "const");
+        System.setProperty("JAEGER_SAMPLER_PARAM", "1");
+
+        Tracer tracer = Configuration.fromEnv().getTracer();
+        GlobalTracer.registerIfAbsent(tracer);
+    }
+
     public static void main(String[] args) {
         try {
             if (args.length != 2 && args.length != 3) {
@@ -51,19 +60,7 @@ public class Receive {
                 desired = Integer.parseInt(args[2]);
             }
 
-            {
-                // Configure tracing
-
-                System.setProperty("JAEGER_SERVICE_NAME", "receive");
-                System.setProperty("JAEGER_SAMPLER_TYPE", "const");
-                System.setProperty("JAEGER_SAMPLER_PARAM", "1");
-
-                Tracer tracer = Configuration.fromEnv().getTracer();
-                GlobalTracer.registerIfAbsent(tracer);
-
-                assert !url.contains("?");
-                url = url + "?jms.tracing=opentracing";
-            }
+            assert url.contains("jms.tracing=opentracing");
 
             Hashtable<Object, Object> env = new Hashtable<Object, Object>();
             env.put("connectionfactory.factory1", url);
