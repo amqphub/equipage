@@ -102,7 +102,7 @@ def test_qpid_jms_request_respond(session):
             with start_process("{0} {1} q1 1", qpid_jms_prog("examples.Respond"), server.connection_url):
                 call("{0} {1} q1 abc", qpid_jms_prog("examples.Request"), server.connection_url)
 
-def test_qpid_jms_tracing_send_receive(session):
+def test_qpid_jms_tracing(session):
     with working_dir(join(session.examples_dir, "qpid-jms/tracing")):
         check_send_usage(qpid_jms_prog("examples.Send"))
         check_receive_usage(qpid_jms_prog("examples.Receive"))
@@ -188,6 +188,15 @@ def test_qpid_proton_python_auto_create(session):
             call("python auto-create/queue-receive.py {0} q1 1", server.connection_url)
             call("python auto-create/topic-send.py {0} t1 abc", server.connection_url)
             call("python auto-create/topic-receive.py {0} t1 1", server.connection_url)
+
+# def test_qpid_proton_python_tracing(session):
+#     with working_dir(join(session.examples_dir, "qpid-proton-python/tracing")):
+#         check_send_usage("python send.py")
+#         check_receive_usage("python receive.py")
+
+#         with TestServer() as server:
+#             call("python send.py {0} q1 abc", server.connection_url)
+#             call("python receive.py {0} q1 1", server.connection_url)
 
 def test_qpid_proton_ruby_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-ruby")):
