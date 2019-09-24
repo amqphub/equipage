@@ -26,6 +26,7 @@ from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
 
+from opentracing import tags
 from proton.tracing import init_tracer
 
 tracer = init_tracer("send")
@@ -67,7 +68,12 @@ def main():
 
     handler = SendHandler(conn_url, address, message_body)
     container = Container(handler)
-    container.run()
+
+    with tracer.start_active_span("run") as scope:
+        # Force tracing for this operation
+        scope.span.set_tag(tags.SAMPLING_PRIORITY, 1)
+
+        container.run()
 
 if __name__ == "__main__":
     try:
