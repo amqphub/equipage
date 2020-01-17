@@ -63,6 +63,14 @@ def test_amqpnetlite_auto_create(session):
             call("{0} {1} t1 abc", dotnet_prog("AutoCreate/TopicSend"), server.connection_url)
             call("{0} {1} t1 1", dotnet_prog("AutoCreate/TopicReceive"), server.connection_url)
 
+def test_amqpnetlite_subscriptions(session):
+    with working_dir(join(session.examples_dir, "amqpnetlite")):
+        check_receive_usage(dotnet_prog("Subscriptions/DurableSubscribe"))
+
+        with TestServer() as server:
+            call("{0} {1} q1 abc", dotnet_prog("Send"), server.connection_url)
+            call("{0} {1} q1 1", dotnet_prog("Subscriptions/DurableSubscribe"), server.connection_url)
+
 def test_pooled_jms_connect(session):
     with working_dir(join(session.examples_dir, "pooled-jms")):
         check_connect_usage(qpid_jms_prog("examples.Connect"))
