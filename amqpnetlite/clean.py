@@ -11,5 +11,11 @@ for root, dirs, files in os.walk("."):
         project_dirs.append(root)
 
 for project_dir in project_dirs:
-    shutil.rmtree(os.path.join(project_dir, "bin"))
-    shutil.rmtree(os.path.join(project_dir, "obj"))
+    bin_path = os.path.join(project_dir, "bin")
+    obj_path = os.path.join(project_dir, "obj")
+
+    if (os.path.exists(bin_path)):
+        shutil.rmtree(bin_path)
+
+    if (os.path.exists(obj_path)):
+        shutil.rmtree(obj_path)
