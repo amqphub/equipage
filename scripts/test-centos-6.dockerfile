@@ -27,9 +27,9 @@ RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel nodejs npm python-argpars
 
 RUN yum -y install python2-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel
 
-RUN wget -q https://www-us.apache.org/dist/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.tar.gz
-RUN tar -xf apache-maven-3.6.1-bin.tar.gz
-ENV PATH=/apache-maven-3.6.1/bin:$PATH
+RUN wget -q https://search.maven.org/remotecontent?filepath=org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.tar.gz
+RUN tar -xf apache-maven-3.6.3-bin.tar.gz
+ENV PATH=/apache-maven-3.6.3/bin:$PATH
 
 # XXX https://bugzilla.redhat.com/show_bug.cgi?id=1562592
 RUN npm config set strict-ssl false
