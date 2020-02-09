@@ -1,6 +1,6 @@
 # Equipage
 
-[![Build Status](https://travis-ci.org/amqphub/equipage.svg?branch=master)](https://travis-ci.org/ssorj/equipage)
+[![Build Status](https://travis-ci.org/amqphub/equipage.svg?branch=master)](https://travis-ci.org/amqphub/equipage)
 
 AMQP 1.0 messaging example programs implemented using a variety of
 messaging APIs
