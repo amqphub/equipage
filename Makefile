@@ -23,7 +23,7 @@ DESTDIR := ""
 PREFIX := /usr/local
 INSTALLED_EQUIPAGE_HOME = ${PREFIX}/share/equipage
 PYTHON_EXECUTABLE := /usr/bin/python
-DOCKER_COMMAND := "sudo docker"
+DOCKER_COMMAND := sudo docker
 
 export EQUIPAGE_HOME := ${CURDIR}/build/equipage
 export PATH := ${CURDIR}/build/bin:${PATH}
