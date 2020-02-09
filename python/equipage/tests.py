@@ -197,6 +197,14 @@ def test_qpid_proton_python_auto_create(session):
             call("python auto-create/topic-send.py {0} t1 abc", server.connection_url)
             call("python auto-create/topic-receive.py {0} t1 1", server.connection_url)
 
+def test_qpid_proton_python_subscriptions(session):
+    with working_dir(join(session.examples_dir, "qpid-proton-python")):
+        check_receive_usage("python subscriptions/durable-subscribe.py")
+
+        with TestServer() as server:
+            call("python send.py {0} t1 abc", server.connection_url)
+            call("python subscriptions/durable-subscribe.py {0} t1 1", server.connection_url)
+
 # def test_qpid_proton_python_tracing(session):
 #     with working_dir(join(session.examples_dir, "qpid-proton-python/tracing")):
 #         check_send_usage("python send.py")
