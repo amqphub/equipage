@@ -27,7 +27,7 @@ RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel nodejs npm python-argpars
 
 RUN yum -y install python2-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel
 
-RUN wget -q https://search.maven.org/remotecontent?filepath=org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.tar.gz
+RUN wget -q https://search.maven.org/remotecontent?filepath=org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.tar.gz -o apache-maven-3.6.3-bin.tar.gz
 RUN tar -xf apache-maven-3.6.3-bin.tar.gz
 ENV PATH=/apache-maven-3.6.3/bin:$PATH
 
