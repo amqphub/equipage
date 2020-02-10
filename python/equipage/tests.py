@@ -159,6 +159,20 @@ def test_qpid_proton_cpp_auto_create(session):
             call("build/auto-create/topic-send {0} t1 abc", server.connection_url)
             call("build/auto-create/topic-receive {0} t1 1", server.connection_url)
 
+def test_qpid_proton_cpp_subscriptions(session):
+    with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
+        check_receive_usage("build/subscriptions/durable-subscribe")
+        check_receive_usage("build/subscriptions/shared-subscribe")
+        check_receive_usage("build/subscriptions/durable-shared-subscribe")
+
+        with TestServer() as server:
+            call("build/send {0} t1 abc", server.connection_url)
+            call("build/subscriptions/durable-subscribe {0} t1 1", server.connection_url)
+            call("build/send {0} t1 abc", server.connection_url)
+            call("build/subscriptions/shared-subscribe {0} t1 1", server.connection_url)
+            call("build/send {0} t1 abc", server.connection_url)
+            call("build/subscriptions/durable-shared-subscribe {0} t1 1", server.connection_url)
+
 def test_qpid_proton_python_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
         check_connect_usage("python connect.py")
@@ -200,10 +214,16 @@ def test_qpid_proton_python_auto_create(session):
 def test_qpid_proton_python_subscriptions(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
         check_receive_usage("python subscriptions/durable-subscribe.py")
+        check_receive_usage("python subscriptions/shared-subscribe.py")
+        check_receive_usage("python subscriptions/durable-shared-subscribe.py")
 
         with TestServer() as server:
             call("python send.py {0} t1 abc", server.connection_url)
             call("python subscriptions/durable-subscribe.py {0} t1 1", server.connection_url)
+            call("python send.py {0} t1 abc", server.connection_url)
+            call("python subscriptions/shared-subscribe.py {0} t1 1", server.connection_url)
+            call("python send.py {0} t1 abc", server.connection_url)
+            call("python subscriptions/durable-shared-subscribe.py {0} t1 1", server.connection_url)
 
 # def test_qpid_proton_python_tracing(session):
 #     with working_dir(join(session.examples_dir, "qpid-proton-python/tracing")):

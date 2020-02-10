@@ -57,7 +57,7 @@ struct subscribe_handler : public proton::messaging_handler {
 
         opts.name("sub-1"); // A stable link name
         opts.source(sopts);
-        
+
         conn.open_receiver(address_, opts);
     }
 
@@ -71,7 +71,9 @@ struct subscribe_handler : public proton::messaging_handler {
         received_++;
 
         if (received_ == desired_) {
-            dlv.receiver().detach(); // Detaching leaves the subscription intact
+            // Detaching instead of closing leaves the subscription intact
+            dlv.receiver().detach();
+
             dlv.connection().close();
         }
     }

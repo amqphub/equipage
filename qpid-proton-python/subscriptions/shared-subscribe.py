@@ -22,7 +22,7 @@ from __future__ import print_function
 
 import sys
 
-from proton import Terminus
+from proton import symbol, Terminus
 from proton.handlers import MessagingHandler
 from proton.reactor import Container, ReceiverOption
 
@@ -54,13 +54,17 @@ class SubscribeHandler(MessagingHandler):
         self.received += 1
 
         if self.received == self.desired:
-            event.receiver.close()
+            # Detaching instead of closing leaves the subscription intact
+            event.receiver.detach()
+
             event.connection.close()
 
 class SubscriptionOptions(ReceiverOption):
     def apply(self, receiver):
-        receiver.source.durability = Terminus.DELIVERIES
-        receiver.source.expiry_policy = Terminus.EXPIRE_NEVER
+        receiver.source.capabilities.put_object(symbol("shared"))
+
+        # Global means shared across clients (distinct container IDs)
+        receiver.source.capabilities.put_object(symbol("global"))
 
 def main():
     try:
