@@ -42,4 +42,5 @@ WORKDIR /src
 
 RUN make install
 
+# Missing: ruby
 CMD ["equipage", "test", "pooled-jms", "qpid-jms", "qpid-proton-cpp", "qpid-proton-python", "rhea", "vertx-proton"]

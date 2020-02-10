@@ -43,5 +43,6 @@ WORKDIR /src
 
 RUN make install
 
-# XXX add rhea back in
+# Excluded: rhea
+# Missing: qpid-proton-cpp
 CMD ["equipage", "test", "pooled-jms", "qpid-jms", "qpid-proton-python", "vertx-proton"]
