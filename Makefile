@@ -69,7 +69,7 @@ test: build
 	equipage test
 
 .PHONY: os-tests
-big-test: test-centos-6 test-centos-7 test-centos test-fedora test-ubuntu
+os-tests: test-centos-6 test-centos-7 test-centos test-fedora test-ubuntu
 
 .PHONY: test-centos-6
 test-centos-6: clean
