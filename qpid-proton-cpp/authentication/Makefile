@@ -1,5 +1,5 @@
 CCFLAGS := -Os -std=c++11 -lstdc++
-TARGETS := connect
+TARGETS := kerberos
 
 .PHONY: build
 build: ${TARGETS}
@@ -10,7 +10,7 @@ clean:
 
 .PHONY: test
 test: build
-	KRB5_TRACE=/dev/stdout ./connect upto.nogood.industries
+	KRB5_TRACE=/dev/stdout ./kerberos upto.nogood.industries
 
 %: %.cpp
 	${CXX} $< -o $@ ${CCFLAGS} -lqpid-proton -lqpid-proton-cpp

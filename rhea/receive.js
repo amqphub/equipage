@@ -60,7 +60,10 @@ container.on("message", function (event) {
 
 var opts = {
     host: conn_url.hostname,
-    port: conn_url.port || 5672
+    port: conn_url.port || 5672,
+    // To connect with a user and password:
+    // "username": "<username>",
+    // "password": "<password>",
 };
 
 var conn = container.connect(opts);

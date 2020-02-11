@@ -40,7 +40,10 @@ container.on("connection_open", function (event) {
 
 var opts = {
     "host": conn_url.hostname,
-    "port": conn_url.port || 5672
+    "port": conn_url.port || 5672,
+    // To connect with a user and password:
+    // "username": "<username>",
+    // "password": "<password>",
 };
 
 container.connect(opts);

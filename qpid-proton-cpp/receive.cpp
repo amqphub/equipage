@@ -38,6 +38,15 @@ struct receive_handler : public proton::messaging_handler {
 
     void on_container_start(proton::container& cont) override {
         proton::connection conn = cont.connect(conn_url_);
+
+        // To connect with a user and password:
+        //
+        // proton::connection_options opts {};
+        // opts.user("<user>");
+        // opts.password("<password>");
+        //
+        // cont.connect(conn_url_, opts);
+
         conn.open_receiver(address_);
     }
 
