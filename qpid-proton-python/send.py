@@ -40,6 +40,10 @@ class SendHandler(MessagingHandler):
 
     def on_start(self, event):
         conn = event.container.connect(self.conn_url)
+
+        # To connect with a user and password:
+        # conn = event.container.connect(self.conn_url, user="<user>", password="<password>")
+
         event.container.create_sender(conn, self.address)
 
     def on_link_opened(self, event):

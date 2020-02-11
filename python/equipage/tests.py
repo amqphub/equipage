@@ -198,6 +198,15 @@ def test_qpid_proton_python_request_respond(session):
             with start_process("python respond.py {0} q1 1", server.connection_url):
                 call("python request.py {0} q1 abc", server.connection_url)
 
+def test_qpid_proton_python_servers(session):
+    with working_dir(join(session.examples_dir, "qpid-proton-python")):
+        check_receive_usage("servers/receive.py")
+
+        connection_url = "amqp://127.0.0.1:{0}".format(random_port())
+
+        with start_process("python servers/receive.py {0} q1 1", connection_url):
+            call("python send.py {0} q1 abc", connection_url)
+
 def test_qpid_proton_python_auto_create(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
         check_send_usage("python auto-create/queue-send.py")

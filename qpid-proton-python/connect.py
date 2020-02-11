@@ -34,6 +34,9 @@ class ConnectHandler(MessagingHandler):
     def on_start(self, event):
         event.container.connect(self.conn_url)
 
+        # To connect with a user and password:
+        # event.container.connect(self.conn_url, user="<user>", password="<password>")
+
     def on_connection_opened(self, event):
         print("CONNECT: Connected to '{0}'".format(self.conn_url))
         event.connection.close()

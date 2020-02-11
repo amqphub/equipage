@@ -22,51 +22,60 @@ from __future__ import print_function
 
 import sys
 
-from proton import *
-from proton.handlers import *
-from proton.reactor import *
+from proton.handlers import MessagingHandler
+from proton.reactor import Container, ReceiverOption
 
-class ListeningReceiver(MessagingHandler):
-    def __init__(self, address, max_count):
-        super(ListeningReceiver, self).__init__()
+class ReceiveHandler(MessagingHandler):
+    def __init__(self, listen_url, address, desired):
+        super(ReceiveHandler, self).__init__()
 
+        self.listen_url = listen_url
         self.address = address
-        self.max_count = max_count
 
-        self.url = Url(address)
+        self.desired = desired
+        self.received = 0
+
         self.acceptor = None
-        self.count = 0
-    
+
     def on_start(self, event):
-        host_port = "{0}:{1}".format(self.url.host, self.url.port)
+        self.acceptor = event.container.listen(self.listen_url)
 
-        self.acceptor = event.container.listen(self.address)
+        print("RECEIVE: Listening at {0}".format(self.listen_url))
 
-        print("RECEIVER: Listening at {0}".format(host_port))
+    def on_link_opening(self, event):
+        print("RECEIVE: Opening receiver for target address '{0}'".format
+              (event.receiver.remote_target.address))
+
+        # Set the target address using the peer value
+        address = event.receiver.remote_target.address
+        event.receiver.target.address = address
 
     def on_message(self, event):
-        print("RECEIVER: Received message '{0}'".format(event.message.body))
+        print("RECEIVE: Received message '{0}'".format(event.message.body))
 
-        self.count += 1
+        self.received += 1
 
-        if self.count == self.max_count:
+        if self.received == self.desired:
             self.acceptor.close()
             event.connection.close()
 
-try:
-    address = sys.argv[1]
-except:
-    sys.exit("Usage: listening_receiver.py ADDRESS [MAX-COUNT]")
-    
-try:
-    max_count = int(sys.argv[2])
-except:
-    max_count = 0
-    
-handler = ListeningReceiver(address, max_count)
-container = Container(handler)
+def main():
+    try:
+        listen_url, address = sys.argv[1:3]
+    except ValueError:
+        sys.exit("Usage: receive.py <connection-url> <address> [<message-count>]")
 
-try:
+    try:
+        desired = int(sys.argv[3])
+    except (IndexError, ValueError):
+        desired = 0
+
+    handler = ReceiveHandler(listen_url, address, desired)
+    container = Container(handler)
     container.run()
-except KeyboardInterrupt:
-    pass
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
