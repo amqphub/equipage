@@ -24,7 +24,7 @@ using Amqp;
 using Amqp.Framing;
 using Amqp.Types;
 
-namespace DurableSubscribe
+namespace DurableSharedSubscribe
 {
     class Program
     {
@@ -32,7 +32,7 @@ namespace DurableSubscribe
         {
             if (args.Length != 2 && args.Length != 3)
             {
-                Console.Error.WriteLine("Usage: DurableSubscribe <connection-url> <address> [<message-count>]");
+                Console.Error.WriteLine("Usage: DurableSharedSubscribe <connection-url> <address> [<message-count>]");
                 Environment.Exit(1);
             }
 
@@ -56,6 +56,8 @@ namespace DurableSubscribe
                     Address = address,
                     Durable = 2, // "unsettled-state"
                     ExpiryPolicy = new Symbol("never"),
+                    // Global means shared across clients (distinct container IDs)
+                    Capabilities = new Symbol[] {"shared", "global"},
                 };
 
                 OnAttached onAttached = (link, attach) => {
