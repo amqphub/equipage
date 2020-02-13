@@ -325,6 +325,20 @@ def test_rhea_auto_create(session):
             call("node auto-create/topic-send.js {0} t1 abc", server.connection_url)
             call("node auto-create/topic-receive.js {0} t1 1", server.connection_url)
 
+def test_rhea_subscriptions(session):
+    with working_dir(join(session.examples_dir, "rhea")):
+        check_receive_usage("subscriptions/durable-subscribe.js")
+        check_receive_usage("subscriptions/shared-subscribe.js")
+        check_receive_usage("subscriptions/durable-shared-subscribe.js")
+
+        with TestServer() as server:
+            call("node send.js {0} t1 abc", server.connection_url)
+            call("node subscriptions/durable-subscribe.js {0} t1 1", server.connection_url)
+            call("node send.js {0} t1 abc", server.connection_url)
+            call("node subscriptions/shared-subscribe.js {0} t1 1", server.connection_url)
+            call("node send.js {0} t1 abc", server.connection_url)
+            call("node subscriptions/durable-shared-subscribe.js {0} t1 1", server.connection_url)
+
 def test_vertx_proton_send_receive(session):
     with working_dir(join(session.examples_dir, "vertx-proton")):
         check_send_usage(java_prog("examples.Send"))

@@ -62,6 +62,7 @@ namespace DurableSubscribe
                     Console.WriteLine("SUBSCRIBE: Opened receiver for source address '{0}'", address);
                 };
 
+                // "sub-1" is a stable link name representing the subscription
                 ReceiverLink receiver = new ReceiverLink(session, "sub-1", source, onAttached);
 
                 while (true)

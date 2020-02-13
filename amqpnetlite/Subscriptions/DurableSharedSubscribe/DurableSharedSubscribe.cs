@@ -54,7 +54,7 @@ namespace DurableSharedSubscribe
 
                 Source source = new Source() {
                     Address = address,
-                    Durable = 2, // "unsettled-state"
+                    Durable = 2, // Preserve unsettled delivery state
                     ExpiryPolicy = new Symbol("never"),
                     // Global means shared across clients (distinct container IDs)
                     Capabilities = new Symbol[] {"shared", "global"},
@@ -64,6 +64,7 @@ namespace DurableSharedSubscribe
                     Console.WriteLine("SUBSCRIBE: Opened receiver for source address '{0}'", address);
                 };
 
+                // "sub-1" is a stable link name representing the subscription
                 ReceiverLink receiver = new ReceiverLink(session, "sub-1", source, onAttached);
 
                 while (true)

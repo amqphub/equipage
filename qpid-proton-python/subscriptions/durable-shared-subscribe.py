@@ -40,7 +40,8 @@ class SubscribeHandler(MessagingHandler):
         conn = event.container.connect(self.conn_url)
 
         # "sub-1" is a stable link name representing the subscription
-        event.container.create_receiver(conn, self.address, name="sub-1", options=SubscriptionOptions())
+        event.container.create_receiver(conn, self.address, name="sub-1",
+                                        options=SubscriptionOptions())
 
     def on_link_opened(self, event):
         print("SUBSCRIBE: Opened receiver for source address '{0}'".format
