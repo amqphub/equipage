@@ -52,7 +52,8 @@ struct subscribe_handler : public proton::messaging_handler {
         };
 
         sopts.capabilities(caps);
-        sopts.durability_mode(proton::source::UNSETTLED_STATE);
+        sopts.durability_mode(proton::source::UNSETTLED_STATE); // Preserve unsettled delivery state
+
         sopts.expiry_policy(proton::source::NEVER);
 
         opts.name("sub-1"); // A stable link name representing the subscription
@@ -93,7 +94,8 @@ int main(int argc, char** argv) {
         handler.desired_ = std::stoi(argv[3]);
     }
 
-    proton::container cont {handler, "app-1"}; // A stable container ID
+    // Set the container ID to a stable value
+    proton::container cont {handler, "client-1"};
 
     try {
         cont.run();

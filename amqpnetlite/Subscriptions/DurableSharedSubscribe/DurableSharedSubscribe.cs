@@ -22,6 +22,7 @@
 using System;
 using Amqp;
 using Amqp.Framing;
+using Amqp.Sasl;
 using Amqp.Types;
 
 namespace DurableSharedSubscribe
@@ -46,7 +47,11 @@ namespace DurableSharedSubscribe
                 desired = Int32.Parse(args[2]);
             }
 
-            Connection conn = new Connection(new Address(connUrl));
+            // Set the container ID to a stable value, such as "client-1"
+            Connection conn = new Connection(new Address(connUrl),
+                                             SaslProfile.Anonymous,
+                                             new Open() { ContainerId = "client-1" },
+                                             null);
 
             try
             {
@@ -64,7 +69,7 @@ namespace DurableSharedSubscribe
                     Console.WriteLine("SUBSCRIBE: Opened receiver for source address '{0}'", address);
                 };
 
-                // "sub-1" is a stable link name representing the subscription
+                // Set the receiver name to a stable value, such as "sub-1"
                 ReceiverLink receiver = new ReceiverLink(session, "sub-1", source, onAttached);
 
                 while (true)

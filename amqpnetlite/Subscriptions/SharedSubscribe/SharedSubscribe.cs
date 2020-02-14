@@ -22,6 +22,7 @@
 using System;
 using Amqp;
 using Amqp.Framing;
+using Amqp.Sasl;
 using Amqp.Types;
 
 namespace SharedSubscribe
@@ -46,7 +47,11 @@ namespace SharedSubscribe
                 desired = Int32.Parse(args[2]);
             }
 
-            Connection conn = new Connection(new Address(connUrl));
+            // Set the container ID to a stable value, such as "client-1"
+            Connection conn = new Connection(new Address(connUrl),
+                                             SaslProfile.Anonymous,
+                                             new Open() { ContainerId = "client-1" },
+                                             null);
 
             try
             {
