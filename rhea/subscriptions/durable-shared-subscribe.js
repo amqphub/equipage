@@ -38,7 +38,7 @@ if (process.argv.length === 5) {
     desired = parseInt(process.argv[4]);
 }
 
-var container = rhea.create_container();
+var container = rhea.create_container(); // XXX Need a stable container ID
 
 container.on("receiver_open", function (event) {
     console.log("SUBSCRIBE: Opened receiver for source address '" +

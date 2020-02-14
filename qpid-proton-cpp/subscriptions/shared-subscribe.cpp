@@ -50,12 +50,12 @@ struct subscribe_handler : public proton::messaging_handler {
             "shared",
             "global" // Global means shared across clients (distinct container IDs)
         };
-        
+
         sopts.capabilities(caps);
 
-        opts.name("sub-1"); // A stable link name
+        opts.name("sub-1"); // A stable link name representing the subscription
         opts.source(sopts);
-        
+
         conn.open_receiver(address_, opts);
     }
 

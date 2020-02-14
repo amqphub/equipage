@@ -55,7 +55,7 @@ struct subscribe_handler : public proton::messaging_handler {
         sopts.durability_mode(proton::source::UNSETTLED_STATE);
         sopts.expiry_policy(proton::source::NEVER);
 
-        opts.name("sub-1"); // A stable link name
+        opts.name("sub-1"); // A stable link name representing the subscription
         opts.source(sopts);
 
         conn.open_receiver(address_, opts);
