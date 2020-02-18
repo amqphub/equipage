@@ -39,7 +39,7 @@ class SubscribeHandler(MessagingHandler):
     def on_start(self, event):
         conn = event.container.connect(self.conn_url)
 
-        # "sub-1" is a stable link name representing the subscription
+        # Set the receiver name to a stable value, such as "sub-1"
         event.container.create_receiver(conn, self.address, name="sub-1",
                                         options=SubscriptionOptions())
 
@@ -55,16 +55,17 @@ class SubscribeHandler(MessagingHandler):
         self.received += 1
 
         if self.received == self.desired:
-            # Detaching instead of closing leaves the subscription intact
+            # Detaching the receiver instead of closing it leaves the
+            # subscription intact
             event.receiver.detach()
 
             event.connection.close()
 
+# Configure the receiver source for sharing
 class SubscriptionOptions(ReceiverOption):
     def apply(self, receiver):
-        receiver.source.capabilities.put_object(symbol("shared"))
-
         # Global means shared across clients (distinct container IDs)
+        receiver.source.capabilities.put_object(symbol("shared"))
         receiver.source.capabilities.put_object(symbol("global"))
 
 def main():
@@ -80,6 +81,10 @@ def main():
 
     handler = SubscribeHandler(conn_url, address, desired)
     container = Container(handler)
+
+    # Set the container ID to a stable value, such as "client-1"
+    container.container_id = "client-1"
+
     container.run()
 
 if __name__ == "__main__":
