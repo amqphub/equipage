@@ -40,7 +40,7 @@ class SendHandler(MessagingHandler):
 
     def on_start(self, event):
         conn = event.container.connect(self.conn_url)
-        event.container.create_sender(conn, self.address)
+        event.container.create_sender(conn, self.address, options=CapabilityOptions())
 
     def on_link_opened(self, event):
         print("SEND: Opened sender for target address '{0}'".format
@@ -57,7 +57,7 @@ class SendHandler(MessagingHandler):
 
 class CapabilityOptions(SenderOption):
     def apply(self, sender):
-        receiver.target.capabilities.put_object(symbol("topic"))
+        sender.target.capabilities.put_object(symbol("topic"))
 
 def main():
     try:
