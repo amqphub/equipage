@@ -52,10 +52,8 @@ namespace QueueReceive
             {
                 Session session = new Session(conn);
 
-                Source source = new Source() {
-                    Address = address,
-                    Capabilities = new Symbol[] {"queue"},
-                };
+                Source source = CreateBasicSource(address);
+                source.Capabilities = new Symbol[] {"queue"};
 
                 OnAttached onAttached = (link, attach) => {
                     Console.WriteLine("RECEIVE: Opened receiver for source address '{0}'", address);
@@ -82,6 +80,28 @@ namespace QueueReceive
             {
                 conn.Close();
             }
+        }
+
+        private static Source CreateBasicSource(string address)
+        {
+            Source source = new Source();
+
+            Symbol[] outcomes = new Symbol[] {
+                new Symbol("amqp:accepted:list"),
+                new Symbol("amqp:rejected:list"),
+                new Symbol("amqp:released:list"),
+                new Symbol("amqp:modified:list"),
+            };
+
+            Modified defaultOutcome = new Modified();
+            defaultOutcome.DeliveryFailed = true;
+            defaultOutcome.UndeliverableHere = false;
+
+            source.Address = address;
+            source.Outcomes = outcomes;
+            source.DefaultOutcome = defaultOutcome;
+
+            return source;
         }
     }
 }
