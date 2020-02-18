@@ -57,13 +57,14 @@ namespace DurableSharedSubscribe
             {
                 Session session = new Session(conn);
 
-                Source source = new Source() {
-                    Address = address,
-                    Durable = 2, // Preserve unsettled delivery state
-                    ExpiryPolicy = new Symbol("never"),
-                    // Global means shared across clients (distinct container IDs)
-                    Capabilities = new Symbol[] {"shared", "global"},
-                };
+                // Configure the receiver source for durability
+                Source source = CreateBasicSource(address);
+                // Preserve unsettled delivery state
+                source.Durable = 2;
+                // Don't expire the source
+                source.ExpiryPolicy = new Symbol("never");
+                // Global means shared across clients (distinct container IDs)
+                source.Capabilities = new Symbol[] {"shared", "global"};
 
                 OnAttached onAttached = (link, attach) => {
                     Console.WriteLine("SUBSCRIBE: Opened receiver for source address '{0}'", address);
@@ -83,6 +84,9 @@ namespace DurableSharedSubscribe
 
                     if (received == desired)
                     {
+                        // Explicitly closing the receiver terminates the subscription
+                        // receiver.Close();
+
                         break;
                     }
                 }
@@ -91,6 +95,28 @@ namespace DurableSharedSubscribe
             {
                 conn.Close();
             }
+        }
+
+        private static Source CreateBasicSource(string address)
+        {
+            Source source = new Source();
+
+            Symbol[] outcomes = new Symbol[] {
+                new Symbol("amqp:accepted:list"),
+                new Symbol("amqp:rejected:list"),
+                new Symbol("amqp:released:list"),
+                new Symbol("amqp:modified:list"),
+            };
+
+            Modified defaultOutcome = new Modified();
+            defaultOutcome.DeliveryFailed = true;
+            defaultOutcome.UndeliverableHere = false;
+
+            source.Address = address;
+            source.Outcomes = outcomes;
+            source.DefaultOutcome = defaultOutcome;
+
+            return source;
         }
     }
 }

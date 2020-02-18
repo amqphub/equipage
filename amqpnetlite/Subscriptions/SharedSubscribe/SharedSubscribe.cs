@@ -57,17 +57,16 @@ namespace SharedSubscribe
             {
                 Session session = new Session(conn);
 
-                Source source = new Source() {
-                    Address = address,
-                    // Global means shared across clients (distinct container IDs)
-                    Capabilities = new Symbol[] {"shared", "global"},
-                };
+                // Configure the receiver source for sharing
+                Source source = CreateBasicSource(address);
+                // Global means shared across clients (distinct container IDs)
+                source.Capabilities = new Symbol[] {"shared", "global"};
 
                 OnAttached onAttached = (link, attach) => {
                     Console.WriteLine("SUBSCRIBE: Opened receiver for source address '{0}'", address);
                 };
 
-                // "sub-1" is a stable link name representing the subscription
+                // Set the receiver name to a stable value, such as "sub-1"
                 ReceiverLink receiver = new ReceiverLink(session, "sub-1", source, onAttached);
 
                 while (true)
@@ -89,6 +88,28 @@ namespace SharedSubscribe
             {
                 conn.Close();
             }
+        }
+
+        private static Source CreateBasicSource(string address)
+        {
+            Source source = new Source();
+
+            Symbol[] outcomes = new Symbol[] {
+                new Symbol("amqp:accepted:list"),
+                new Symbol("amqp:rejected:list"),
+                new Symbol("amqp:released:list"),
+                new Symbol("amqp:modified:list"),
+            };
+
+            Modified defaultOutcome = new Modified();
+            defaultOutcome.DeliveryFailed = true;
+            defaultOutcome.UndeliverableHere = false;
+
+            source.Address = address;
+            source.Outcomes = outcomes;
+            source.DefaultOutcome = defaultOutcome;
+
+            return source;
         }
     }
 }
