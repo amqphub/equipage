@@ -64,6 +64,9 @@ namespace SharedSubscribe
 
                 OnAttached onAttached = (link, attach) => {
                     Console.WriteLine("SUBSCRIBE: Opened receiver for source address '{0}'", address);
+
+                    // The source from the remote peer
+                    Source remoteSource = (Source) attach.Source;
                 };
 
                 // Set the receiver name to a stable value, such as "sub-1"

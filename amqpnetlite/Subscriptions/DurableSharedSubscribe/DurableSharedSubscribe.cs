@@ -20,10 +20,10 @@
  */
 
 using System;
-using Amqp;
 using Amqp.Framing;
 using Amqp.Sasl;
 using Amqp.Types;
+using Amqp;
 
 namespace DurableSharedSubscribe
 {
@@ -68,6 +68,9 @@ namespace DurableSharedSubscribe
 
                 OnAttached onAttached = (link, attach) => {
                     Console.WriteLine("SUBSCRIBE: Opened receiver for source address '{0}'", address);
+
+                    // The recovered source from the remote peer
+                    Source remoteSource = (Source) attach.Source;
                 };
 
                 // Set the receiver name to a stable value, such as "sub-1"
