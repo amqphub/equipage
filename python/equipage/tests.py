@@ -152,6 +152,15 @@ def test_qpid_proton_cpp_request_respond(session):
             with start_process("build/respond {0} q1 1", server.connection_url):
                 call("build/request {0} q1 abc", server.connection_url)
 
+def test_qpid_proton_cpp_servers(session):
+    with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
+        check_receive_usage("build/servers/receive")
+
+        connection_url = "amqp://127.0.0.1:{0}".format(random_port())
+
+        with start_process("build/servers/receive {0} q1 1", connection_url):
+            call("build/send {0} q1 abc", connection_url)
+
 def test_qpid_proton_cpp_auto_create(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
         check_send_usage("build/auto-create/queue-send")

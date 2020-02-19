@@ -46,7 +46,7 @@ class ReceiveHandler(MessagingHandler):
         print("RECEIVE: Opening receiver for target address '{0}'".format
               (event.receiver.remote_target.address))
 
-        # Set the target address using the peer value
+        # Set the target address using the value from the remote peer
         address = event.receiver.remote_target.address
         event.receiver.target.address = address
 
