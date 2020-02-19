@@ -46,12 +46,14 @@ namespace QueueSend
             {
                 Session session = new Session(conn);
 
-                Target target = new Target() {
+                Target target = new Target()
+                {
                     Address = address,
                     Capabilities = new Symbol[] {"queue"},
                 };
 
-                OnAttached onAttached = (link, attach) => {
+                OnAttached onAttached = (link, attach) =>
+                {
                     Console.WriteLine("SEND: Opened sender for target address '{0}'", address);
                 };
 
