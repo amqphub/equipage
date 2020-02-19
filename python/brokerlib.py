@@ -123,7 +123,7 @@ class _Queue(object):
 
         self.consumers.append(link)
 
-        self.broker.info("Added consumer for {0} to {1}", link.connection, self)
+        self.broker.info("Added consumer for {0} to {1}", _container_repr(link.connection), self)
 
     def remove_consumer(self, link):
         assert link.is_sender
@@ -133,12 +133,12 @@ class _Queue(object):
         except ValueError:
             return
 
-        self.broker.info("Removed consumer for {0} from {1}", link.connection, self)
+        self.broker.info("Removed consumer for {0} from {1}", _container_repr(link.connection), self)
 
     def store_message(self, delivery, message):
         self.messages.append(message)
 
-        self.broker.notice("Stored {0} from {1} on {2}", message, delivery.connection, self)
+        self.broker.notice("Stored {0} from {1} on {2}", message, _container_repr(delivery.connection), self)
 
     def forward_messages(self):
         credit = sum([x.credit for x in self.consumers])
@@ -161,7 +161,7 @@ class _Queue(object):
                 consumer.send(message)
                 sent += 1
 
-                self.broker.notice("Forwarded {0} on {1} to {2}", message, self, consumer.connection)
+                self.broker.notice("Forwarded {0} on {1} to {2}", message, self, _container_repr(consumer.connection))
 
         self.consumers.rotate(sent)
 
@@ -208,7 +208,7 @@ class _Handler(_handlers.MessagingHandler):
                 address = "{0}/{1}".format(event.connection.remote_container, event.link.name)
                 queue = self.create_queue(address)
             elif event.link.remote_source.address in (None, ""):
-                raise Exception("Not sure what this case is")
+                raise Exception("The client created a receiver with no source address")
             else:
                 # A named queue
                 address = event.link.remote_source.address
@@ -246,16 +246,16 @@ class _Handler(_handlers.MessagingHandler):
         event.connection.container = event.container.container_id
 
     def on_connection_opened(self, event):
-        self.broker.notice("Opened connection from {0}", event.connection)
+        self.broker.notice("Opened connection from {0}", _container_repr(event.connection))
 
     def on_connection_closing(self, event):
         self.remove_consumers(event.connection)
 
     def on_connection_closed(self, event):
-        self.broker.notice("Closed connection from {0}", event.connection)
+        self.broker.notice("Closed connection from {0}", _container_repr(event.connection))
 
     def on_disconnected(self, event):
-        self.broker.notice("Disconnected from {0}", event.connection)
+        self.broker.notice("Disconnected from {0}", _container_repr(event.connection))
 
         self.remove_consumers(event.connection)
 
@@ -278,19 +278,19 @@ class _Handler(_handlers.MessagingHandler):
         queue.forward_messages()
 
     def on_settled(self, event):
-        template = "Container '{0}' {1} {2} to {3}"
+        template = "Container '{0}' {1} {2} for {3}"
         container = event.connection.remote_container
-        source = event.link.source
+        source = _terminus_repr(event.link.source)
         delivery = event.delivery
 
         if delivery.remote_state == delivery.ACCEPTED:
-            self.broker.info(template, container, "accepted", delivery, source)
+            self.broker.info(template, container, "accepted", _delivery_repr(delivery), source)
         elif delivery.remote_state == delivery.REJECTED:
-            self.broker.warn(template, container, "rejected", delivery, source)
+            self.broker.warn(template, container, "rejected", _delivery_repr(delivery), source)
         elif delivery.remote_state == delivery.RELEASED:
-            self.broker.notice(template, container, "released", delivery, source)
+            self.broker.notice(template, container, "released", _delivery_repr(delivery), source)
         elif delivery.remote_state == delivery.MODIFIED:
-            self.broker.notice(template, container, "modified", delivery, source)
+            self.broker.notice(template, container, "modified", _delivery_repr(delivery), source)
 
     def on_message(self, event):
         message = event.message
@@ -306,6 +306,15 @@ class _Handler(_handlers.MessagingHandler):
 
     def on_unhandled(self, name, event):
         self.broker.debug("Unhandled event: {0} {1}", name, event)
+
+def _container_repr(connection):
+    return "container '{0}'".format(connection.remote_container)
+
+def _terminus_repr(terminus):
+    return "terminus '{0}'".format(terminus.address)
+
+def _delivery_repr(delivery):
+    return "delivery '{0}'".format(delivery.tag)
 
 def wait_for_broker(ready_file, timeout=10):
     start_time = _time.time()
