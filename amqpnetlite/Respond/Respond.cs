@@ -51,15 +51,20 @@ namespace Respond
             {
                 Session session = new Session(conn);
 
-                OnAttached onSenderAttached = (link, attach) => {
+                OnAttached onSenderAttached = (link, attach) =>
+                {
                     Console.WriteLine("RESPOND: Opened anonymous sender for responses");
-                 };
+                };
 
                 SenderLink sender = new SenderLink(session, "s1", (Target) null, onSenderAttached);
 
-                Source source = new Source() { Address = address };
+                Source source = new Source()
+                {
+                    Address = address,
+                };
 
-                OnAttached onReceiverAttached = (link, attach) => {
+                OnAttached onReceiverAttached = (link, attach) =>
+                {
                     Console.WriteLine("RESPOND: Opened receiver for source address '{0}'", address);
                 };
 
@@ -76,7 +81,8 @@ namespace Respond
 
                     Message response = new Message(responseBody);
 
-                    response.Properties = new Properties() {
+                    response.Properties = new Properties()
+                    {
                         To = request.Properties.ReplyTo,
                         CorrelationId = request.Properties.MessageId,
                     };

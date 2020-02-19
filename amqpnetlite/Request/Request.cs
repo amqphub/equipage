@@ -46,9 +46,13 @@ namespace Request
             {
                 Session session = new Session(conn);
 
-                Target target = new Target() { Address = address };
+                Target target = new Target()
+                {
+                    Address = address,
+                };
 
-                OnAttached onSenderAttached = (link, attach) => {
+                OnAttached onSenderAttached = (link, attach) =>
+                {
                     Console.WriteLine("REQUEST: Opened sender for target address '{0}'", address);
                 };
 
@@ -56,9 +60,14 @@ namespace Request
 
                 string responseAddress = null;
                 ManualResetEvent done = new ManualResetEvent(false);
-                Source source = new Source() { Dynamic = true };
 
-                OnAttached onReceiverAttached = (link, attach) => {
+                Source source = new Source()
+                {
+                    Dynamic = true,
+                };
+
+                OnAttached onReceiverAttached = (link, attach) =>
+                {
                     Console.WriteLine("REQUEST: Opened dynamic receiver for responses");
 
                     responseAddress = ((Source) attach.Source).Address;
@@ -70,7 +79,8 @@ namespace Request
 
                 Message request = new Message(messageBody);
 
-                request.Properties = new Properties() {
+                request.Properties = new Properties()
+                {
                     MessageId = Guid.NewGuid().ToString(),
                     ReplyTo = responseAddress,
                 };

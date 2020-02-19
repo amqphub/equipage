@@ -51,9 +51,13 @@ namespace Receive
             {
                 Session session = new Session(conn);
 
-                Source source = new Source() { Address = address };
+                Source source = new Source()
+                {
+                    Address = address,
+                };
 
-                OnAttached onAttached = (link, attach) => {
+                OnAttached onAttached = (link, attach) =>
+                {
                     Console.WriteLine("RECEIVE: Opened receiver for source address '{0}'", address);
                 };
 
