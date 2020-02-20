@@ -48,10 +48,15 @@ struct subscribe_handler : public proton::messaging_handler {
         proton::receiver_options opts {};
         proton::source_options sopts {};
 
+        // Preserve unsettled delivery state
         sopts.durability_mode(proton::source::UNSETTLED_STATE);
+
+        // Don't expire the source
         sopts.expiry_policy(proton::source::NEVER);
 
-        opts.name("sub-1"); // A stable link name representing the subscription
+        // Set the receiver name to a stable value, such as "sub-1"
+        opts.name("sub-1");
+
         opts.source(sopts);
 
         conn.open_receiver(address_, opts);
@@ -67,7 +72,8 @@ struct subscribe_handler : public proton::messaging_handler {
         received_++;
 
         if (received_ == desired_) {
-            // Detaching instead of closing leaves the subscription intact
+            // Detaching the receiver instead of closing it leaves the
+            // subscription intact
             dlv.receiver().detach();
 
             dlv.connection().close();
@@ -89,7 +95,7 @@ int main(int argc, char** argv) {
         handler.desired_ = std::stoi(argv[3]);
     }
 
-    // Set the container ID to a stable value
+    // Set the container ID to a stable value, such as "client-1"
     proton::container cont {handler, "client-1"};
 
     try {
