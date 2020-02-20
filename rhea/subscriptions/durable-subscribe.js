@@ -38,8 +38,8 @@ if (process.argv.length === 5) {
     desired = parseInt(process.argv[4]);
 }
 
-// Set the container ID to a stable value
-var container = rhea.create_container({"id": "client-1"});
+// Set the container ID to a stable value, such as "client-1"
+var container = rhea.create_container({id: "client-1"});
 
 container.on("receiver_open", function (event) {
     console.log("SUBSCRIBE: Opened receiver for source address '" +
@@ -54,7 +54,8 @@ container.on("message", function (event) {
     received++;
 
     if (received == desired) {
-        // Detaching instead of closing leaves the subscription intact
+        // Detaching the receiver instead of closing it leaves the
+        // subscription intact
         event.receiver.detach();
 
         event.connection.close();
@@ -68,13 +69,16 @@ var conn_opts = {
 
 var conn = container.connect(conn_opts);
 
+// Configure the receiver source for durability
 var receiver_opts = {
     source: {
         address: address,
-        name: "sub-1", // A stable link name representing the subscription
-        durable: 2, // Preserve unsettled delivery state
-        expiry_policy: "never",
-        capabilities: ["shared", "global"],
+        // Set the receiver name to a stable value, such as "sub-1"
+        name: "sub-1",
+        // Preserve unsettled delivery state
+        durable: 2,
+        // Don't expire the source
+        expiry_policy: "never"
     }
 }
 

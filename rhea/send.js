@@ -42,7 +42,7 @@ container.on("sender_open", function (event) {
 
 container.on("sendable", function (event) {
     var message = {
-        "body": message_body
+        body: message_body
     };
 
     event.sender.send(message);
@@ -57,8 +57,8 @@ var opts = {
     host: conn_url.hostname,
     port: conn_url.port || 5672,
     // To connect with a user and password:
-    // "username": "<username>",
-    // "password": "<password>",
+    // username: "<username>",
+    // password: "<password>",
 };
 
 var conn = container.connect(opts);
