@@ -21,13 +21,14 @@
 #include <proton/container.hpp>
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
-#include <proton/sender.hpp>
-#include <proton/target.hpp>
+#include <proton/receiver.hpp>
+#include <proton/source.hpp>
 #include <proton/work_queue.hpp>
 
 #include <condition_variable>
 #include <iostream>
 #include <mutex>
+#include <queue>
 #include <string>
 #include <thread>
 
@@ -35,92 +36,107 @@
 std::mutex out_lock_;
 #define OUT(x) do { std::lock_guard<std::mutex> l(out_lock_); x; } while (false)
 
-class send_handler : public proton::messaging_handler {
+class receive_handler : public proton::messaging_handler {
     const std::string conn_url_ {};
     const std::string address_ {};
 
     // Used only in the Proton handler thread
-    proton::sender sender_ {};
+    proton::receiver receiver_ {};
+    std::queue<proton::message> messages_ {};
 
     // Shared by the Proton handler and user threads
     std::mutex lock_ {};
     proton::work_queue* work_queue_ {0};
-    std::condition_variable sender_open_cv_ {};
+    std::condition_variable messages_ready_cv_ {};
+    std::condition_variable receiver_open_cv_ {};
 
 public:
-    send_handler(const std::string& conn_url, const std::string& address)
+    receive_handler(const std::string& conn_url, const std::string& address)
         : conn_url_(conn_url), address_(address) {}
 
-    // Thread safe
-    void send(const proton::message& msg) {
+    proton::message receive() {
         std::unique_lock<std::mutex> l(lock_);
-        work_queue(l)->add([=]() { sender_.send(msg); });
+        while (messages_.empty()) messages_ready_cv_.wait(l);
+
+        auto msg = std::move(messages_.front());
+        messages_.pop();
+
+        return msg;
     }
 
-    // Thread safe
     void close() {
         std::unique_lock<std::mutex> l(lock_);
-        work_queue(l)->add([=]() { sender_.connection().close(); });
+        work_queue(l)->add([=]() { receiver_.connection().close(); });
     }
 
 private:
     proton::work_queue* work_queue(std::unique_lock<std::mutex>& l) {
-        while (!work_queue_) sender_open_cv_.wait(l);
+        while (!work_queue_) receiver_open_cv_.wait(l);
         return work_queue_;
     }
 
     void on_container_start(proton::container& cont) override {
         proton::connection conn = cont.connect(conn_url_);
-        conn.open_sender(address_);
+        conn.open_receiver(address_);
     }
 
-    void on_sender_open(proton::sender& snd) override {
-        OUT(std::cout << "SEND: Opened sender for target address '"
-                      << snd.target().address() << "'\n");
+    void on_receiver_open(proton::receiver& rcv) override {
+        OUT(std::cout << "RECEIVE: Opened receiver for source address '"
+                      << rcv.source().address() << "'\n");
 
         std::lock_guard<std::mutex> l(lock_);
 
-        sender_ = snd;
-        work_queue_ = &snd.work_queue();
+        receiver_ = rcv;
+        work_queue_ = &rcv.work_queue();
 
-        sender_open_cv_.notify_all();
+        receiver_open_cv_.notify_all();
+    }
+
+    void on_message(proton::delivery& dlv, proton::message& msg) override {
+        std::lock_guard<std::mutex> l(lock_);
+        messages_.push(msg);
+        messages_ready_cv_.notify_all();
     }
 
     void on_error(const proton::error_condition& e) override {
-        OUT(std::cerr << "SEND: Unexpected error: " << e << "\n");
+        OUT(std::cerr << "RECEIVE: Unexpected error: " << e << "\n");
         exit(1);
     }
 };
 
 int main(int argc, const char** argv) {
-    if (argc != 4) {
-        std::cerr << "Usage: send <connection-url> <address> <message-body>\n";
+    if (argc != 3 && argc != 4) {
+        std::cerr << "Usage: receive <connection-url> <address> [<message-count>]\n";
         return 1;
     }
 
     auto conn_url = argv[1];
     auto address = argv[2];
-    auto message_body = argv[3];
+    int desired = 1;
 
-    send_handler handler {conn_url, address};
+    if (argc == 4) {
+        desired = std::stoi(argv[3]);
+    }
+
+    receive_handler handler {conn_url, address};
     proton::container container {handler};
 
     try {
         std::thread io([&]() { container.run(); });
 
-        std::thread sender([&]() {
-                proton::message msg {message_body};
+        std::thread receiver([&]() {
+                for (int i = 0; i < desired; ++i) {
+                    auto msg = handler.receive();
 
-                handler.send(msg);
-
-                OUT(std::cout << "SEND: Sent message '" << msg.body() << "'\n");
+                    OUT(std::cout << "RECEIVE: Received message '" << msg.body() << "'\n");
+                }
 
                 handler.close();
 
-                OUT(std::cout << "SEND: Closed\n");
+                OUT(std::cout << "RECEIVE: Closed\n");
             });
 
-        sender.join();
+        receiver.join();
         io.join();
     } catch (const std::exception& e) {
         std::cerr << e.what() << "\n";

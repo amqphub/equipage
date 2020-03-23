@@ -165,8 +165,8 @@ class TestSkipped(Exception):
     pass
 
 class TestCommand(Command):
-    def __init__(self, test_modules, home=None, name=None):
-        super(TestCommand, self).__init__(home=home, name=name)
+    def __init__(self, test_modules, **kwargs):
+        super(TestCommand, self).__init__(**kwargs)
 
         self.test_modules = list()
 
@@ -310,8 +310,8 @@ class _TestModule(object):
                 return True
 
             for pattern in self.command.include_patterns:
-                 if _fnmatch.filter(names, pattern):
-                     return True
+                if _fnmatch.filter(names, pattern):
+                    return True
 
         def excluded(names):
             for pattern in self.command.exclude_patterns:
@@ -399,7 +399,7 @@ class _TestModule(object):
             try:
                 with open(output_file, "w") as out:
                     with _OutputRedirected(out, out):
-                        with _Timer(self.command.test_timeout):
+                        with _Timer(session.test_timeout):
                             function(session)
             except KeyboardInterrupt:
                 raise

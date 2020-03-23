@@ -17,17 +17,26 @@
  * under the License.
  */
 
+//
+// C++11 or greater
+//
+// A multi-threaded client that calls proton::container::run() in one
+// thread and sends messages in another.
+//
+
 #include <proton/connection.hpp>
+#include <proton/connection_options.hpp>
 #include <proton/container.hpp>
 #include <proton/message.hpp>
 #include <proton/messaging_handler.hpp>
 #include <proton/sender.hpp>
-#include <proton/target.hpp>
 #include <proton/work_queue.hpp>
 
 #include <condition_variable>
 #include <iostream>
 #include <mutex>
+#include <queue>
+#include <sstream>
 #include <string>
 #include <thread>
 
@@ -35,17 +44,21 @@
 std::mutex out_lock_;
 #define OUT(x) do { std::lock_guard<std::mutex> l(out_lock_); x; } while (false)
 
+// Handler for a single thread-safe sending connection
 class send_handler : public proton::messaging_handler {
-    const std::string conn_url_ {};
-    const std::string address_ {};
+    const std::string conn_url_;
+    const std::string address_;
+    const int max_outgoing_bytes_ {20};
 
-    // Used only in the Proton handler thread
-    proton::sender sender_ {};
+    // Used only in the proton handler thread
+    proton::sender sender_;
 
-    // Shared by the Proton handler and user threads
-    std::mutex lock_ {};
+    // Shared by the proton handler and user threads
+    std::mutex lock_;
     proton::work_queue* work_queue_ {0};
-    std::condition_variable sender_open_cv_ {};
+    std::condition_variable sender_open_cv_;
+    bool sender_has_capacity_;
+    std::condition_variable sender_has_capacity_cv_;
 
 public:
     send_handler(const std::string& conn_url, const std::string& address)
@@ -54,6 +67,9 @@ public:
     // Thread safe
     void send(const proton::message& msg) {
         std::unique_lock<std::mutex> l(lock_);
+        while (!sender_has_capacity_) sender_has_capacity_cv_.wait(l);
+        sender_has_capacity_ = false;
+
         work_queue(l)->add([=]() { sender_.send(msg); });
     }
 
@@ -70,14 +86,14 @@ private:
     }
 
     void on_container_start(proton::container& cont) override {
-        proton::connection conn = cont.connect(conn_url_);
+        cont.connect(conn_url_);
+    }
+
+    void on_connection_open(proton::connection& conn) override {
         conn.open_sender(address_);
     }
 
     void on_sender_open(proton::sender& snd) override {
-        OUT(std::cout << "SEND: Opened sender for target address '"
-                      << snd.target().address() << "'\n");
-
         std::lock_guard<std::mutex> l(lock_);
 
         sender_ = snd;
@@ -86,44 +102,53 @@ private:
         sender_open_cv_.notify_all();
     }
 
+    void on_sendable(proton::sender& snd) override {
+        std::lock_guard<std::mutex> l(lock_);
+
+        if (snd.session().outgoing_bytes() < max_outgoing_bytes_) {
+            sender_has_capacity_ = true;
+            sender_has_capacity_cv_.notify_all();
+        } else {
+            OUT(std::cout << "Max bytes exceeded.  Blocking sends.\n");
+        }
+    }
+
     void on_error(const proton::error_condition& e) override {
-        OUT(std::cerr << "SEND: Unexpected error: " << e << "\n");
+        OUT(std::cerr << "Unexpected error: " << e << "\n");
         exit(1);
     }
 };
 
 int main(int argc, const char** argv) {
     if (argc != 4) {
-        std::cerr << "Usage: send <connection-url> <address> <message-body>\n";
+        std::cerr << "Usage: send <connection-url> <address> <message-count>\n";
         return 1;
     }
 
     auto conn_url = argv[1];
     auto address = argv[2];
-    auto message_body = argv[3];
+    auto count = atoi(argv[3]);
 
-    send_handler handler {conn_url, address};
-    proton::container container {handler};
+    send_handler handler(conn_url, address);
+    proton::container container(handler);
 
     try {
         std::thread io([&]() { container.run(); });
 
         std::thread sender([&]() {
-                proton::message msg {message_body};
-
-                handler.send(msg);
-
-                OUT(std::cout << "SEND: Sent message '" << msg.body() << "'\n");
+                for (int i = 0; i < count; ++i) {
+                    proton::message msg(std::to_string(i + 1));
+                    handler.send(msg);
+                    OUT(std::cout << "Sent message " << msg.body() << "\n");
+                }
 
                 handler.close();
-
-                OUT(std::cout << "SEND: Closed\n");
             });
 
         sender.join();
         io.join();
     } catch (const std::exception& e) {
-        std::cerr << e.what() << "\n";
+        std::cerr << e.what() << std::endl;
         return 1;
     }
 
