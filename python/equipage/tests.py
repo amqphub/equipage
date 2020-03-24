@@ -182,8 +182,20 @@ def test_qpid_proton_cpp_multithreading(session):
 
         with TestServer() as server:
             call("build/multithreading/send {0} q1 abc", server.connection_url)
-            with working_env(PN_TRACE_FRM="1"):
-                call("build/multithreading/receive {0} q1 1", server.connection_url)
+            call("build/multithreading/receive {0} q1 1", server.connection_url)
+
+            call("build/multithreading/send {0} q1 abc1", server.connection_url)
+            call("build/multithreading/send {0} q1 abc2", server.connection_url)
+            call("build/multithreading/send {0} q1 abc3", server.connection_url)
+            call("build/multithreading/receive {0} q1 3", server.connection_url)
+
+            # call("build/multithreading/send {0} q1 abc", server.connection_url)
+            # call("build/multithreading/receive-acknowledge {0} q1 1", server.connection_url)
+
+            # call("build/multithreading/send {0} q1 abc1", server.connection_url)
+            # call("build/multithreading/send {0} q1 abc2", server.connection_url)
+            # call("build/multithreading/send {0} q1 abc3", server.connection_url)
+            # call("build/multithreading/receive-acknowledge {0} q1 3", server.connection_url)
 
 def test_qpid_proton_cpp_subscriptions(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
