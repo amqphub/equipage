@@ -53,6 +53,8 @@ class receive_handler : public proton::messaging_handler {
     std::condition_variable receiver_open_cv_ {};
     std::condition_variable deliveries_ready_cv_ {};
 
+    int count_ {0};
+
 public:
     receive_handler(const std::string& conn_url, const std::string& address)
         : conn_url_(conn_url), address_(address) {}
@@ -67,18 +69,22 @@ public:
         return tup;
     }
 
+    void process_message(proton::message& msg) {
+        std::unique_lock<std::mutex> l(lock_);
+
+        if (count_++ % 4 == 0) {
+            throw std::exception {};
+        }
+    }
+
     void accept(proton::delivery& dlv) {
         std::unique_lock<std::mutex> l(lock_);
-        OUT(std::cout << "RECEIVE: 100 '" << dlv << "'\n");
-        work_queue(l)->add([&dlv]() {
-                               OUT(std::cout << "RECEIVE: 101 '" << dlv << "'\n");
-                               dlv.accept();
-                           });
+        work_queue(l)->add([dlv]() mutable { dlv.accept(); });
     }
 
     void reject(proton::delivery& dlv) {
         std::unique_lock<std::mutex> l(lock_);
-        work_queue(l)->add([&]() { dlv.reject(); });
+        work_queue(l)->add([dlv]() mutable { dlv.reject(); });
     }
 
     void close() {
@@ -115,9 +121,6 @@ private:
 
     void on_message(proton::delivery& dlv, proton::message& msg) override {
         std::lock_guard<std::mutex> l(lock_);
-
-        OUT(std::cout << "RECEIVE: 000 '" << dlv << "'\n");
-        OUT(std::cout << "RECEIVE: 001 '" << msg << "'\n");
 
         auto tup = std::make_tuple(dlv, msg);
         deliveries_.push(tup);
@@ -158,17 +161,18 @@ int main(int argc, const char** argv) {
 
                     std::tie(dlv, msg) = handler.receive();
 
-                    OUT(std::cout << "RECEIVE: Received message '" << msg.body() << "' (" << dlv << ")\n");
+                    OUT(std::cout << "RECEIVE: Received message '" << msg.body() << "'\n");
 
                     try {
-                        // process_message(msg);
+                        handler.process_message(msg);
                         handler.accept(dlv);
-                        OUT(std::cout << "RECEIVE: Accepted " << dlv << "\n");
+
+                        OUT(std::cout << "RECEIVE: Message accepted\n");
                     } catch (std::exception& e) {
                         handler.reject(dlv);
-                        OUT(std::cout << "RECEIVE: Rejected " << dlv << "\n");
-                    }
 
+                        OUT(std::cout << "RECEIVE: Message rejected\n");
+                    }
                 }
 
                 handler.close();
