@@ -272,14 +272,20 @@ def test_qpid_proton_python_subscriptions(session):
             call("python send.py {0} t1 abc", server.connection_url)
             call("python subscriptions/durable-shared-subscribe.py {0} t1 1", server.connection_url)
 
-# def test_qpid_proton_python_tracing(session):
-#     with working_dir(join(session.examples_dir, "qpid-proton-python/tracing")):
-#         check_send_usage("python send.py")
-#         check_receive_usage("python receive.py")
+def test_qpid_proton_python_tracing(session):
+    try:
+        import opentracing
+        import jaeger_client
+    except ImportError:
+        raise TestSkipped("The opentracing and jaeger_client libraries are not available")
 
-#         with TestServer() as server:
-#             call("python send.py {0} q1 abc", server.connection_url)
-#             call("python receive.py {0} q1 1", server.connection_url)
+    with working_dir(join(session.examples_dir, "qpid-proton-python/tracing")):
+        check_send_usage("python send.py")
+        check_receive_usage("python receive.py")
+
+        with TestServer() as server:
+            call("python send.py {0} q1 abc", server.connection_url)
+            call("python receive.py {0} q1 1", server.connection_url)
 
 def test_qpid_proton_ruby_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-ruby")):
