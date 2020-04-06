@@ -31,6 +31,8 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 import io.jaegertracing.Configuration;
+import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 
@@ -64,9 +66,11 @@ public class Send {
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();
 
+            Span span = GlobalTracer.get().buildSpan("run").start();
+
             conn.start();
 
-            try {
+            try (Scope scope = GlobalTracer.get().scopeManager().activate(span)) {
                 System.out.println("SEND: Connected to '" + url + "'");
 
                 Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -82,6 +86,7 @@ public class Send {
                 System.out.println("SEND: Sent message '" + messageBody + "'");
             } finally {
                 conn.close();
+                span.finish();
             }
         } catch (Exception e) {
             e.printStackTrace();
