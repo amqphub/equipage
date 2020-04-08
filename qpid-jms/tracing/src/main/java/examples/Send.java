@@ -38,11 +38,7 @@ import io.opentracing.util.GlobalTracer;
 
 public class Send {
     static {
-        System.setProperty("JAEGER_SERVICE_NAME", "send");
-        System.setProperty("JAEGER_SAMPLER_TYPE", "const");
-        System.setProperty("JAEGER_SAMPLER_PARAM", "1");
-
-        Tracer tracer = Configuration.fromEnv().getTracer();
+        Tracer tracer = Configuration.fromEnv("send").getTracer();
         GlobalTracer.registerIfAbsent(tracer);
     }
 
@@ -66,11 +62,12 @@ public class Send {
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();
 
-            Span span = GlobalTracer.get().buildSpan("run").start();
+            Tracer tracer = GlobalTracer.get();
+            Span span = tracer.buildSpan("run").start();
 
             conn.start();
 
-            try (Scope scope = GlobalTracer.get().scopeManager().activate(span)) {
+            try (Scope scope = tracer.activateSpan(span)) {
                 System.out.println("SEND: Connected to '" + url + "'");
 
                 Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);

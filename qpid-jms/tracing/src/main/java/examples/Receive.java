@@ -31,16 +31,14 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 import io.jaegertracing.Configuration;
+import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
 
 public class Receive {
     static {
-        System.setProperty("JAEGER_SERVICE_NAME", "receive");
-        System.setProperty("JAEGER_SAMPLER_TYPE", "const");
-        System.setProperty("JAEGER_SAMPLER_PARAM", "1");
-
-        Tracer tracer = Configuration.fromEnv().getTracer();
+        Tracer tracer = Configuration.fromEnv("receive").getTracer();
         GlobalTracer.registerIfAbsent(tracer);
     }
 
@@ -69,9 +67,12 @@ public class Receive {
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();
 
+            Tracer tracer = GlobalTracer.get();
+            Span span = tracer.buildSpan("run").start();
+
             conn.start();
 
-            try {
+            try (Scope scope = tracer.activateSpan(span)) {
                 System.out.println("RECEIVE: Connected to '" + url + "'");
 
                 Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -93,6 +94,7 @@ public class Receive {
                 }
             } finally {
                 conn.close();
+                span.finish();
             }
         } catch (Exception e) {
             e.printStackTrace();

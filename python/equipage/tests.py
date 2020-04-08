@@ -126,8 +126,9 @@ def test_qpid_jms_tracing(session):
         with TestServer() as server:
             url = server.connection_url + "?jms.tracing=opentracing"
 
-            call("{0} {1} q1 abc", qpid_jms_prog("examples.Send"), url)
-            call("{0} {1} q1 1", qpid_jms_prog("examples.Receive"), url)
+            with working_env(JAEGER_SAMPLER_TYPE="const", JAEGER_SAMPLER_PARAM="1"):
+                call("{0} {1} q1 abc", qpid_jms_prog("examples.Send"), url)
+                call("{0} {1} q1 1", qpid_jms_prog("examples.Receive"), url)
 
 def test_qpid_proton_cpp_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
