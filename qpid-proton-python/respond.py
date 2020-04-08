@@ -56,9 +56,9 @@ class RespondHandler(MessagingHandler):
 
         print("RESPOND: Received request '{0}'".format(request.body))
 
-        message_body = request.body.upper()
+        response_body = request.body.upper()
 
-        response = Message(message_body)
+        response = Message(response_body)
         response.address = request.reply_to
         response.correlation_id = request.id
 

@@ -18,6 +18,7 @@
 #
 
 from brokerlib import wait_for_broker
+from commandant import TestSkipped
 from plano import *
 
 def open_test_session(session):
