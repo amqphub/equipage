@@ -89,11 +89,11 @@ Usage: `respond <connection-url> <address> [<message-count>]`
    - receive
    - request
    - respond
+ - Acknowledgment
+   - receive
  - Authentication (authentication)
    - password
    - kerberos
- - TLS (tls)
-   - connect
  - Automatic resource creation (auto-create)
    - queue-send
    - queue-receive
@@ -111,6 +111,8 @@ Usage: `respond <connection-url> <address> [<message-count>]`
    - durable-subscribe
    - shared-subscribe
    - durable-shared-subscribe
+ - TLS (tls)
+   - connect
  - Error handling (error-handling)
  - Filters (filters)
  - Interoperating with JMS (jms-interop)

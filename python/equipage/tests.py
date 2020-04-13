@@ -352,6 +352,15 @@ def test_rhea_request_respond(session):
             with start_process("node respond.js {0} q1 1", server.connection_url):
                 call("node request.js {0} q1 abc", server.connection_url)
 
+def test_rhea_acknowledgment(session):
+    with working_dir(join(session.examples_dir, "rhea")):
+        check_send_usage("node send.js")
+        check_receive_usage("node acknowledgment/receive.js")
+
+        with TestServer() as server:
+            call("node send.js {0} q1 abc", server.connection_url)
+            call("node acknowledgment/receive.js {0} q1 1", server.connection_url)
+
 def test_rhea_auto_create(session):
     with working_dir(join(session.examples_dir, "rhea")):
         check_send_usage("node auto-create/queue-send.js")
