@@ -54,7 +54,7 @@ container.on("message", function (event) {
     try {
         result = process_message(message);
         event.delivery.accept();
-    } catch {
+    } catch (e) {
         event.delivery.release();
     }
 
