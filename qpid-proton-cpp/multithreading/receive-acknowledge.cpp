@@ -60,7 +60,7 @@ public:
         : conn_url_(conn_url), address_(address) {}
 
     std::tuple<proton::delivery, proton::message> receive() {
-        std::unique_lock<std::mutex> l(lock_);
+        std::unique_lock<std::mutex> l {lock_};
         while (deliveries_.empty()) deliveries_ready_cv_.wait(l);
 
         auto tup = deliveries_.front();
@@ -70,25 +70,25 @@ public:
     }
 
     void process_message(proton::message& msg) {
-        std::unique_lock<std::mutex> l(lock_);
+        std::unique_lock<std::mutex> l {lock_};
 
         if (count_++ % 4 == 0) {
             throw std::exception {};
         }
     }
 
-    void accept(proton::delivery& dlv) {
-        std::unique_lock<std::mutex> l(lock_);
-        work_queue(l)->add([dlv]() mutable { dlv.accept(); });
+    void accept(proton::delivery dlv) {
+        std::unique_lock<std::mutex> l {lock_};
+        work_queue(l)->add([=]() mutable { dlv.accept(); });
     }
 
-    void reject(proton::delivery& dlv) {
-        std::unique_lock<std::mutex> l(lock_);
-        work_queue(l)->add([dlv]() mutable { dlv.reject(); });
+    void reject(proton::delivery dlv) {
+        std::unique_lock<std::mutex> l {lock_};
+        work_queue(l)->add([=]() mutable { dlv.reject(); });
     }
 
     void close() {
-        std::unique_lock<std::mutex> l(lock_);
+        std::unique_lock<std::mutex> l {lock_};
         work_queue(l)->add([this]() { receiver_.connection().close(); });
     }
 
@@ -111,7 +111,7 @@ private:
         OUT(std::cout << "RECEIVE: Opened receiver for source address '"
                       << rcv.source().address() << "'\n");
 
-        std::lock_guard<std::mutex> l(lock_);
+        std::lock_guard<std::mutex> l {lock_};
 
         receiver_ = rcv;
         work_queue_ = &rcv.work_queue();
@@ -120,7 +120,7 @@ private:
     }
 
     void on_message(proton::delivery& dlv, proton::message& msg) override {
-        std::lock_guard<std::mutex> l(lock_);
+        std::lock_guard<std::mutex> l {lock_};
 
         auto tup = std::make_tuple(dlv, msg);
         deliveries_.push(tup);
