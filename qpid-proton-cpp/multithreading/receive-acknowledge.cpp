@@ -31,10 +31,10 @@
 #include <iostream>
 #include <mutex>
 #include <queue>
-#include <set>
 #include <string>
 #include <thread>
 #include <tuple>
+#include <vector>
 
 // Prevent garbled logging
 std::mutex out_lock_;
@@ -53,7 +53,7 @@ class receive_handler : public proton::messaging_handler {
     std::condition_variable receiver_open_cv_ {};
     std::condition_variable messages_ready_cv_ {};
     std::queue<std::tuple<proton::delivery&, proton::message&>> messages_ {};
-    std::set<proton::delivery> unsettled_deliveries_ {};
+    std::vector<proton::delivery> unsettled_deliveries_ {};
 
     int count_ {0};
 
@@ -84,7 +84,7 @@ public:
 
         work_queue(l)->add([&]() {
             dlv.accept();
-            unsettled_deliveries_.erase(dlv);
+            // unsettled_deliveries_.erase(dlv);
         });
     }
 
@@ -93,7 +93,7 @@ public:
 
         work_queue(l)->add([&]() {
             dlv.reject();
-            unsettled_deliveries_.erase(dlv);
+            // unsettled_deliveries_.erase(dlv);
         });
     }
 
@@ -135,7 +135,8 @@ private:
     void on_message(proton::delivery& dlv, proton::message& msg) override {
         std::lock_guard<std::mutex> l {lock_};
 
-        unsettled_deliveries_.insert(dlv);
+        proton::delivery copy = dlv;
+        unsettled_deliveries_.push_back(copy);
 
         auto tup = std::make_tuple(std::ref(dlv), std::ref(msg));
         messages_.push(tup);
