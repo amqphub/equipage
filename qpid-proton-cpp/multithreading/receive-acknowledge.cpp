@@ -31,6 +31,7 @@
 #include <iostream>
 #include <mutex>
 #include <queue>
+#include <set>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -45,13 +46,14 @@ class receive_handler : public proton::messaging_handler {
 
     // Used only in the Proton handler thread
     proton::receiver receiver_ {};
-    std::queue<std::tuple<proton::delivery, proton::message>> deliveries_ {};
 
     // Shared by the Proton handler and user threads
     std::mutex lock_ {};
     proton::work_queue* work_queue_ {0};
     std::condition_variable receiver_open_cv_ {};
-    std::condition_variable deliveries_ready_cv_ {};
+    std::condition_variable messages_ready_cv_ {};
+    std::queue<std::tuple<proton::delivery&, proton::message&>> messages_ {};
+    std::set<proton::delivery> unsettled_deliveries_ {};
 
     int count_ {0};
 
@@ -59,12 +61,12 @@ public:
     receive_handler(const std::string& conn_url, const std::string& address)
         : conn_url_(conn_url), address_(address) {}
 
-    std::tuple<proton::delivery, proton::message> receive() {
+    std::tuple<proton::delivery&, proton::message&> receive() {
         std::unique_lock<std::mutex> l {lock_};
-        while (deliveries_.empty()) deliveries_ready_cv_.wait(l);
+        while (messages_.empty()) messages_ready_cv_.wait(l);
 
-        auto tup = deliveries_.front();
-        deliveries_.pop();
+        auto tup = messages_.front();
+        messages_.pop();
 
         return tup;
     }
@@ -77,19 +79,30 @@ public:
         }
     }
 
-    void accept(proton::delivery dlv) {
+    void accept(proton::delivery& dlv) {
         std::unique_lock<std::mutex> l {lock_};
-        work_queue(l)->add([=]() mutable { dlv.accept(); });
+
+        work_queue(l)->add([&]() {
+            dlv.accept();
+            unsettled_deliveries_.erase(dlv);
+        });
     }
 
-    void reject(proton::delivery dlv) {
+    void reject(proton::delivery& dlv) {
         std::unique_lock<std::mutex> l {lock_};
-        work_queue(l)->add([=]() mutable { dlv.reject(); });
+
+        work_queue(l)->add([&]() {
+            dlv.reject();
+            unsettled_deliveries_.erase(dlv);
+        });
     }
 
     void close() {
         std::unique_lock<std::mutex> l {lock_};
-        work_queue(l)->add([this]() { receiver_.connection().close(); });
+
+        work_queue(l)->add([this]() {
+            receiver_.connection().close();
+        });
     }
 
 private:
@@ -108,7 +121,7 @@ private:
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
-        OUT(std::cout << "RECEIVE: Opened receiver for source address '"
+        OUT(std::cout << "receive: opened receiver for source address '"
                       << rcv.source().address() << "'\n");
 
         std::lock_guard<std::mutex> l {lock_};
@@ -122,10 +135,12 @@ private:
     void on_message(proton::delivery& dlv, proton::message& msg) override {
         std::lock_guard<std::mutex> l {lock_};
 
-        auto tup = std::make_tuple(dlv, msg);
-        deliveries_.push(tup);
+        unsettled_deliveries_.insert(dlv);
 
-        deliveries_ready_cv_.notify_all();
+        auto tup = std::make_tuple(std::ref(dlv), std::ref(msg));
+        messages_.push(tup);
+
+        messages_ready_cv_.notify_all();
     }
 
     void on_error(const proton::error_condition& e) override {
@@ -156,10 +171,9 @@ int main(int argc, const char** argv) {
 
         std::thread receiver([&]() {
                 for (int i = 0; i < desired; ++i) {
-                    proton::delivery dlv;
-                    proton::message msg;
-
-                    std::tie(dlv, msg) = handler.receive();
+                    auto tup = handler.receive();
+                    proton::delivery& dlv = std::get<0>(tup);
+                    proton::message& msg = std::get<1>(tup);
 
                     OUT(std::cout << "RECEIVE: Received message '" << msg.body() << "'\n");
 

@@ -1,4 +1,4 @@
-CCFLAGS := -Os -std=c++11 -lstdc++ -lpthread -lqpid-proton-cpp
+CCFLAGS := -Os -std=c++11 -lstdc++ -lpthread -lqpid-proton-cpp -g
 SOURCES := $(shell find . -name \*.cpp)
 TARGETS := ${SOURCES:./%.cpp=build/%}
 
