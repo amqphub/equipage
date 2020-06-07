@@ -117,7 +117,7 @@ Usage: `respond <connection-url> <address> [<message-count>]`
  - Filters (filters)
  - Interoperating with JMS (jms-interop)
  - Logging (logging)
- - Multithreaded applications (multithreading)
+ - Multithreaded applications (threading)
  - Timers (timers)
  - Tracing (tracing)
  - Codec (codec)
