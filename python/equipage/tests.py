@@ -159,7 +159,7 @@ def test_qpid_proton_cpp_servers(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
         check_receive_usage("build/servers/receive")
 
-        connection_url = "amqp://127.0.0.1:{0}".format(random_port())
+        connection_url = "amqp://localhost:{0}".format(random_port())
 
         with start_process("build/servers/receive {0} q1 1", connection_url):
             call("build/send {0} q1 abc", connection_url)
@@ -242,7 +242,7 @@ def test_qpid_proton_python_servers(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
         check_receive_usage("servers/receive.py")
 
-        connection_url = "amqp://127.0.0.1:{0}".format(random_port())
+        connection_url = "amqp://localhost:{0}".format(random_port())
 
         with start_process("python servers/receive.py {0} q1 1", connection_url):
             call("python send.py {0} q1 abc", connection_url)
@@ -351,6 +351,15 @@ def test_rhea_request_respond(session):
         with TestServer() as server:
             with start_process("node respond.js {0} q1 1", server.connection_url):
                 call("node request.js {0} q1 abc", server.connection_url)
+
+def test_rhea_servers(session):
+    with working_dir(join(session.examples_dir, "rhea")):
+        check_receive_usage("node servers/receive.js")
+
+        connection_url = "amqp://localhost:{0}".format(random_port())
+
+        with start_process("node servers/receive.js {0} q1 1", connection_url):
+            call("node send.js {0} q1 abc", connection_url)
 
 def test_rhea_acknowledgment(session):
     with working_dir(join(session.examples_dir, "rhea")):
