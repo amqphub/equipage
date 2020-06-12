@@ -37,14 +37,14 @@ public class Send {
                 System.err.println("Usage: Send <connection-url> <address> <message-body>");
                 System.exit(1);
             }
-            
+
             String url = args[0];
             String address = args[1];
             String messageBody = args[2];
-                
-            Hashtable<Object, Object> env = new Hashtable<Object, Object>();
-            env.put("connectionfactory.factory1", url);
-            
+
+            Hashtable<Object, Object> env = new Hashtable<>();
+            env.put("connectionFactory.factory1", url);
+
             InitialContext context = new InitialContext(env);
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();
@@ -59,7 +59,7 @@ public class Send {
                 MessageProducer producer = session.createProducer(queue);
 
                 System.out.println("SEND: Created producer for target address '" + address + "'");
-                
+
                 TextMessage message = session.createTextMessage(messageBody);
 
                 producer.send(message);

@@ -37,7 +37,7 @@ public class Receive {
                 System.err.println("Usage: Receive <connection-url> <address> [<message-count>]");
                 System.exit(1);
             }
-            
+
             String url = args[0];
             String address = args[1];
             int desired = 0;
@@ -47,9 +47,9 @@ public class Receive {
                 desired = Integer.parseInt(args[2]);
             }
 
-            Hashtable<Object, Object> env = new Hashtable<Object, Object>();
-            env.put("connectionfactory.factory1", url);
-            
+            Hashtable<Object, Object> env = new Hashtable<>();
+            env.put("connectionFactory.factory1", url);
+
             InitialContext context = new InitialContext(env);
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
             Connection conn = factory.createConnection();

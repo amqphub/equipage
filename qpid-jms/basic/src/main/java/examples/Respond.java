@@ -48,8 +48,8 @@ public class Respond {
                 desired = Integer.parseInt(args[2]);
             }
 
-            Hashtable<Object, Object> env = new Hashtable<Object, Object>();
-            env.put("connectionfactory.factory1", url);
+            Hashtable<Object, Object> env = new Hashtable<>();
+            env.put("connectionFactory.factory1", url);
 
             InitialContext context = new InitialContext(env);
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");

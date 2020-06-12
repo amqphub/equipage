@@ -60,8 +60,8 @@ public class Receive {
 
             assert url.contains("jms.tracing=opentracing");
 
-            Hashtable<Object, Object> env = new Hashtable<Object, Object>();
-            env.put("connectionfactory.factory1", url);
+            Hashtable<Object, Object> env = new Hashtable<>();
+            env.put("connectionFactory.factory1", url);
 
             InitialContext context = new InitialContext(env);
             ConnectionFactory factory = (ConnectionFactory) context.lookup("factory1");
