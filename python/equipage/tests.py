@@ -118,6 +118,18 @@ def test_qpid_jms_request_respond(session):
             with start_process("{0} {1} q1 1", qpid_jms_prog("examples.Respond"), server.connection_url):
                 call("{0} {1} q1 abc", qpid_jms_prog("examples.Request"), server.connection_url)
 
+def test_qpid_jms_message_content(session):
+    with working_dir(join(session.examples_dir, "qpid-jms/message-content")):
+        with TestServer() as server, temp_file() as temp:
+            input_data = "x" * 2049
+            write(temp, input_data)
+
+            with start_process("{0} {1} q1 {2}", qpid_jms_prog("examples.ReceiveFile"), server.connection_url, temp):
+                call("{0} {1} q1 {2}", qpid_jms_prog("examples.SendFile"), server.connection_url, temp)
+
+            output_data = read(temp)
+            assert input_data == output_data
+
 def test_qpid_jms_tracing(session):
     with working_dir(join(session.examples_dir, "qpid-jms/tracing")):
         check_send_usage(qpid_jms_prog("examples.Send"))

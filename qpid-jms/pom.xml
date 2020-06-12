@@ -18,6 +18,7 @@
 
   <modules>
     <module>basic</module>
+    <module>message-content</module>
     <module>authentication</module>
     <module>tracing</module>
   </modules>
