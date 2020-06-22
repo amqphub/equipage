@@ -19,16 +19,18 @@
 
 FROM ubuntu:latest
 
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get -qq update && apt-get -qq dist-upgrade
 
 RUN apt-get -qq update \
     && apt-get -qq install software-properties-common \
     && add-apt-repository -y ppa:qpid/released \
     && apt-get -qq update \
-    && apt-get -qq install build-essential make openjdk-8-jdk maven nodejs python ruby npm
+    && apt-get -qq install build-essential make openjdk-8-jdk maven nodejs python3 ruby npm
 
-RUN apt-get -qq install libqpidmessaging-dev libqpidtypes-dev libqpidcommon-dev \
-        libqpid-proton-cpp12-dev python-qpid-proton \
+RUN apt-get -qq install \
+        libqpid-proton-cpp12-dev python3-qpid-proton \
         libsasl2-2 libsasl2-dev libsasl2-modules sasl2-bin
 
 RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
@@ -40,7 +42,7 @@ COPY . /src
 ENV NODE_PATH=/usr/local/lib/node_modules
 WORKDIR /src
 
-RUN make install
+RUN make install PYTHON_EXECUTABLE=/usr/bin/python3
 
 # Missing: ruby
 CMD ["equipage", "test", "pooled-jms", "qpid-jms", "qpid-proton-cpp", "qpid-proton-python", "rhea", "vertx-proton"]

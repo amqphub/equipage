@@ -61,17 +61,15 @@ build: ${BIN_TARGETS} ${PYTHON_TARGETS} ${EXAMPLE_TARGETS} build/prefix.txt
 
 .PHONY: install
 install: build
-	scripts/install-files build/bin ${DESTDIR}$$(cat build/prefix.txt)/bin
-	scripts/install-files build/equipage ${DESTDIR}$$(cat build/prefix.txt)/share/equipage
+	${PYTHON_EXECUTABLE} scripts/install-files build/bin ${DESTDIR}$$(cat build/prefix.txt)/bin
+	${PYTHON_EXECUTABLE} scripts/install-files build/equipage ${DESTDIR}$$(cat build/prefix.txt)/share/equipage
 
 .PHONY: test
 test: build
 	equipage test
 
-# XXX temporarily disable test-ubuntu
 .PHONY: os-tests
-os-tests: test-centos-6 test-centos-7 test-centos test-fedora
-
+os-tests: test-centos-6 test-centos-7 test-centos test-fedora test-ubuntu
 
 .PHONY: test-centos-6
 test-centos-6: clean
@@ -127,7 +125,7 @@ build/prefix.txt:
 	echo ${PREFIX} > build/prefix.txt
 
 build/bin/%: bin/%.in
-	scripts/configure-file -a equipage_home=${INSTALLED_EQUIPAGE_HOME} -a python_executable=${PYTHON_EXECUTABLE} $< $@
+	${PYTHON_EXECUTABLE} scripts/configure-file -a equipage_home=${INSTALLED_EQUIPAGE_HOME} -a python_executable=${PYTHON_EXECUTABLE} $< $@
 
 build/equipage/python/equipage/%: python/equipage/% python/brokerlib.py python/commandant.py python/plano.py
 	@mkdir -p ${@D}

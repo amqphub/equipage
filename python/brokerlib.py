@@ -316,22 +316,24 @@ def _terminus_repr(terminus):
 def _delivery_repr(delivery):
     return "delivery '{0}'".format(delivery.tag)
 
-def wait_for_broker(ready_file, timeout=10):
+def wait_for_broker(ready_file, timeout=30):
     start_time = _time.time()
-    interval = 0.05
+    interval = 0.125
 
     while True:
         if _time.time() - start_time > timeout:
             raise Exception("Timed out waiting for the broker")
 
+        _time.sleep(interval)
+
         with open(ready_file, "r") as f:
             if f.read() == "ready\n":
                 break
 
-        _time.sleep(interval)
-
         if interval < 1:
             interval = interval * 2
+        else:
+            print("Still waiting for the broker")
 
 if __name__ == "__main__":
     import argparse

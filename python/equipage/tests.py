@@ -17,6 +17,8 @@
 # under the License.
 #
 
+import sys as _sys
+
 from brokerlib import wait_for_broker
 from commandant import TestSkipped
 from plano import *
@@ -228,64 +230,64 @@ def test_qpid_proton_cpp_subscriptions(session):
 
 def test_qpid_proton_python_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
-        check_connect_usage("python connect.py")
+        check_connect_usage(python_prog("connect.py"))
 
         with TestServer() as server:
-            call("python connect.py {0}", server.connection_url)
+            call("{0} {1}", python_prog("connect.py"), server.connection_url)
 
 def test_qpid_proton_python_send_receive(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
-        check_send_usage("python send.py")
-        check_receive_usage("python receive.py")
+        check_send_usage(python_prog("send.py"))
+        check_receive_usage(python_prog("receive.py"))
 
         with TestServer() as server:
-            call("python send.py {0} q1 abc", server.connection_url)
-            call("python receive.py {0} q1 1", server.connection_url)
+            call("{0} {1} q1 abc", python_prog("send.py"), server.connection_url)
+            call("{0} {1} q1 1", python_prog("receive.py"), server.connection_url)
 
 def test_qpid_proton_python_request_respond(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
-        check_request_usage("python request.py")
-        check_respond_usage("python respond.py")
+        check_request_usage(python_prog("request.py"))
+        check_respond_usage(python_prog("respond.py"))
 
         with TestServer() as server:
-            with start_process("python respond.py {0} q1 1", server.connection_url):
-                call("python request.py {0} q1 abc", server.connection_url)
+            with start_process("{0} {1} q1 1", python_prog("respond.py"), server.connection_url):
+                call("{0} {1} q1 abc", python_prog("request.py"), server.connection_url)
 
 def test_qpid_proton_python_servers(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
-        check_receive_usage("servers/receive.py")
+        check_receive_usage(python_prog("servers/receive.py"))
 
         connection_url = "amqp://localhost:{0}".format(random_port())
 
-        with start_process("python servers/receive.py {0} q1 1", connection_url):
-            call("python send.py {0} q1 abc", connection_url)
+        with start_process("{0} {1} q1 1", python_prog("servers/receive.py"), connection_url):
+            call("{0} {1} q1 abc", python_prog("send.py"), connection_url)
 
 def test_qpid_proton_python_auto_create(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
-        check_send_usage("python auto-create/queue-send.py")
-        check_receive_usage("auto-create/queue-receive.py")
-        check_send_usage("python auto-create/topic-send.py")
-        check_receive_usage("python auto-create/topic-receive.py")
+        check_send_usage(python_prog("auto-create/queue-send.py"))
+        check_receive_usage(python_prog("auto-create/queue-receive.py"))
+        check_send_usage(python_prog("auto-create/topic-send.py"))
+        check_receive_usage(python_prog("auto-create/topic-receive.py"))
 
         with TestServer() as server:
-            call("python auto-create/queue-send.py {0} q1 abc", server.connection_url)
-            call("python auto-create/queue-receive.py {0} q1 1", server.connection_url)
-            call("python auto-create/topic-send.py {0} t1 abc", server.connection_url)
-            call("python auto-create/topic-receive.py {0} t1 1", server.connection_url)
+            call("{0} {1} q1 abc", python_prog("auto-create/queue-send.py"), server.connection_url)
+            call("{0} {1} q1 1", python_prog("auto-create/queue-receive.py"), server.connection_url)
+            call("{0} {1} t1 abc", python_prog("auto-create/topic-send.py"), server.connection_url)
+            call("{0} {1} t1 1", python_prog("auto-create/topic-receive.py"), server.connection_url)
 
 def test_qpid_proton_python_subscriptions(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
-        check_receive_usage("python subscriptions/durable-subscribe.py")
-        check_receive_usage("python subscriptions/shared-subscribe.py")
-        check_receive_usage("python subscriptions/durable-shared-subscribe.py")
+        check_receive_usage(python_prog("subscriptions/durable-subscribe.py"))
+        check_receive_usage(python_prog("subscriptions/shared-subscribe.py"))
+        check_receive_usage(python_prog("subscriptions/durable-shared-subscribe.py"))
 
         with TestServer() as server:
-            call("python send.py {0} t1 abc", server.connection_url)
-            call("python subscriptions/durable-subscribe.py {0} t1 1", server.connection_url)
-            call("python send.py {0} t1 abc", server.connection_url)
-            call("python subscriptions/shared-subscribe.py {0} t1 1", server.connection_url)
-            call("python send.py {0} t1 abc", server.connection_url)
-            call("python subscriptions/durable-shared-subscribe.py {0} t1 1", server.connection_url)
+            call("{0} {1} t1 abc", python_prog("send.py"), server.connection_url)
+            call("{0} {1} t1 1", python_prog("subscriptions/durable-subscribe.py"), server.connection_url)
+            call("{0} {1} t1 abc", python_prog("send.py"), server.connection_url)
+            call("{0} {1} t1 1", python_prog("subscriptions/shared-subscribe.py"), server.connection_url)
+            call("{0} {1} t1 abc", python_prog("send.py"), server.connection_url)
+            call("{0} {1} t1 1", python_prog("subscriptions/durable-shared-subscribe.py"), server.connection_url)
 
 def test_qpid_proton_python_tracing(session):
     try:
@@ -295,12 +297,12 @@ def test_qpid_proton_python_tracing(session):
         raise TestSkipped("The opentracing and jaeger_client libraries are not available")
 
     with working_dir(join(session.examples_dir, "qpid-proton-python/tracing")):
-        check_send_usage("python send.py")
-        check_receive_usage("python receive.py")
+        check_send_usage(python_prog("send.py"))
+        check_receive_usage(python_prog("receive.py"))
 
         with TestServer() as server:
-            call("python send.py {0} q1 abc", server.connection_url)
-            call("python receive.py {0} q1 1", server.connection_url)
+            call("{0} {1} q1 abc", python_prog("send.py"), server.connection_url)
+            call("{0} {1} q1 1", python_prog("receive.py"), server.connection_url)
 
 def test_qpid_proton_ruby_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-ruby")):
@@ -441,8 +443,8 @@ class TestServer(object):
         self.output = open(self.output_file, "w")
 
         with temp_file() as ready_file:
-            self.proc = start_process("python -m brokerlib --host 127.0.0.1 --port {0} --ready-file {1}",
-                                      self.port, ready_file, output=self.output)
+            self.proc = start_process("{0} -m brokerlib --host 127.0.0.1 --port {1} --ready-file {2}",
+                                      _sys.executable, self.port, ready_file, output=self.output)
             self.proc.connection_url = self.connection_url
 
             wait_for_broker(ready_file)
@@ -501,6 +503,9 @@ def dotnet_prog(project_dir):
 
 def java_prog(class_name):
     return "java -cp target/classes:target/dependency/\\* {0}".format(class_name)
+
+def python_prog(file):
+    return "{0} {1}".format(_sys.executable, file)
 
 def qpid_jms_prog(class_name):
     return "java -cp target/classes:target/dependency/\\*" \
