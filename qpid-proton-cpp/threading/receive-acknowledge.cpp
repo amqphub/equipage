@@ -40,6 +40,47 @@
 std::mutex out_lock_;
 #define OUT(x) do { std::lock_guard<std::mutex> l(out_lock_); x; } while (false)
 
+struct worker_message {
+    // Provide ongoing (limited) access to Proton objects used outside
+    // of a callback.  It is deliberately non-copyable to help prevent
+    // thread-safety problems.
+
+    // Construct in on_message() callback.  Destruct in delivery
+    // work_queue or a callback of the delivery's connection.
+
+    // delivery_ptr_ points to a Proton reference-counted accessor to
+    // an internal Proton object.  The application cannot use mutexes
+    // to guaranty thread-safe use of or copying of delivery_ptr_
+    // while the engine is running.  Do not access the underlying
+    // delivery except when processing a callback from the connection
+    // or as work on its work_queue.
+
+    // message_ptr_ points to the inbound message data (move
+    // semantics).  The application can use it in any thread with
+    // appropriate mutex use.
+
+    std::unique_ptr<proton::delivery> delivery_ptr_;
+    std::shared_ptr<proton::message> message_ptr_;
+
+    // Call from on_message() callback
+    worker_message(proton::delivery& dlv, proton::message& msg)
+        : delivery_ptr_(new proton::delivery {dlv}), message_ptr_(new proton::message {}) {
+        swap(*message_ptr_, msg);
+    }
+
+    // Only call from the connection's work_queue or one of its
+    // callbacks
+    ~worker_message() {}
+
+    proton::delivery* delivery() {
+        return delivery_ptr_.get();
+    }
+
+    proton::message* message() {
+        return message_ptr_.get();
+    }
+};
+
 class receive_handler : public proton::messaging_handler {
     const std::string conn_url_ {};
     const std::string address_ {};
@@ -52,8 +93,7 @@ class receive_handler : public proton::messaging_handler {
     proton::work_queue* work_queue_ {0};
     std::condition_variable receiver_open_cv_ {};
     std::condition_variable messages_ready_cv_ {};
-    std::queue<std::tuple<proton::delivery&, proton::message&>> messages_ {};
-    std::vector<proton::delivery> unsettled_deliveries_ {};
+    std::queue<worker_message*> messages_ {};
 
     int count_ {0};
 
@@ -61,14 +101,14 @@ public:
     receive_handler(const std::string& conn_url, const std::string& address)
         : conn_url_(conn_url), address_(address) {}
 
-    std::tuple<proton::delivery&, proton::message&> receive() {
+    worker_message* receive() {
         std::unique_lock<std::mutex> l {lock_};
         while (messages_.empty()) messages_ready_cv_.wait(l);
 
-        auto tup = messages_.front();
+        auto wm = messages_.front();
         messages_.pop();
 
-        return tup;
+        return wm;
     }
 
     void process_message(proton::message& msg) {
@@ -79,21 +119,19 @@ public:
         }
     }
 
-    void accept(proton::delivery& dlv) {
+    void accept(proton::delivery* dlv) {
         std::unique_lock<std::mutex> l {lock_};
 
-        work_queue(l)->add([&]() {
-            dlv.accept();
-            // unsettled_deliveries_.erase(dlv);
+        work_queue(l)->add([=]() {
+            dlv->accept();
         });
     }
 
-    void reject(proton::delivery& dlv) {
+    void reject(proton::delivery* dlv) {
         std::unique_lock<std::mutex> l {lock_};
 
-        work_queue(l)->add([&]() {
-            dlv.reject();
-            // unsettled_deliveries_.erase(dlv);
+        work_queue(l)->add([=]() {
+            dlv->reject();
         });
     }
 
@@ -135,12 +173,12 @@ private:
     void on_message(proton::delivery& dlv, proton::message& msg) override {
         std::lock_guard<std::mutex> l {lock_};
 
-        proton::delivery copy = dlv;
-        unsettled_deliveries_.push_back(copy);
+        worker_message *wm = new worker_message {dlv, msg};
 
-        auto tup = std::make_tuple(std::ref(dlv), std::ref(msg));
-        messages_.push(tup);
+        // Note: The proton::message is now empty.  Its contents are
+        // now in the worker_message.
 
+        messages_.push(wm);
         messages_ready_cv_.notify_all();
     }
 
@@ -168,18 +206,20 @@ int main(int argc, const char** argv) {
     proton::container container {handler};
 
     try {
-        std::thread io([&]() { container.run(); });
+        std::thread io([&]() {
+                container.run();
+            });
 
         std::thread receiver([&]() {
                 for (int i = 0; i < desired; ++i) {
-                    auto tup = handler.receive();
-                    proton::delivery& dlv = std::get<0>(tup);
-                    proton::message& msg = std::get<1>(tup);
+                    auto wm = handler.receive();
+                    proton::delivery* dlv = wm->delivery();
+                    proton::message* msg = wm->message();
 
-                    OUT(std::cout << "RECEIVE: Received message '" << msg.body() << "'\n");
+                    OUT(std::cout << "RECEIVE: Received message '" << msg->body() << "'\n");
 
                     try {
-                        handler.process_message(msg);
+                        handler.process_message(*msg);
                         handler.accept(dlv);
 
                         OUT(std::cout << "RECEIVE: Message accepted\n");
