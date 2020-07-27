@@ -159,7 +159,7 @@ private:
     }
 
     void on_receiver_open(proton::receiver& rcv) override {
-        OUT(std::cout << "receive: opened receiver for source address '"
+        OUT(std::cout << "RECEIVE: Opened receiver for source address '"
                       << rcv.source().address() << "'\n");
 
         std::lock_guard<std::mutex> l {lock_};

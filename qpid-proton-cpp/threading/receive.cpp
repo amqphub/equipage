@@ -122,7 +122,9 @@ int main(int argc, const char** argv) {
     proton::container container {handler};
 
     try {
-        std::thread io([&]() { container.run(); });
+        std::thread io([&]() {
+                container.run();
+            });
 
         std::thread receiver([&]() {
                 for (int i = 0; i < desired; ++i) {

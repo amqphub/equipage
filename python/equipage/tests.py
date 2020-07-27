@@ -206,13 +206,13 @@ def test_qpid_proton_cpp_threading(session):
             call("build/threading/send {0} q1 abc3", server.connection_url)
             call("build/threading/receive {0} q1 3", server.connection_url)
 
-            # call("build/threading/send {0} q1 abc", server.connection_url)
-            # call("build/threading/receive-acknowledge {0} q1 1", server.connection_url)
+            call("build/threading/send {0} q1 abc", server.connection_url)
+            call("build/threading/receive-acknowledge {0} q1 1", server.connection_url)
 
-            # call("build/threading/send {0} q1 abc1", server.connection_url)
-            # call("build/threading/send {0} q1 abc2", server.connection_url)
-            # call("build/threading/send {0} q1 abc3", server.connection_url)
-            # call("build/threading/receive-acknowledge {0} q1 3", server.connection_url)
+            call("build/threading/send {0} q1 abc1", server.connection_url)
+            call("build/threading/send {0} q1 abc2", server.connection_url)
+            call("build/threading/send {0} q1 abc3", server.connection_url)
+            call("build/threading/receive-acknowledge {0} q1 3", server.connection_url)
 
 def test_qpid_proton_cpp_subscriptions(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
