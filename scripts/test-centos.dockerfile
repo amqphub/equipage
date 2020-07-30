@@ -23,11 +23,13 @@ RUN yum -q -y update && yum -q clean all
 
 RUN yum -q -y install epel-release
 
-RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel make maven nodejs npm ruby cyrus-sasl-plain cyrus-sasl-md5
+RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel make maven nodejs npm ruby cyrus-sasl-plain cyrus-sasl-md5 alternatives
 
 RUN yum -y install python3-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton
 
-RUN alternatives --set python /usr/bin/python3
+RUN rm /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
+
+# RUN alternatives --set python /usr/bin/python3
 
 # RUN rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm && yum -q -y update && yum -y install dotnet-sdk-3.1
 
