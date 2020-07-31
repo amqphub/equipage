@@ -21,7 +21,7 @@ FROM fedora
 
 RUN dnf -qy update && dnf -q clean all
 
-RUN dnf -qy install curl gcc-c++ java-1.8.0-openjdk-devel maven nodejs python npm ruby cyrus-sasl-plain cyrus-sasl-md5
+RUN dnf -qy install curl gcc-c++ java-1.8.0-openjdk-devel make maven nodejs python npm ruby cyrus-sasl-plain cyrus-sasl-md5
 
 RUN dnf -y install python3-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton
 
@@ -31,7 +31,7 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc && \
     dnf -qy update && \
     dnf -y install dotnet-sdk-3.1
 
-RUN npm install -g rhea
+RUN npm install --global --verbose rhea
 
 COPY . /src
 
