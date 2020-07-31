@@ -27,7 +27,7 @@ RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel make maven nodejs npm rub
 
 RUN yum -y install python3-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton
 
-RUN rm /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
+RUN ln -snf /usr/bin/python3 /usr/bin/python
 
 # RUN alternatives --set python /usr/bin/python3
 
