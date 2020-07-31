@@ -27,17 +27,17 @@ RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel make maven nodejs npm rub
 
 RUN yum -y install python3-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton
 
-RUN ln -snf /usr/bin/python3 /usr/bin/python
+RUN ln -sf /usr/bin/python3 /usr/bin/python
 
 # RUN alternatives --set python /usr/bin/python3
 
 # RUN rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm && yum -q -y update && yum -y install dotnet-sdk-3.1
 
-RUN npm install -g rhea
+RUN npm install --global --verbose rhea
 
 COPY . /src
 
-ENV NODE_PATH=/usr/lib/node_modules
+ENV NODE_PATH=/usr/local/lib/node_modules
 WORKDIR /src
 
 RUN make install
