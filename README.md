@@ -118,6 +118,7 @@ Usage: `respond <connection-url> <address> [<message-count>]`
  - Interoperating with JMS (jms-interop)
  - Logging (logging)
  - Message content (message-content)
+ - Message groups (message-groups)
  - Multithreaded applications (threading)
  - Timers (timers)
  - Tracing (tracing)

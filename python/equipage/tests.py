@@ -192,6 +192,12 @@ def test_qpid_proton_cpp_auto_create(session):
             call("build/auto-create/topic-send {0} t1 abc", server.connection_url)
             call("build/auto-create/topic-receive {0} t1 1", server.connection_url)
 
+def test_qpid_proton_cpp_message_groups(session):
+    with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
+        with TestServer() as server:
+            call("build/message-groups/send {0} q1 10 group1", server.connection_url)
+            call("build/receive {0} q1 10", server.connection_url)
+
 def test_qpid_proton_cpp_threading(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
         check_send_usage("build/threading/send")

@@ -135,6 +135,9 @@ class _Project(object):
         _plano.remove(self.work_dir)
         _plano.copy(self.source_dir, self.work_dir)
 
+        # Remove any leftover build output from the source dir
+        _plano.remove(_plano.join(self.work_dir, "build"))
+
         self.clean()
 
     def clean(self):
