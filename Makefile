@@ -69,17 +69,7 @@ test: build
 	equipage test
 
 .PHONY: os-tests
-os-tests: test-centos-6 test-centos-7 test-centos test-fedora test-ubuntu
-
-.PHONY: test-centos-6
-test-centos-6: clean
-	${DOCKER_COMMAND} build -f scripts/test-centos-6.dockerfile -t equipage-test-centos-6 .
-	${DOCKER_COMMAND} run --rm equipage-test-centos-6
-
-.PHONY: debug-centos-6
-debug-centos-6: clean
-	${DOCKER_COMMAND} build -f scripts/test-centos-6.dockerfile -t equipage-test-centos-6 .
-	${DOCKER_COMMAND} run --rm -it equipage-test-centos-6 /bin/bash
+os-tests: test-centos-7 test-centos test-fedora test-ubuntu
 
 .PHONY: test-centos-7
 test-centos-7: clean
