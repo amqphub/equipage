@@ -17,7 +17,7 @@
 # under the License.
 #
 
-FROM centos:7
+FROM quay.io/centos/centos:7
 
 RUN yum -q -y update && yum -q clean all
 

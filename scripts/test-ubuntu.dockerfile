@@ -17,7 +17,7 @@
 # under the License.
 #
 
-FROM ubuntu:latest
+FROM ubuntu
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -27,7 +27,7 @@ RUN apt-get -qq update \
     && apt-get -qq install software-properties-common \
     && add-apt-repository -y ppa:qpid/released \
     && apt-get -qq update \
-    && apt-get -qq install build-essential make openjdk-8-jdk maven nodejs python3 ruby npm
+    && apt-get -qq install build-essential make openjdk-11-jdk maven nodejs python3 ruby npm
 
 RUN apt-get -qq install \
         libqpid-proton-cpp12-dev python3-qpid-proton \
