@@ -33,8 +33,6 @@ RUN apt-get -qq install \
         libqpid-proton-cpp12-dev python3-qpid-proton \
         libsasl2-2 libsasl2-dev libsasl2-modules sasl2-bin
 
-RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
-
 RUN npm install -g rhea
 
 COPY . /src

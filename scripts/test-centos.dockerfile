@@ -25,13 +25,9 @@ RUN yum -q -y install epel-release
 
 RUN yum -q -y install gcc-c++ java-11-openjdk-devel make maven nodejs npm ruby cyrus-sasl-plain cyrus-sasl-md5
 
-RUN yum -y install python3-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton
+RUN yum -y install python3-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton dotnet-sdk-5.0
 
 RUN ln -sf /usr/bin/python3 /usr/bin/python
-
-# RUN alternatives --set python /usr/bin/python3
-
-# RUN rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm && yum -q -y update && yum -y install dotnet-sdk-3.1
 
 RUN npm install --global --verbose rhea
 
@@ -42,5 +38,4 @@ WORKDIR /src
 
 RUN make install
 
-# Missing: dotnet ruby
-CMD ["equipage", "test", "pooled-jms", "qpid-jms", "qpid-proton-cpp", "qpid-proton-python", "rhea", "vertx-proton"]
+CMD ["equipage", "test"]

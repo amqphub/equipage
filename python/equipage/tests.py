@@ -177,6 +177,7 @@ def test_qpid_proton_cpp_servers(session):
         connection_url = "amqp://localhost:{0}".format(random_port())
 
         with start_process("build/servers/receive {0} q1 1", connection_url):
+            sleep(1)
             call("build/send {0} q1 abc", connection_url)
 
 def test_qpid_proton_cpp_auto_create(session):
@@ -266,6 +267,7 @@ def test_qpid_proton_python_servers(session):
         connection_url = "amqp://localhost:{0}".format(random_port())
 
         with start_process("{0} {1} q1 1", python_prog("servers/receive.py"), connection_url):
+            sleep(1)
             call("{0} {1} q1 abc", python_prog("send.py"), connection_url)
 
 def test_qpid_proton_python_auto_create(session):
@@ -380,6 +382,7 @@ def test_rhea_servers(session):
         connection_url = "amqp://localhost:{0}".format(random_port())
 
         with start_process("node servers/receive.js {0} q1 1", connection_url):
+            sleep(1)
             call("node send.js {0} q1 abc", connection_url)
 
 def test_rhea_acknowledgment(session):
