@@ -19,8 +19,6 @@
 
 FROM registry.fedoraproject.org/fedora
 
-RUN dnf -qy update && dnf -q clean all
-
 RUN dnf -qy install curl dotnet gcc-c++ java-11-openjdk-devel make maven nodejs python npm ruby cyrus-sasl-plain cyrus-sasl-md5
 
 RUN dnf -y install python3-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton

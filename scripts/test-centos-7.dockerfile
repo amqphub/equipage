@@ -27,7 +27,7 @@ RUN yum -q -y install gcc-c++ java-1.8.0-openjdk-devel make maven nodejs npm rub
 
 RUN rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
 
-RUN yum -y install python2-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton dotnet-sdk-5.0
+RUN yum -y install python3-qpid-proton qpid-proton-c-devel qpid-proton-cpp-devel rubygem-qpid_proton dotnet-sdk-5.0
 
 RUN npm install -g rhea
 
@@ -36,6 +36,6 @@ COPY . /src
 ENV NODE_PATH=/usr/lib/node_modules
 WORKDIR /src
 
-RUN make install
+RUN make install PYTHON_EXECUTABLE=/usr/bin/python3
 
 CMD ["equipage", "test"]
