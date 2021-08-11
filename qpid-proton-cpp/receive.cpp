@@ -52,11 +52,11 @@ struct receive_handler : public proton::messaging_handler {
 
     void on_receiver_open(proton::receiver& rcv) override {
         std::cout << "RECEIVE: Opened receiver for source address '"
-                  << rcv.source().address() << "'\n";
+                  << rcv.source().address() << "'" << std::endl;
     }
 
     void on_message(proton::delivery& dlv, proton::message& msg) override {
-        std::cout << "RECEIVE: Received message '" << msg.body() << "'\n";
+        std::cout << "RECEIVE: Received message '" << msg.body() << "'" << std::endl;
 
         received_++;
 
