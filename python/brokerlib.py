@@ -17,12 +17,6 @@
 # under the License.
 #
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import with_statement
-
 import collections as _collections
 import os as _os
 import proton as _proton
@@ -35,32 +29,62 @@ import sys as _sys
 import time as _time
 import tempfile as _tempfile
 
-class Broker(object):
-    def __init__(self, host, port, id=None, user=None, password=None, ready_file=None):
+class Broker:
+    def __init__(self, host, port, id=None, ready_file=None,
+                 user=None, password=None,
+                 cert=None, key=None, trust=None,
+                 quiet=False, verbose=False, debug_enabled=False,
+                 init_only=False):
         self.host = host
         self.port = port
         self.id = id
+        self.ready_file = ready_file
         self.user = user
         self.password = password
-        self.ready_file = ready_file
+        self.cert = cert
+        self.key = key
+        self.trust = trust
+        self.quiet = quiet
+        self.verbose = verbose
+        self.debug_enabled = debug_enabled
+        self.init_only = init_only
 
         if self.id is None:
-            self.id = "broker-{0}".format(_uuid.uuid4())
+            self.id = "broker-{0}".format(_uuid.uuid4().hex[:8])
 
         self.container = _reactor.Container(_Handler(self))
         self.container.container_id = self.id # XXX Obnoxious
 
+        if self.debug_enabled:
+            self.verbose = True
+
         self._config_dir = None
 
     def init(self):
+        self.info("Initializing {0}", self)
+
         if self.user is not None:
             if self.password is None:
                 self.fail("A password is required for user authentication")
 
             self._init_sasl_config()
 
+        if self.cert is not None:
+            if self.key is None:
+                self.fail("Both the cert and key files must be provided")
+
+            if not _os.path.isfile(self.cert):
+                self.fail("Certificate file {0} does not exist", self.cert)
+
+            if not _os.path.isfile(self.key):
+                self.fail("Private key file {0} does not exist", self.key)
+
+            if self.trust and not _os.path.isfile(self.trust):
+                self.fail("Trust file {0} does not exist", self.trust)
+
     def _init_sasl_config(self):
         self._config_dir = _tempfile.mkdtemp(prefix="brokerlib-", suffix="")
+
         config_file = _os.path.join(self._config_dir, "proton-server.conf")
         sasldb_file = _os.path.join(self._config_dir, "users.sasldb")
 
@@ -91,20 +115,36 @@ class Broker(object):
         pass
 
     def error(self, message, *args):
-        _sys.stderr.write("{0}\n".format(message.format(*args)))
-        _sys.stderr.flush()
+        self.log(message, *args)
 
     def fail(self, message, *args):
         self.error(message, *args)
         _sys.exit(1)
 
+    def log(self, message, *args):
+        message = message[0].upper() + message[1:]
+        message = message.format(*args)
+        message = "{0}: {1}".format(self.id, message)
+
+        _sys.stderr.write("{0}\n".format(message))
+        _sys.stderr.flush()
+
     def run(self):
-        self.container.run()
+        try:
+            if self.init_only:
+                return
 
-        if _os.path.exists(self._config_dir):
-            _shutil.rmtree(self.dir, ignore_errors=True)
+            self.container.run()
+        except OSError as e:
+            if self.debug_enabled:
+                raise
 
-class _Queue(object):
+            self.fail(e)
+        finally:
+            if self._config_dir and _os.path.exists(self._config_dir):
+                _shutil.rmtree(self.dir, ignore_errors=True)
+
+class _Queue:
     def __init__(self, broker, address):
         self.broker = broker
         self.address = address
@@ -175,6 +215,18 @@ class _Handler(_handlers.MessagingHandler):
 
     def on_start(self, event):
         interface = "{0}:{1}".format(self.broker.host, self.broker.port)
+
+        if self.broker.cert is not None:
+            interface = "amqps://{0}".format(interface)
+
+            ssl_domain = event.container.ssl.server
+            ssl_domain.set_credentials(self.broker.cert, self.broker.key, None)
+
+            if self.broker.trust:
+                ssl_domain.set_peer_authentication(_proton.SSLDomain.VERIFY_PEER, self.broker.trust)
+                ssl_domain.set_trusted_ca_db(self.broker.trust)
+            else:
+                ssl_domain.set_peer_authentication(_proton.SSLDomain.ANONYMOUS_PEER)
 
         self.acceptor = event.container.listen(interface)
 
@@ -278,19 +330,19 @@ class _Handler(_handlers.MessagingHandler):
         queue.forward_messages()
 
     def on_settled(self, event):
-        template = "Container '{0}' {1} {2} for {3}"
-        container = event.connection.remote_container
+        template = "Client '{0}' {1} {2} for {3}"
+        client = event.connection.remote_container
         source = _terminus_repr(event.link.source)
         delivery = event.delivery
 
         if delivery.remote_state == delivery.ACCEPTED:
-            self.broker.info(template, container, "accepted", _delivery_repr(delivery), source)
+            self.broker.info(template, client, "accepted", _delivery_repr(delivery), source)
         elif delivery.remote_state == delivery.REJECTED:
-            self.broker.warn(template, container, "rejected", _delivery_repr(delivery), source)
+            self.broker.warn(template, client, "rejected", _delivery_repr(delivery), source)
         elif delivery.remote_state == delivery.RELEASED:
-            self.broker.notice(template, container, "released", _delivery_repr(delivery), source)
+            self.broker.notice(template, client, "released", _delivery_repr(delivery), source)
         elif delivery.remote_state == delivery.MODIFIED:
-            self.broker.notice(template, container, "modified", _delivery_repr(delivery), source)
+            self.broker.notice(template, client, "modified", _delivery_repr(delivery), source)
 
     def on_message(self, event):
         message = event.message
@@ -308,7 +360,7 @@ class _Handler(_handlers.MessagingHandler):
         self.broker.debug("Unhandled event: {0} {1}", name, event)
 
 def _container_repr(connection):
-    return "container '{0}'".format(connection.remote_container)
+    return "client '{0}'".format(connection.remote_container)
 
 def _terminus_repr(terminus):
     return "terminus '{0}'".format(terminus.address)
@@ -335,13 +387,13 @@ def wait_for_broker(ready_file, timeout=30):
         else:
             print("Still waiting for the broker")
 
-if __name__ == "__main__":
+def main():
     import argparse
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="An AMQP message broker for testing")
 
-    parser.add_argument("--host", metavar="HOST", default="127.0.0.1",
-                        help="Listen for connections on HOST (default 127.0.0.1)")
+    parser.add_argument("--host", metavar="HOST", default="localhost",
+                        help="Listen for connections on HOST (default localhost)")
     parser.add_argument("--port", metavar="PORT", default=5672, type=int,
                         help="Listen for connections on PORT (default 5672)")
     parser.add_argument("--id", metavar="ID",
@@ -349,25 +401,61 @@ if __name__ == "__main__":
     parser.add_argument("--ready-file", metavar="FILE",
                         help="The file used to indicate the server is ready")
     # parser.add_argument("--user", metavar="USER",
-    #                   help="Require USER")
+    #                     help="Require USER")
     # parser.add_argument("--password", metavar="SECRET",
-    #                   help="Require SECRET")
+    #                     help="Require SECRET")
+    # parser.add_argument("--allowed-mechs", metavar="MECHS", default="anonymous,plain",
+    #                     help="Restrict allowed SASL mechanisms to MECHS (default \"anonymous,plain\")")
+    parser.add_argument("--cert", metavar="FILE",
+                        help="The TLS certificate file.  "
+                        "If set, TLS is enabled and you must also set --key.")
+    parser.add_argument("--key", metavar="FILE",
+                        help="The TLS private key file")
+    parser.add_argument("--trust", metavar="FILE",
+                        help="The file containing trusted client certificates.  "
+                        "If set, the server verifies client certificates.")
+    parser.add_argument("--quiet", action="store_true",
+                        help="Print no logging to the console")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Print detailed logging to the console")
+    parser.add_argument("--debug", action="store_true",
+                        help="Print debugging output")
+    parser.add_argument("--init-only", action="store_true",
+                        help=argparse.SUPPRESS)
 
     args = parser.parse_args()
 
-    def _print(message, *args):
-        message = message.format(*args)
-        _sys.stderr.write("{0}\n".format(message))
-        _sys.stderr.flush()
-
     class _Broker(Broker):
-        def info(self, message, *args): _print(message, *args)
-        def notice(self, message, *args): _print(message, *args)
-        def warn(self, message, *args): _print(message, *args)
+        def debug(self, message, *args):
+            if self.debug_enabled:
+                self.log(message, *args)
 
-    broker = _Broker(args.host, args.port, id=args.id, ready_file=args.ready_file)
+        def info(self, message, *args):
+            if self.verbose:
+                self.log(message, *args)
+
+        def notice(self, message, *args):
+            if not self.quiet:
+                self.log(message, *args)
+
+        def warn(self, message, *args):
+            message = "Warning! {0}".format(message)
+            self.log(message, *args)
+
+        def error(self, message, *args):
+            message = "Error! {0}".format(message)
+            self.log(message, *args)
+
+    broker = _Broker(args.host, args.port, id=args.id, ready_file=args.ready_file,
+                     # user=args.user, password=args.password, allowed_mechs=args.allowed_mechs,
+                     cert=args.cert, key=args.key, trust=args.trust,
+                     quiet=args.quiet, verbose=args.verbose, debug_enabled=args.debug,
+                     init_only=args.init_only)
 
     try:
         broker.run()
     except KeyboardInterrupt:
         pass
+
+if __name__ == "__main__":
+    main()
