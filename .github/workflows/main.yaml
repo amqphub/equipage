@@ -17,4 +17,5 @@ jobs:
     - run: make install PYTHON_EXECUTABLE=/usr/bin/python3
     # Missing: qpid-proton-ruby
     - run: equipage test pooled-jms qpid-jms qpid-proton-cpp qpid-proton-python rhea vertx-proton
-      env: NODE_PATH=/usr/local/lib/node_modules
+      env:
+        NODE_PATH: /usr/local/lib/node_modules
