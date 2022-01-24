@@ -237,13 +237,18 @@ def test_qpid_proton_cpp_subscriptions(session):
 
 def test_qpid_proton_cpp_link_failure_recovery(session):
     with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
-        with TestServer() as server:
-            # Test where receiver closes link, sender must handle error
-            with start_process("build/reconnect/direct-rcv-close-link"):
-                call("build/reconnect/simple-send-handle-link-err")
-            # Test where sender closes link, receiver must handle error
-            with start_process("build/reconnect/direct-rcv-handle-link-err"):
-                call("build/reconnect/simple-send-close-link")
+
+        # These tests do not use a broker, they have senders and listeners that
+        # connect directly to each other.
+
+        # Test where receiver closes link, sender must handle error
+        port = get_random_port()
+        with start_process("build/reconnect/receiver-close-link 127.0.0.1:{0} lf1", port):
+            call("build/reconnect/sender-handle-link-err 127.0.0.1:{0} lf1", port)
+        # Test where sender closes link, receiver must handle error
+        port = get_random_port()
+        with start_process("build/reconnect/receiver-handle-link-err 127.0.0.1:{0} lf2", port):
+            call("build/reconnect/sender-close-link 127.0.0.1:{0} lf2", port)
 
 def test_qpid_proton_python_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
