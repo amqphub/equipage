@@ -235,6 +235,21 @@ def test_qpid_proton_cpp_subscriptions(session):
             call("build/send {0} t1 abc", server.connection_url)
             call("build/subscriptions/durable-shared-subscribe {0} t1 1", server.connection_url)
 
+def test_qpid_proton_cpp_link_failure_recovery(session):
+    with working_dir(join(session.examples_dir, "qpid-proton-cpp")):
+
+        # These tests do not use a broker, they have senders and listeners that
+        # connect directly to each other.
+
+        # Test where receiver closes link, sender must handle error
+        port = get_random_port()
+        with start_process("build/reconnect/receiver-close-link 127.0.0.1:{0} lf1", port):
+            call("build/reconnect/sender-handle-link-err 127.0.0.1:{0} lf1", port)
+        # Test where sender closes link, receiver must handle error
+        port = get_random_port()
+        with start_process("build/reconnect/receiver-handle-link-err 127.0.0.1:{0} lf2", port):
+            call("build/reconnect/sender-close-link 127.0.0.1:{0} lf2", port)
+
 def test_qpid_proton_python_connect(session):
     with working_dir(join(session.examples_dir, "qpid-proton-python")):
         check_connect_usage(python_prog("connect.py"))
