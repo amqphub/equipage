@@ -27,7 +27,7 @@ def open_test_session(session):
     enable_logging(level="error")
 
     session.examples_dir = session.module.command.args.examples_dir
-    session.test_timeout = 30
+    session.test_timeout = 120
 
 def test_amqpnetlite_connect(session):
     with working_dir(join(session.examples_dir, "amqpnetlite")):
