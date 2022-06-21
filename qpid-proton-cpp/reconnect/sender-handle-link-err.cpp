@@ -69,7 +69,7 @@ struct send_handler : public proton::messaging_handler {
     void on_sender_close(proton::sender &sndr) override {
         std::cout << "SND: on_sender_close()";
         if (confirmed_ != total_) {
-            sndr.connection().open_sender(conn_url_ + "/" + address_);
+            sndr.connection().open_sender(address_);
             sent_ = confirmed_;   // Re-send unconfirmed messages after a reconnect
             std::cout << " - reopening sender, sent_ reset to " << sent_;
         }
