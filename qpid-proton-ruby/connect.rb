@@ -29,6 +29,13 @@ class ConnectHandler < Qpid::Proton::MessagingHandler
 
   def on_container_start(container)
     container.connect(@conn_url)
+
+    # To connect with a user and password:
+
+    # container.connect(@conn_url, { :user => "alice", :password => "secret" })
+
+    # Use `:sasl_allow_insecure_mechs => true` to connect with a user
+    # and password over a non-TLS connection.
   end
 
   def on_connection_open(conn)
