@@ -35,7 +35,7 @@ BIN_TARGETS := ${BIN_SOURCES:%.in=build/%}
 PYTHON_SOURCES := $(shell find python -type f -name \*.py)
 PYTHON_TARGETS := ${PYTHON_SOURCES:%=build/equipage/%}
 
-EXAMPLE_DIRS := amqpnetlite pooled-jms qpid-jms qpid-proton-cpp qpid-proton-python qpid-proton-ruby rhea vertx-proton
+EXAMPLE_DIRS := amqpnetlite pooled-jms qpid-jms qpid-proton-cpp qpid-proton-python rhea vertx-proton
 EXAMPLE_SOURCES := $(shell find ${EXAMPLE_DIRS})
 EXAMPLE_TARGETS := ${EXAMPLE_SOURCES:%=build/equipage/%}
 
